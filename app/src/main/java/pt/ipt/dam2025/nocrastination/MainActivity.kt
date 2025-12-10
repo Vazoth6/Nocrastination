@@ -1,6 +1,36 @@
 package pt.ipt.dam2025.nocrastination
 
 import android.os.Bundle
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import pt.ipleiria.nocrastination.databinding.ActivityMainBinding
+
+class MainActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityMainBinding
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        // Mostrar título com nome do utilizador se disponível
+        val userName = intent.getStringExtra("USER_NAME") ?: "Utilizador"
+        supportActionBar?.title = "Bem-vindo, $userName"
+
+        // Mostrar email recebido do login (apenas para debug)
+        val userEmail = intent.getStringExtra("USER_EMAIL")
+        if (userEmail != null) {
+            Toast.makeText(this, "Login efetuado com: $userEmail", Toast.LENGTH_SHORT).show()
+        }
+
+        // TODO: Aqui irás implementar a interface principal da app
+        // com as funcionalidades anti-procrastinação
+    }
+}
+
+
+/*import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -44,4 +74,4 @@ fun GreetingPreview() {
     NocrastinationTheme {
         Greeting("Android")
     }
-}
+}*/
