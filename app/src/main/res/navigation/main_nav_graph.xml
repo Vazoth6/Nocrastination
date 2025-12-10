@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_nav_graph"
+    app:startDestination="@id/tasksFragment">
+
+    <fragment
+        android:id="@+id/tasksFragment"
+        android:name="pt.ipt.dam2025.nocrastination.ui.tasks.TasksFragment"
+        android:label="Tarefas"
+        tools:layout="@layout/fragment_tasks" />
+
+    <fragment
+        android:id="@+id/pomodoroFragment"
+        android:name="pt.ipt.dam2025.nocrastination.ui.pomodoro.PomodoroFragment"
+        android:label="Pomodoro"
+        tools:layout="@layout/fragment_pomodoro" />
+
+    <fragment
+        android:id="@+id/statisticsFragment"
+        android:name="pt.ipt.dam2025.nocrastination.ui.statistics.StatisticsFragment"
+        android:label="Estatísticas"
+        tools:layout="@layout/fragment_statistics" />
+
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="pt.ipt.dam2025.nocrastination.ui.profile.ProfileFragment"
+        android:label="Perfil"
+        tools:layout="@layout/fragment_profile" />
+
+</navigation>

@@ -1,53 +1,59 @@
 package pt.ipt.dam2025.nocrastination
 
 import android.os.Bundle
-import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-
-class MainActivity : AppCompatActivity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        // Receber email do login
-        val email = intent.getStringExtra("USER_EMAIL")
-
-        // Mostrar email
-        val welcomeTextView = findViewById<TextView>(R.id.welcomeTextView)
-        welcomeTextView.text = "Bem-vindo, $email!"
-
-        Toast.makeText(this, "Entrou na Main Activity", Toast.LENGTH_SHORT).show()
-    }
-}
-
-
-/*import android.os.Bundle
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.NavController
+import androidx.navigation.findNavController
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.navigation.ui.setupWithNavController
 import pt.ipt.dam2025.nocrastination.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Mostrar título com nome do utilizador se disponível
-        val userName = intent.getStringExtra("USER_NAME") ?: "Utilizador"
-        supportActionBar?.title = "Bem-vindo, $userName"
+        setupNavigation()
+    }
 
-        // Mostrar email recebido do login (apenas para debug)
-        val userEmail = intent.getStringExtra("USER_EMAIL")
-        if (userEmail != null) {
-            Toast.makeText(this, "Login efetuado com: $userEmail", Toast.LENGTH_SHORT).show()
+    private fun setupNavigation() {
+        // Configurar Navigation Component
+        navController = findNavController(R.id.nav_host_fragment)
+
+        // Configurar Bottom Navigation
+        binding.bottomNavigation.setupWithNavController(navController)
+
+        // Configurar AppBar com os destinos de top-level
+        val appBarConfiguration = AppBarConfiguration(
+            setOf(
+                R.id.tasksFragment,
+                R.id.pomodoroFragment,
+                R.id.statisticsFragment,
+                R.id.profileFragment
+            )
+        ).also {
+
+            setupActionBarWithNavController(navController, it)
         }
 
-        // TODO: Aqui irás implementar a interface principal da app
-        // com as funcionalidades anti-procrastinação
+        // Opcional: Mudar título da ActionBar baseado no fragment
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            when (destination.id) {
+                R.id.tasksFragment -> supportActionBar?.title = "Tarefas"
+                R.id.pomodoroFragment -> supportActionBar?.title = "Pomodoro"
+                R.id.statisticsFragment -> supportActionBar?.title = "Estatísticas"
+                R.id.profileFragment -> supportActionBar?.title = "Perfil"
+            }
+        }
     }
-}*/
+
+    override fun onSupportNavigateUp(): Boolean {
+        return navController.navigateUp() || super.onSupportNavigateUp()
+    }
+}
