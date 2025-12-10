@@ -2,12 +2,54 @@ package pt.ipt.dam2025.nocrastination
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.textfield.TextInputEditText
-import pt.ipt.dam2025.nocrastination.databinding.ActivityLoginBinding
 
 class LoginActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_login)
+
+        // Inicializar as views
+        val emailEditText = findViewById<EditText>(R.id.emailEditText)
+        val passwordEditText = findViewById<EditText>(R.id.passwordEditText)
+        val loginButton = findViewById<Button>(R.id.loginButton)
+        val registerLinkTextView = findViewById<TextView>(R.id.registerLinkTextView)
+
+        // Configurar o botão de login
+        loginButton.setOnClickListener {
+            val email = emailEditText.text.toString()
+            val password = passwordEditText.text.toString()
+
+            // Validação simples
+            if (email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "Por favor, preencha todos os campos", Toast.LENGTH_SHORT).show()
+            } else {
+                // Login bem-sucedido (simulação)
+                Toast.makeText(this, "Login bem-sucedido!", Toast.LENGTH_SHORT).show()
+
+                // Navegar para MainActivity
+                val intent = Intent(this, MainActivity::class.java)
+                intent.putExtra("USER_EMAIL", email)
+                startActivity(intent)
+                finish() // Fecha LoginActivity
+            }
+        }
+
+        // Configurar o link para registo
+        registerLinkTextView.setOnClickListener {
+            val intent = Intent(this, RegisterActivity::class.java)
+            startActivity(intent)
+        }
+    }
+}
+
+
+/*class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
 
@@ -24,17 +66,17 @@ class LoginActivity : AppCompatActivity() {
 
     private fun setupClickListeners() {
         // Botão de Login
-        binding.loginButton.setOnClickListener {
+        binding.loginButton?.setOnClickListener {
             attemptLogin()
         }
 
         // Link para Registo
-        binding.registerLinkTextView.setOnClickListener {
+        binding.registerLinkTextView?.setOnClickListener {
             navigateToRegister()
         }
 
         // Permitir login ao pressionar Enter no campo de password
-        binding.passwordEditText.setOnEditorActionListener { _, actionId, _ ->
+        binding.passwordEditText?.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE) {
                 attemptLogin()
                 true
@@ -45,8 +87,8 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun attemptLogin() {
-        val email = binding.emailEditText.text.toString().trim()
-        val password = binding.passwordEditText.text.toString()
+        val email = binding.emailEditText?.text.toString().trim()
+        val password = binding.passwordEditText?.text.toString()
 
         if (validateLoginFields(email, password)) {
             // Simulação de login (substituir por chamada à API real)
@@ -64,24 +106,24 @@ class LoginActivity : AppCompatActivity() {
 
         // Validar email
         if (email.isEmpty()) {
-            binding.emailInputLayout.error = getString(R.string.field_required)
+            binding.emailInputLayout?.error = getString(R.string.field_required)
             isValid = false
         } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            binding.emailInputLayout.error = getString(R.string.invalid_email)
+            binding.emailInputLayout?.error = getString(R.string.invalid_email)
             isValid = false
         } else {
-            binding.emailInputLayout.error = null
+            binding.emailInputLayout?.error = null
         }
 
         // Validar password
         if (password.isEmpty()) {
-            binding.passwordInputLayout.error = getString(R.string.field_required)
+            binding.passwordInputLayout?.error = getString(R.string.field_required)
             isValid = false
         } else if (password.length < 6) {
-            binding.passwordInputLayout.error = getString(R.string.password_length)
+            binding.passwordInputLayout?.error = getString(R.string.password_length)
             isValid = false
         } else {
-            binding.passwordInputLayout.error = null
+            binding.passwordInputLayout?.error = null
         }
 
         return isValid
@@ -104,7 +146,7 @@ class LoginActivity : AppCompatActivity() {
         val intent = Intent(this, MainActivity::class.java)
 
         // Passar dados do utilizador se necessário
-        val email = binding.emailEditText.text.toString().trim()
+        val email = binding.emailEditText?.text.toString().trim()
         intent.putExtra("USER_EMAIL", email)
 
         // Limpar a stack de activities para não voltar ao login com back button
@@ -123,4 +165,4 @@ class LoginActivity : AppCompatActivity() {
         // Limpar campos ao voltar do registo (opcional)
         // binding.passwordEditText.text?.clear()
     }
-}
+}*/

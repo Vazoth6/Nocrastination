@@ -1,112 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="24dp"
-    android:background="@color/"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:gravity="center"
+    android:background="@color/white"
     tools:context=".LoginActivity">
 
-    <ImageView
-        android:id="@+id/logoImageView"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:src="@drawable/ic_app_logo" />
-
     <TextView
-        android:id="@+id/titleTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/login_title"
-        android:textSize="24sp"
+        android:text="Nocrastination"
+        android:textSize="28sp"
         android:textStyle="bold"
         android:textColor="@color/black"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@+id/logoImageView"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        android:layout_marginBottom="40dp" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/emailInputLayout"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        app:layout_constraintTop_toBottomOf="@+id/titleTextView"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintWidth_percent="0.85"
-        android:layout_marginTop="40dp">
+        android:layout_marginBottom="16dp"
+        app:boxBackgroundMode="outline">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/emailEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/email_hint"
-            android:inputType="textEmailAddress"
-            android:maxLines="1" />
+            android:hint="Email"
+            android:inputType="textEmailAddress" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/passwordInputLayout"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        app:layout_constraintTop_toBottomOf="@+id/emailInputLayout"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintWidth_percent="0.85"
-        android:layout_marginTop="16dp">
+        android:layout_marginBottom="32dp"
+        app:boxBackgroundMode="outline">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/passwordEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/password_hint"
-            android:inputType="textPassword"
-            android:maxLines="1" />
+            android:hint="Password"
+            android:inputType="textPassword" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <com.google.android.material.button.MaterialButton
+    <Button
         android:id="@+id/loginButton"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/login_button"
-        android:textSize="16sp"
-        android:textAllCaps="false"
-        app:cornerRadius="8dp"
-        android:layout_marginTop="32dp"
-        app:layout_constraintTop_toBottomOf="@+id/passwordInputLayout"
-        app:layout_constraintStart_toStartOf="@+id/passwordInputLayout"
-        app:layout_constraintEnd_toEndOf="@+id/passwordInputLayout" />
-
-    <TextView
-        android:id="@+id/registerPromptTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/register_prompt"
-        android:textSize="14sp"
-        android:textColor="@color/black"
-        android:layout_marginTop="24dp"
-        app:layout_constraintTop_toBottomOf="@+id/loginButton"
-        app:layout_constraintStart_toStartOf="@+id/loginButton"
-        app:layout_constraintEnd_toStartOf="@+id/registerLinkTextView" />
+        android:text="Entrar"
+        android:layout_marginBottom="20dp" />
 
     <TextView
         android:id="@+id/registerLinkTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/register_link"
-        android:textSize="14sp"
-        android:textStyle="bold"
+        android:text="Não tem conta? Registe-se aqui"
         android:textColor="@color/teal_200"
-        android:clickable="true"
-        android:focusable="true"
-        android:layout_marginStart="4dp"
-        app:layout_constraintTop_toTopOf="@+id/registerPromptTextView"
-        app:layout_constraintBottom_toBottomOf="@+id/registerPromptTextView"
-        app:layout_constraintStart_toEndOf="@+id/registerPromptTextView" />
+        android:clickable="true" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

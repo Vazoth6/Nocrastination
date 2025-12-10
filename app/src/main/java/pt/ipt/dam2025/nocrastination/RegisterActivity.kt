@@ -1,6 +1,51 @@
 package pt.ipt.dam2025.nocrastination
 
-import android.content.Intent
+import android.os.Bundle
+import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+
+class RegisterActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_register)
+
+        val nameEditText = findViewById<EditText>(R.id.nameEditText)
+        val emailEditText = findViewById<EditText>(R.id.emailEditText)
+        val passwordEditText = findViewById<EditText>(R.id.passwordEditText)
+        val confirmPasswordEditText = findViewById<EditText>(R.id.confirmPasswordEditText)
+        val registerButton = findViewById<Button>(R.id.registerButton)
+        val backToLoginTextView = findViewById<TextView>(R.id.backToLoginTextView)
+
+        registerButton.setOnClickListener {
+            val name = nameEditText.text.toString()
+            val email = emailEditText.text.toString()
+            val password = passwordEditText.text.toString()
+            val confirmPassword = confirmPasswordEditText.text.toString()
+
+            if (name.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty() && confirmPassword.isNotEmpty()) {
+                if (password == confirmPassword) {
+                    Toast.makeText(this, "Registo bem-sucedido!", Toast.LENGTH_SHORT).show()
+                    // Voltar para a LoginActivity
+                    finish()
+                } else {
+                    Toast.makeText(this, "As passwords não coincidem", Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                Toast.makeText(this, "Por favor, preencha todos os campos", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        backToLoginTextView.setOnClickListener {
+            finish()
+        }
+    }
+}
+
+
+/*import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -135,4 +180,4 @@ class RegisterActivity : AppCompatActivity() {
         finish() // Terminar a RegisterActivity
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
     }
-}
+}*/

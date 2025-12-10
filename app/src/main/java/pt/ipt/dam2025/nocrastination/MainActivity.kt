@@ -1,9 +1,32 @@
 package pt.ipt.dam2025.nocrastination
 
 import android.os.Bundle
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import pt.ipleiria.nocrastination.databinding.ActivityMainBinding
+
+class MainActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        // Receber email do login
+        val email = intent.getStringExtra("USER_EMAIL")
+
+        // Mostrar email
+        val welcomeTextView = findViewById<TextView>(R.id.welcomeTextView)
+        welcomeTextView.text = "Bem-vindo, $email!"
+
+        Toast.makeText(this, "Entrou na Main Activity", Toast.LENGTH_SHORT).show()
+    }
+}
+
+
+/*import android.os.Bundle
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import pt.ipt.dam2025.nocrastination.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 
@@ -26,52 +49,5 @@ class MainActivity : AppCompatActivity() {
 
         // TODO: Aqui irás implementar a interface principal da app
         // com as funcionalidades anti-procrastinação
-    }
-}
-
-
-/*import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import pt.ipt.dam2025.nocrastination.ui.theme.NocrastinationTheme
-
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            NocrastinationTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    NocrastinationTheme {
-        Greeting("Android")
     }
 }*/

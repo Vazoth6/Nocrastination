@@ -1,8 +1,9 @@
 [versions]
-agp = "8.6.1"
+agp = "8.9.1"
 androidxJunit = "1.1.5"
 coreKtxVersion = "1.12.0"
 espressoCoreVersion = "3.5.1"
+googleMaterial = "1.9.0"
 kotlin = "1.9.0"
 coreKtx = "1.17.0"
 junit = "4.13.2"
@@ -46,6 +47,7 @@ androidx-constraintlayout = { group = "androidx.constraintlayout", name = "const
 androidx-lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycleLivedataKtx" }
 androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
 material-v1110 = { module = "com.google.android.material:material", version.ref = "materialVersion" }
+material-v190 = { module = "com.google.android.material:material", version.ref = "googleMaterial" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

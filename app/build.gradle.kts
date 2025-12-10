@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace = "pt.ipt.dam2025.nocrastination"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "pt.ipt.dam2025.nocrastination"
-        minSdk = 26
-        targetSdk = 34
+        minSdk = 24
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
@@ -82,6 +82,9 @@ dependencies {
     // ViewBinding (já incluído nas versões recentes do Android Studio)
     // lifecycle-viewmodel-ktx (para futura integração com ViewModel)
     implementation(libs.androidx.lifecycle.viewmodel.ktx.v270)
+
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material.v190)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit.v115)
