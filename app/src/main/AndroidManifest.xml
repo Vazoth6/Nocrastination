@@ -12,9 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar"
         tools:targetApi="31">
-        <activity
-            android:name=".fragment_tasks"
-            android:exported="false" />
+
         <!-- Login Activity (ponto de entrada PRINCIPAL) -->
         <activity
             android:name=".LoginActivity"
@@ -22,18 +20,22 @@
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity> <!-- Register Activity -->
+        </activity>
+
+        <!-- Register Activity -->
         <activity
             android:name=".RegisterActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustResize" /> <!-- Main Activity (após login) - APENAS UMA DECLARAÇÃO! -->
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- Main Activity (após login) -->
         <activity
             android:name=".MainActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+
     </application>
 
 </manifest>

@@ -14,25 +14,27 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:text="Sobre a Aplicação"
             android:textSize="24sp"
             android:textStyle="bold"
             android:layout_marginBottom="16dp" />
 
         <!-- Informação Académica -->
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
             android:text="Informação Académica"
             android:textSize="18sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="8dp" />
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/textCourseName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Curso: "
+            android:text="Curso: Engenharia Informática"
             android:textSize="16sp"
             android:layout_marginBottom="4dp" />
 
@@ -40,7 +42,7 @@
             android:id="@+id/textSubject"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Disciplina: "
+            android:text="Disciplina: Desenvolvimento de Aplicações Móveis (DAM)"
             android:textSize="16sp"
             android:layout_marginBottom="4dp" />
 
@@ -48,7 +50,7 @@
             android:id="@+id/textAcademicYear"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Ano Letivo: "
+            android:text="Ano Letivo: 25/28"
             android:textSize="16sp"
             android:layout_marginBottom="16dp" />
 
@@ -65,7 +67,7 @@
             android:id="@+id/textAuthors"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Nomes dos autores..."
+            android:text="Rodrigo Calisto"
             android:textSize="16sp"
             android:layout_marginBottom="16dp" />
 
@@ -91,7 +93,7 @@
             android:id="@+id/buttonClose"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Fechar"
+            android:text="Voltar"
             android:layout_marginTop="8dp" />
 
     </LinearLayout>
