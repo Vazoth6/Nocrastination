@@ -4,165 +4,128 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import pt.ipt.dam2025.nocrastination.data.repositories.AuthRepository
+import pt.ipt.dam2025.nocrastination.presentation.viewmodels.AuthViewModel
+import pt.ipt.dam2025.nocrastination.presentations.viewmodels.AuthViewModelFactory
+import pt.ipt.dam2025.nocrastination.utils.Resource
 
 class LoginActivity : AppCompatActivity() {
+
+    private lateinit var authViewModel: AuthViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        // Inicializar as views
+        val authRepository = AuthRepository(applicationContext)
+        val factory = AuthViewModelFactory(authRepository)
+        authViewModel = ViewModelProvider(this, factory)[AuthViewModel::class.java]
+
+
+        // Initialize views
         val emailEditText = findViewById<EditText>(R.id.emailEditText)
         val passwordEditText = findViewById<EditText>(R.id.passwordEditText)
         val loginButton = findViewById<Button>(R.id.loginButton)
         val registerLinkTextView = findViewById<TextView>(R.id.registerLinkTextView)
+        val progressBar = findViewById<ProgressBar>(R.id.progressBar)
 
-        // Configurar o botão de login
+        // Setup login state observer using LiveData.observe()
+        authViewModel.loginState.observe(this, Observer { state ->
+            when (state) {
+                is Resource.Loading -> {
+                    // Show loading state
+                    loginButton.isEnabled = false
+                    progressBar.isVisible = true
+                }
+
+                is Resource.Success -> {
+                    // Hide loading state
+                    loginButton.isEnabled = true
+                    progressBar.isVisible = false
+
+                    // Login successful
+                    Toast.makeText(
+                        this@LoginActivity,
+                        "Login bem-sucedido!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    // Navigate to MainActivity
+                    val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                    intent.putExtra("USER_EMAIL", emailEditText.text.toString())
+                    startActivity(intent)
+                    finish() // Close LoginActivity
+                }
+
+                is Resource.Error -> {
+                    // Hide loading state
+                    loginButton.isEnabled = true
+                    progressBar.isVisible = false
+
+                    // Show error message
+                    val errorMessage = state.message ?: "Erro desconhecido"
+                    Toast.makeText(
+                        this@LoginActivity,
+                        "Erro: $errorMessage",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+                else -> {
+                    // For any other state (initial state)
+                    loginButton.isEnabled = true
+                    progressBar.isVisible = false
+                }
+            }
+        })
+
+        // Configure login button
         loginButton.setOnClickListener {
-            val email = emailEditText.text.toString()
+            val email = emailEditText.text.toString().trim()
             val password = passwordEditText.text.toString()
 
-            // Validação simples
-            if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Por favor, preencha todos os campos", Toast.LENGTH_SHORT).show()
-            } else {
-                // Login bem-sucedido (simulação)
-                Toast.makeText(this, "Login bem-sucedido!", Toast.LENGTH_SHORT).show()
+            // Validation
+            when {
+                email.isEmpty() -> {
+                    emailEditText.error = "Por favor, insira o email"
+                    return@setOnClickListener
+                }
+                password.isEmpty() -> {
+                    passwordEditText.error = "Por favor, insira a senha"
+                    return@setOnClickListener
+                }
+                !isValidEmail(email) -> {
+                    emailEditText.error = "Por favor, insira um email válido"
+                    return@setOnClickListener
+                }
+                else -> {
+                    // Clear errors
+                    emailEditText.error = null
+                    passwordEditText.error = null
 
-                // Navegar para MainActivity
-                val intent = Intent(this, MainActivity::class.java)
-                intent.putExtra("USER_EMAIL", email)
-                startActivity(intent)
-                finish() // Fecha LoginActivity
+                    // Call ViewModel to handle login
+                    authViewModel.login(email, password)
+                }
             }
         }
 
-        // Configurar o link para registo
+        // Configure registration link
         registerLinkTextView.setOnClickListener {
             val intent = Intent(this, RegisterActivity::class.java)
             startActivity(intent)
         }
     }
+
+    private fun isValidEmail(email: String): Boolean {
+        val emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+"
+        return email.matches(emailPattern.toRegex())
+    }
 }
-
-
-/*class LoginActivity : AppCompatActivity() {
-
-    private lateinit var binding: ActivityLoginBinding
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityLoginBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        // Remover a action bar (opcional, para um visual mais limpo)
-        supportActionBar?.hide()
-
-        setupClickListeners()
-    }
-
-    private fun setupClickListeners() {
-        // Botão de Login
-        binding.loginButton?.setOnClickListener {
-            attemptLogin()
-        }
-
-        // Link para Registo
-        binding.registerLinkTextView?.setOnClickListener {
-            navigateToRegister()
-        }
-
-        // Permitir login ao pressionar Enter no campo de password
-        binding.passwordEditText?.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE) {
-                attemptLogin()
-                true
-            } else {
-                false
-            }
-        }
-    }
-
-    private fun attemptLogin() {
-        val email = binding.emailEditText?.text.toString().trim()
-        val password = binding.passwordEditText?.text.toString()
-
-        if (validateLoginFields(email, password)) {
-            // Simulação de login (substituir por chamada à API real)
-            if (isValidCredentials(email, password)) {
-                // Login bem-sucedido - navegar para MainActivity
-                navigateToMain()
-            } else {
-                showError(getString(R.string.login_error))
-            }
-        }
-    }
-
-    private fun validateLoginFields(email: String, password: String): Boolean {
-        var isValid = true
-
-        // Validar email
-        if (email.isEmpty()) {
-            binding.emailInputLayout?.error = getString(R.string.field_required)
-            isValid = false
-        } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            binding.emailInputLayout?.error = getString(R.string.invalid_email)
-            isValid = false
-        } else {
-            binding.emailInputLayout?.error = null
-        }
-
-        // Validar password
-        if (password.isEmpty()) {
-            binding.passwordInputLayout?.error = getString(R.string.field_required)
-            isValid = false
-        } else if (password.length < 6) {
-            binding.passwordInputLayout?.error = getString(R.string.password_length)
-            isValid = false
-        } else {
-            binding.passwordInputLayout?.error = null
-        }
-
-        return isValid
-    }
-
-    private fun isValidCredentials(email: String, password: String): Boolean {
-        // TODO: Substituir por autenticação real com API
-        // Por enquanto, aceita qualquer email/password não vazios para testes
-        return email.isNotEmpty() && password.isNotEmpty() && password.length >= 6
-    }
-
-    private fun navigateToRegister() {
-        val intent = Intent(this, RegisterActivity::class.java)
-        startActivity(intent)
-        // Adicionar animação de transição (opcional)
-        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
-    }
-
-    private fun navigateToMain() {
-        val intent = Intent(this, MainActivity::class.java)
-
-        // Passar dados do utilizador se necessário
-        val email = binding.emailEditText?.text.toString().trim()
-        intent.putExtra("USER_EMAIL", email)
-
-        // Limpar a stack de activities para não voltar ao login com back button
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-
-        startActivity(intent)
-        finish() // Terminar a LoginActivity para não voltar com back button
-    }
-
-    private fun showError(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        // Limpar campos ao voltar do registo (opcional)
-        // binding.passwordEditText.text?.clear()
-    }
-}*/

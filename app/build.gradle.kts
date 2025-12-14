@@ -54,21 +54,47 @@ android {
 dependencies {
 
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
+
+    // UI Components
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.recyclerview)
+    implementation(libs.androidx.cardview)
+
+    // Lifecycle & ViewModel
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.activity.ktx)
+    implementation(libs.androidx.fragment.ktx)
+
+    // Navigation
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
+
+    // Networking
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.okhttp)
+    implementation(libs.logging.interceptor)
+
+    // JWT Decoding
+    implementation(libs.jwtdecode)
+
+    // Coroutines
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.coroutines.core)
+
+    // Compose (if using)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
-    implementation(libs.androidx.annotation)
-    implementation(libs.androidx.constraintlayout)
-    implementation(libs.androidx.lifecycle.livedata.ktx)
-    implementation(libs.androidx.lifecycle.viewmodel.ktx)
-    implementation(libs.androidx.activity)
-    implementation(libs.play.services.gcm)
+
+    // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -77,45 +103,6 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
-    implementation(libs.androidx.core.ktx.v1120)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material.v1110)
-    implementation(libs.androidx.constraintlayout)
-
-    // ViewBinding (já incluído nas versões recentes do Android Studio)
-    // lifecycle-viewmodel-ktx (para futura integração com ViewModel)
-    implementation(libs.androidx.lifecycle.viewmodel.ktx.v270)
-
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material.v190)
-
-    // Navigation Component
-    implementation(libs.androidx.navigation.fragment.ktx)
-    implementation(libs.androidx.navigation.ui.ktx)
-
-    // RecyclerView para lista de tarefas
-    implementation(libs.androidx.recyclerview)
-
-    // CardView para itens da lista
-    implementation(libs.androidx.cardview)
-
-    // Para ícones Material
-    implementation(libs.material.v1110)
-
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit.v115)
-    androidTestImplementation(libs.androidx.espresso.core.v351)
-
-    // ESSENCIAIS
-    implementation(libs.androidx.core.ktx.v1120)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material.v1110)
-
-    // Layouts
-    implementation(libs.androidx.constraintlayout)
-    implementation(libs.androidx.recyclerview)
-    implementation(libs.androidx.cardview)
-
-    // Para fragments (se usares Navigation Component mais tarde)
-    implementation(libs.androidx.fragment.ktx)
+    // Kotlin Standard Library
+    implementation(libs.kotlin.stdlib)
 }

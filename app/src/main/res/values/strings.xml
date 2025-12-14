@@ -14,7 +14,7 @@
     <string name="register_title">Criar Nova Conta</string>
     <string name="name_hint">Nome Completo</string>
     <string name="confirm_password_hint">Confirmar Password</string>
-    <string name="register_button">Registar</string>
+    <string name="register_button">REGISTAR</string>
     <string name="password_mismatch">As passwords não coincidem</string>
     <string name="registration_success">Registo bem-sucedido! Pode fazer login.</string>
     <string name="back_to_login">Voltar ao Login</string>
@@ -35,4 +35,7 @@
     <string name="title_activity_register">RegisterActivity</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="username_helper">Deve ter pelo menos 3 caracteres</string>
+    <string name="password_requirements">Mínimo 8 caracteres, com maiúsculas, minúsculas, números e caracteres especiais</string>
 </resources>
