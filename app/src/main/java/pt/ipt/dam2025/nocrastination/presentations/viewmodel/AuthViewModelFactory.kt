@@ -1,9 +1,9 @@
-package pt.ipt.dam2025.nocrastination.presentations.viewmodels
+package pt.ipt.dam2025.nocrastination.presentations.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import pt.ipt.dam2025.nocrastination.data.repositories.AuthRepository
-import pt.ipt.dam2025.nocrastination.presentation.viewmodels.AuthViewModel
+import pt.ipt.dam2025.nocrastination.presentations.viewmodel.AuthViewModel
 
 class AuthViewModelFactory(
     private val authRepository: AuthRepository

@@ -1,4 +1,4 @@
-package pt.ipt.dam2025.nocrastination.data.remote.interceptors
+package pt.ipt.dam2025.nocrastination.data.datasource.remote.interceptor
 
 import android.Manifest
 import android.content.Context
