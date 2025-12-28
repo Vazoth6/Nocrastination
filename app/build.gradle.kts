@@ -57,7 +57,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
 
-    // UI Components
+    // Componentes UI
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.cardview)
@@ -69,11 +69,11 @@ dependencies {
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.fragment.ktx)
 
-    // Navigation
+    // Navegação
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
 
-    // Networking
+    // Redes
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.okhttp)
@@ -82,7 +82,7 @@ dependencies {
     // JWT Decoding
     implementation(libs.jwtdecode)
 
-    // Coroutines
+    // Co-rotinas
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.core)
 
@@ -95,7 +95,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.cronet.embedded)
 
-    // Testing
+    // Testes
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -106,4 +106,12 @@ dependencies {
 
     // Kotlin Standard Library
     implementation(libs.kotlin.stdlib)
+
+    implementation(libs.hilt.android)
+    //kapt(libs.hilt.compiler)
+
+    // Retrofit
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+
 }

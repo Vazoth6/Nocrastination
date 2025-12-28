@@ -1,22 +1,24 @@
+// adapters/TaskAdapter.kt
 package pt.ipt.dam2025.nocrastination.ui.tasks.adapter
 
-import android.graphics.Paint
+import android.R
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import pt.ipt.dam2025.nocrastination.R
 import pt.ipt.dam2025.nocrastination.databinding.ItemTaskBinding
-import pt.ipt.dam2025.nocrastination.ui.tasks.TasksFragment
+import pt.ipt.dam2025.nocrastination.domain.models.Task
+import pt.ipt.dam2025.nocrastination.domain.models.TaskPriority
+import java.text.SimpleDateFormat
+import java.util.*
 
 class TaskAdapter(
-    private val onTaskClick: (TasksFragment.Task) -> Unit,
-    private val onTaskEdit: (TasksFragment.Task) -> Unit,
-    private val onTaskDelete: (TasksFragment.Task) -> Unit,
-    private val onTaskComplete: (TasksFragment.Task) -> Unit
-) : ListAdapter<TasksFragment.Task, TaskAdapter.TaskViewHolder>(TaskDiffCallback()) {
+    private val onTaskClick: (Task) -> Unit,
+    private val onCompleteClick: (Int) -> Unit,
+    private val onEditClick: (Task) -> Unit,
+    private val onDeleteClick: (Int) -> Unit
+) : ListAdapter<Task, TaskAdapter.TaskViewHolder>(TaskDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
         val binding = ItemTaskBinding.inflate(
@@ -28,80 +30,81 @@ class TaskAdapter(
     }
 
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        val task = getItem(position)
+        holder.bind(task)
     }
 
-    inner class TaskViewHolder(
-        private val binding: ItemTaskBinding
-    ) : RecyclerView.ViewHolder(binding.root) {
+    inner class TaskViewHolder(private val binding: ItemTaskBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(task: TasksFragment.Task) {
-            binding.apply {
-                textTaskTitle.text = task.title
-                textTaskDescription.text = task.description ?: "Sem descrição"
-                textDueDate.text = task.dueDate ?: "Sem data"
+        fun bind(task: Task) {
+            binding.textTaskTitle.text = task.title
+            binding.textTaskDescription.text = task.description
+            binding.textDueDate.text = formatDate(task.dueDate)
 
-                // Progresso do Pomodoro
-                textProgress.text = "${task.completedMinutes}/${task.estimatedMinutes} min"
-                progressBar.max = task.estimatedMinutes
-                progressBar.progress = task.completedMinutes
+            // Priority chip
+            binding.chipPriority.text = when (task.priority) {
+                TaskPriority.LOW -> "Baixa"
+                TaskPriority.MEDIUM -> "Média"
+                TaskPriority.HIGH -> "Alta"
+            }
 
-                // Prioridade
-                val priorityText = when (task.priority) {
-                    3 -> "Alta"
-                    2 -> "Média"
-                    else -> "Baixa"
+            // Set chip color based on priority
+            val priorityColor = when (task.priority) {
+                TaskPriority.LOW -> R.color.holo_green_light
+                TaskPriority.MEDIUM -> R.color.holo_orange_light
+                TaskPriority.HIGH -> R.color.holo_red_light
+            }
+            binding.chipPriority.setChipBackgroundColorResource(priorityColor)
+
+            // Completion status
+            binding.checkBoxCompleted.isChecked = task.completed
+
+            // Click listeners
+            binding.cardTask.setOnClickListener {
+                onTaskClick(task)
+            }
+
+            binding.checkBoxCompleted.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked && !task.completed) {
+                    onCompleteClick(task.id)
                 }
-                chipPriority.text = priorityText
+            }
 
-                // Cor da prioridade
-                val priorityColor = when (task.priority) {
-                    3 -> R.color.priority_high
-                    2 -> R.color.priority_medium
-                    else -> R.color.priority_low
-                }
-                chipPriority.setChipBackgroundColorResource(priorityColor)
+            binding.buttonEdit.setOnClickListener {
+                onEditClick(task)
+            }
 
-                // Tarefa concluída
-                if (task.isCompleted) {
-                    textTaskTitle.paintFlags = textTaskTitle.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
-                    textTaskDescription.paintFlags = textTaskDescription.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
-                    checkBoxCompleted.isChecked = true
-                } else {
-                    textTaskTitle.paintFlags = textTaskTitle.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
-                    textTaskDescription.paintFlags = textTaskDescription.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
-                    checkBoxCompleted.isChecked = false
-                }
+            binding.buttonDelete.setOnClickListener {
+                onDeleteClick(task.id)
+            }
+        }
 
-                // Listeners
-                checkBoxCompleted.setOnCheckedChangeListener { _, isChecked ->
-                    if (isChecked != task.isCompleted) {
-                        onTaskComplete(task)
-                    }
-                }
+        private fun formatDate(dateString: String?): String {
+            return if (dateString.isNullOrEmpty()) {
+                "Sem data"
+            } else {
+                try {
+                    val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+                    inputFormat.timeZone = TimeZone.getTimeZone("UTC")
+                    val date = inputFormat.parse(dateString)
 
-                buttonEdit.setOnClickListener {
-                    onTaskEdit(task)
-                }
-
-                buttonDelete.setOnClickListener {
-                    onTaskDelete(task)
-                }
-
-                root.setOnClickListener {
-                    onTaskClick(task)
+                    val outputFormat = SimpleDateFormat("dd MMM", Locale.getDefault())
+                    outputFormat.format(date ?: Date())
+                } catch (e: Exception) {
+                    "Data inválida"
                 }
             }
         }
     }
-}
 
-class TaskDiffCallback : DiffUtil.ItemCallback<TasksFragment.Task>() {
-    override fun areItemsTheSame(oldItem: TasksFragment.Task, newItem: TasksFragment.Task): Boolean {
-        return oldItem.id == newItem.id
-    }
+    class TaskDiffCallback : DiffUtil.ItemCallback<Task>() {
+        override fun areItemsTheSame(oldItem: Task, newItem: Task): Boolean {
+            return oldItem.id == newItem.id
+        }
 
-    override fun areContentsTheSame(oldItem: TasksFragment.Task, newItem: TasksFragment.Task): Boolean {
-        return oldItem == newItem
+        override fun areContentsTheSame(oldItem: Task, newItem: Task): Boolean {
+            return oldItem == newItem
+        }
     }
 }

@@ -42,6 +42,7 @@ playServicesGcm = "17.0.0"
 retrofit = "2.9.0"
 roomCompilerProcessingTesting = "2.8.4"
 cronetEmbedded = "141.7340.3"
+threetenabp = "1.4.6"
 
 [libraries]
 androidx-activity-ktx = { module = "androidx.activity:activity-ktx", version.ref = "activityKtx" }
@@ -94,6 +95,7 @@ play-services-gcm = { group = "com.google.android.gms", name = "play-services-gc
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 androidx-room-compiler-processing-testing = { group = "androidx.room", name = "room-compiler-processing-testing", version.ref = "roomCompilerProcessingTesting" }
 cronet-embedded = { group = "org.chromium.net", name = "cronet-embedded", version.ref = "cronetEmbedded" }
+threetenabp = { module = "com.jakewharton.threetenabp:threetenabp", version.ref = "threetenabp" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

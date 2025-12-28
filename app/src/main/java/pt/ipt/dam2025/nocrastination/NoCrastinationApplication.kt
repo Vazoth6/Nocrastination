@@ -2,7 +2,7 @@ package pt.ipt.dam2025.nocrastination
 
 import android.app.Application
 import android.content.Context
-import pt.ipt.dam2025.nocrastination.data.remote.ApiClient
+import pt.ipt.dam2025.nocrastination.data.datasource.remote.ApiClient
 
 class NoCrastinationApplication : Application() {
 

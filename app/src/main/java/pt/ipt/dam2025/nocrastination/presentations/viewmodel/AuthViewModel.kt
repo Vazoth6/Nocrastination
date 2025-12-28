@@ -5,11 +5,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import pt.ipt.dam2025.nocrastination.data.repositories.AuthRepository
+import pt.ipt.dam2025.nocrastination.data.repositories.AuthRepositoryImpl
 import pt.ipt.dam2025.nocrastination.utils.Resource
 
 class AuthViewModel(
-    private val authRepository: AuthRepository
+    private val authRepositoryImpl: AuthRepositoryImpl
 ) : ViewModel() {
 
     private val _loginState = MutableLiveData<Resource<Unit>>()
@@ -23,7 +23,7 @@ class AuthViewModel(
 
         viewModelScope.launch {
             try {
-                val result = authRepository.login(email, password)
+                val result = authRepositoryImpl.login(email, password)
 
                 _loginState.value = if (result.isSuccess) {
                     Resource.Success(Unit)
@@ -41,7 +41,7 @@ class AuthViewModel(
 
         viewModelScope.launch {
             try {
-                val result = authRepository.register(username, email, password)
+                val result = authRepositoryImpl.register(username, email, password)
 
                 _registerState.value = if (result.isSuccess) {
                     Resource.Success(Unit)

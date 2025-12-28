@@ -11,10 +11,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import pt.ipt.dam2025.nocrastination.data.repositories.AuthRepository
-import pt.ipt.dam2025.nocrastination.presentation.viewmodels.AuthViewModel
+import pt.ipt.dam2025.nocrastination.data.repositories.AuthRepositoryImpl
+import pt.ipt.dam2025.nocrastination.presentations.viewmodel.AuthViewModel
 import pt.ipt.dam2025.nocrastination.presentations.viewmodel.AuthViewModelFactory
 import pt.ipt.dam2025.nocrastination.utils.Resource
+import kotlin.jvm.java
 
 class LoginActivity : AppCompatActivity() {
 
@@ -24,8 +25,8 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        val authRepository = AuthRepository(applicationContext)
-        val factory = AuthViewModelFactory(authRepository)
+        val authRepositoryImpl = AuthRepositoryImpl(applicationContext)
+        val factory = AuthViewModelFactory(authRepositoryImpl)
         authViewModel = ViewModelProvider(this, factory)[AuthViewModel::class.java]
 
 
@@ -64,7 +65,7 @@ class LoginActivity : AppCompatActivity() {
                     finish() // Close LoginActivity
                 }
 
-                is Resource.Error -> {
+                is Resource.Error<*> -> {
                     // Hide loading state
                     loginButton.isEnabled = true
                     progressBar.isVisible = false

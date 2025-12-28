@@ -1,23 +1,29 @@
 package pt.ipt.dam2025.nocrastination.ui.tasks
 
 import android.os.Bundle
-import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.android.parcel.Parcelize
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import pt.ipt.dam2025.nocrastination.TaskDialogFragment
 import pt.ipt.dam2025.nocrastination.databinding.FragmentTasksBinding
+import pt.ipt.dam2025.nocrastination.presentations.viewmodel.TasksViewModel  // Fixed: presentations → presentation
 import pt.ipt.dam2025.nocrastination.ui.tasks.adapter.TaskAdapter
-import java.io.Serializable
 
+@AndroidEntryPoint
 class TasksFragment : Fragment() {
 
     private var _binding: FragmentTasksBinding? = null
     private val binding get() = _binding!!
+
+    private val viewModel: TasksViewModel by activityViewModels()
     private lateinit var taskAdapter: TaskAdapter
 
     override fun onCreateView(
@@ -33,131 +39,119 @@ class TasksFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setupRecyclerView()
+        setupObservers()
         setupClickListeners()
-        loadTasks()
+
+        // Load tasks
+        viewModel.loadTasks()
     }
 
     private fun setupRecyclerView() {
         taskAdapter = TaskAdapter(
             onTaskClick = { task ->
-                // Abrir detalhes da tarefa
-                Toast.makeText(context, "Clicou na tarefa: ${task.title}", Toast.LENGTH_SHORT).show()
+                // Show task details or edit dialog
+                val dialog = TaskDialogFragment.newInstance(task.id)
+                dialog.show(parentFragmentManager, "TaskDialog")
             },
-            onTaskEdit = { task ->
-                // Editar tarefa
-                openEditTaskDialog(task)
+            onCompleteClick = { taskId ->
+                viewModel.completeTask(taskId)
             },
-            onTaskDelete = { task ->
-                // Eliminar tarefa
-                showDeleteConfirmation(task)
+            onEditClick = { task ->
+                val dialog = TaskDialogFragment.newInstance(task.id)
+                dialog.show(parentFragmentManager, "TaskDialog")
             },
-            onTaskComplete = { task ->
-                // Marcar como concluída
-                task.isCompleted = !task.isCompleted
-                taskAdapter.notifyDataSetChanged()
-                Toast.makeText(context, "Tarefa atualizada", Toast.LENGTH_SHORT).show()
+            onDeleteClick = { taskId ->
+                viewModel.deleteTask(taskId)
             }
         )
 
         binding.recyclerViewTasks.apply {
-            layoutManager = LinearLayoutManager(context)
+            layoutManager = LinearLayoutManager(requireContext())
             adapter = taskAdapter
-            setHasFixedSize(true)
+        }
+    }
+
+    private fun setupObservers() {
+        // Collect tasks from StateFlow
+        lifecycleScope.launch {
+            viewModel.tasks.collectLatest { tasks ->
+                taskAdapter.submitList(tasks)
+
+                // Show/hide empty state
+                if (tasks.isEmpty()) {
+                    binding.emptyState.root.visibility = View.VISIBLE
+                    binding.recyclerViewTasks.visibility = View.GONE
+                } else {
+                    binding.emptyState.root.visibility = View.GONE
+                    binding.recyclerViewTasks.visibility = View.VISIBLE
+                }
+            }
+        }
+
+        // Collect loading state
+        lifecycleScope.launch {
+            viewModel.loading.collectLatest { isLoading ->
+                // Show/hide progress bar
+                binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+            }
+        }
+
+        // Collect error state
+        lifecycleScope.launch {
+            viewModel.error.collectLatest { error ->
+                error?.let {
+                    Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show()
+                    // Clear error after showing
+                    viewModel.clearError()
+                }
+            }
         }
     }
 
     private fun setupClickListeners() {
         binding.fabAddTask.setOnClickListener {
-            openAddTaskDialog()
+            val dialog = TaskDialogFragment.newInstance()
+            dialog.show(parentFragmentManager, "TaskDialog")
         }
 
-        // Filtros
-        binding.chipAll.setOnClickListener { loadTasks() }
-        binding.chipPending.setOnClickListener { filterTasksByStatus(false) }
-        binding.chipCompleted.setOnClickListener { filterTasksByStatus(true) }
-    }
-
-    private fun loadTasks() {
-        // Dados mock (substituir por Room Database depois)
-        val mockTasks = listOf(
-            Task(
-                id = 1,
-                title = "Estudar para DAM",
-                description = "Preparar projeto de aplicação móvel",
-                priority = 3,
-                estimatedMinutes = 120,
-                completedMinutes = 45,
-                isCompleted = false,
-                dueDate = "2025-12-15"
-            ),
-            Task(
-                id = 2,
-                title = "Fazer exercício físico",
-                description = "30 minutos de cardio",
-                priority = 2,
-                estimatedMinutes = 30,
-                completedMinutes = 0,
-                isCompleted = false,
-                dueDate = "2025-12-10"
-            ),
-            Task(
-                id = 3,
-                title = "Ler livro",
-                description = "Capítulo 5 do livro de Kotlin",
-                priority = 1,
-                estimatedMinutes = 60,
-                completedMinutes = 60,
-                isCompleted = true,
-                dueDate = "2025-12-05"
-            )
-        )
-
-        taskAdapter.submitList(mockTasks)
-
-        // Mostrar/ocultar empty state
-        binding.emptyState.root.visibility = if (mockTasks.isEmpty()) View.VISIBLE else View.GONE
-    }
-
-    private fun filterTasksByStatus(isCompleted: Boolean) {
-        // Implementar filtro real depois
-        loadTasks()
-    }
-
-    private fun openAddTaskDialog() {
-        val dialog = TaskDialogFragment.newInstance()
-        dialog.show(parentFragmentManager, "TaskDialogFragment")
-    }
-
-    private fun openEditTaskDialog(task: Task) {
-        val dialog = TaskDialogFragment.newInstance(task)
-        dialog.show(parentFragmentManager, "TaskDialogFragment")
-    }
-
-    private fun showDeleteConfirmation(task: Task) {
-        androidx.appcompat.app.AlertDialog.Builder(requireContext())
-            .setTitle("Eliminar Tarefa")
-            .setMessage("Tem a certeza que deseja eliminar a tarefa '${task.title}'?")
-            .setPositiveButton("Eliminar") { _, _ ->
-                Toast.makeText(context, "Tarefa eliminada", Toast.LENGTH_SHORT).show()
+        binding.chipAll.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                // Show all tasks (reset filter)
+                lifecycleScope.launch {
+                    viewModel.tasks.collectLatest { tasks ->
+                        taskAdapter.submitList(tasks)
+                    }
+                }
             }
-            .setNegativeButton("Cancelar", null)
-            .show()
+        }
+
+        binding.chipPending.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                // Show only pending tasks
+                lifecycleScope.launch {
+                    viewModel.tasks.collectLatest { tasks ->
+                        val pendingTasks = tasks.filter { !it.completed }
+                        taskAdapter.submitList(pendingTasks)
+                    }
+                }
+            }
+        }
+
+        binding.chipCompleted.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                // Show only completed tasks
+                lifecycleScope.launch {
+                    viewModel.tasks.collectLatest { tasks ->
+                        val completedTasks = tasks.filter { it.completed }
+                        taskAdapter.submitList(completedTasks)
+                    }
+                }
+            }
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
-
-    @Parcelize
-    data class Task(
-        val id: Long,
-        val title: String,
-        val description: String?,
-        val priority: Int, // 1=baixa, 2=média, 3=alta
-        val estimatedMinutes: Int,
-        var completedMinutes: Int,
-        var isCompleted: Boolean,
-        val dueDate: String?
-    ): Parcelable, Serializable
 }

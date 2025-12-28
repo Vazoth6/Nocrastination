@@ -1,14 +1,14 @@
-package pt.ipt.dam2025.nocrastination.data.remote
+package pt.ipt.dam2025.nocrastination.data.datasource.remote
 
 import android.content.Context
 import com.auth0.android.jwt.BuildConfig
 import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import pt.ipt.dam2025.nocrastination.data.remote.api.AuthApi
-import pt.ipt.dam2025.nocrastination.data.remote.api.TaskApi
-import pt.ipt.dam2025.nocrastination.data.remote.interceptors.AuthInterceptor
-import pt.ipt.dam2025.nocrastination.data.remote.interceptors.ConnectivityInterceptor
+import pt.ipt.dam2025.nocrastination.data.datasource.remote.api.AuthApi
+import pt.ipt.dam2025.nocrastination.data.datasource.remote.api.TaskApi
+import pt.ipt.dam2025.nocrastination.data.datasource.remote.interceptor.AuthInterceptor
+import pt.ipt.dam2025.nocrastination.data.datasource.remote.interceptor.ConnectivityInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit

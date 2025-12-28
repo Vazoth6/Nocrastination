@@ -3,13 +3,13 @@ package pt.ipt.dam2025.nocrastination.data.repositories
 import android.content.Context
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import pt.ipt.dam2025.nocrastination.data.remote.ApiClient
-import pt.ipt.dam2025.nocrastination.data.remote.models.requests.LoginRequest
-import pt.ipt.dam2025.nocrastination.data.remote.models.requests.RegisterRequest
+import pt.ipt.dam2025.nocrastination.data.datasource.remote.ApiClient
+import pt.ipt.dam2025.nocrastination.data.datasource.remote.models.requests.LoginRequest
+import pt.ipt.dam2025.nocrastination.data.datasource.remote.models.requests.RegisterRequest
 import pt.ipt.dam2025.nocrastination.utils.PreferenceManager
 import java.lang.Exception
 
-class AuthRepository(private val context: Context) {
+class AuthRepositoryImpl(private val context: Context) {
 
     private val authApi = ApiClient.getAuthApi(context)
     private val preferenceManager = PreferenceManager(context)

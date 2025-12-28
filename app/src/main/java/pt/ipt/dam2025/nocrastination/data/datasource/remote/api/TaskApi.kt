@@ -1,47 +1,34 @@
-package pt.ipt.dam2025.nocrastination.data.remote.api
+package pt.ipt.dam2025.nocrastination.data.datasource.remote.api
 
-import pt.ipt.dam2025.nocrastination.data.remote.models.requests.CreateTaskRequest
-import pt.ipt.dam2025.nocrastination.data.remote.models.responses.ApiResponse
-import pt.ipt.dam2025.nocrastination.data.remote.models.responses.TaskResponse
+import pt.ipt.dam2025.nocrastination.data.datasource.remote.models.requests.*
+import pt.ipt.dam2025.nocrastination.data.datasource.remote.models.responses.TaskListResponse
+import pt.ipt.dam2025.nocrastination.data.datasource.remote.models.responses.TaskResponse
 import retrofit2.Response
 import retrofit2.http.*
 
 interface TaskApi {
 
-    @GET("tasks")
-    suspend fun getTasks(
-        @Query("populate") populate: String = "user",
-        @Query("sort") sort: String = "dueDate:asc",
-        @Query("filters[status][\$ne]") excludeStatus: String? = null,
-        @Query("pagination[page]") page: Int = 1,
-        @Query("pagination[pageSize]") pageSize: Int = 50
-    ): Response<ApiResponse<List<TaskResponse>>>
+    @GET("api/tasks")
+    suspend fun getTasks(): Response<TaskListResponse>
 
-    @GET("tasks/{id}")
-    suspend fun getTask(
-        @Path("id") taskId: Int,
-        @Query("populate") populate: String = "*"
-    ): Response<ApiResponse<TaskResponse>>
+    @GET("api/tasks/{id}")
+    suspend fun getTaskById(@Path("id") id: Int): Response<TaskResponse>
 
-    @POST("tasks")
-    suspend fun createTask(
-        @Body request: CreateTaskRequest
-    ): Response<ApiResponse<TaskResponse>>
+    @POST("api/tasks")
+    suspend fun createTask(@Body request: CreateTaskRequest): Response<TaskResponse>
 
-    @PUT("tasks/{id}")
+    @PUT("api/tasks/{id}")
     suspend fun updateTask(
-        @Path("id") taskId: Int,
-        @Body request: CreateTaskRequest
-    ): Response<ApiResponse<TaskResponse>>
+        @Path("id") id: Int,
+        @Body request: UpdateTaskRequest
+    ): Response<TaskResponse>
 
-    @DELETE("tasks/{id}")
-    suspend fun deleteTask(
-        @Path("id") taskId: Int
-    ): Response<Unit>
-
-    // Custom endpoint if you added it to Strapi
-    @POST("tasks/{id}/complete")
+    @PUT("api/tasks/{id}/complete")
     suspend fun completeTask(
-        @Path("id") taskId: Int
-    ): Response<ApiResponse<TaskResponse>>
+        @Path("id") id: Int,
+        @Body request: CompleteTaskRequest
+    ): Response<TaskResponse>
+
+    @DELETE("api/tasks/{id}")
+    suspend fun deleteTask(@Path("id") id: Int): Response<Unit>
 }

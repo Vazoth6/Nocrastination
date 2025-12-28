@@ -1,4 +1,4 @@
-package pt.ipt.dam2025.nocrastination.data.remote.models.requests
+package pt.ipt.dam2025.nocrastination.data.datasource.remote.models.requests
 
 import com.google.gson.annotations.SerializedName
 
