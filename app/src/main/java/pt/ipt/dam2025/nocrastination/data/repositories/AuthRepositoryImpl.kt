@@ -19,23 +19,32 @@ class AuthRepositoryImpl(
     override suspend fun login(email: String, password: String): Resource<Unit> {
         return withContext(Dispatchers.IO) {
             try {
-                val response = authApi.login(LoginRequest(email, password))
+                // Correção: Strapi espera "identifier" não "email"
+                val response = authApi.login(LoginRequest(
+                    identifier = email,  // Campo correto para Strapi
+                    password = password
+                ))
 
                 if (response.isSuccessful) {
                     response.body()?.let { authResponse ->
-                        preferenceManager.saveAuthToken(authResponse.jwt)
+                        // Verifique se o campo é "jwt" ou "token"
+                        val token = authResponse.jwt // Ou authResponse.token
+                        preferenceManager.saveAuthToken(token)
                         preferenceManager.saveUserId(authResponse.user.id)
                         Resource.Success(Unit)
                     } ?: Resource.Error("Empty response")
                 } else {
+                    // Melhor tratamento de erro
+                    val errorCode = response.code()
                     val errorBody = response.errorBody()?.string() ?: "Unknown error"
-                    Resource.Error("Login failed: $errorBody")
+                    Resource.Error("Login failed ($errorCode): $errorBody")
                 }
             } catch (e: Exception) {
-                Resource.Error(e.message ?: "Unknown error")
+                Resource.Error("Network error: ${e.message}")
             }
         }
     }
+
 
     override suspend fun register(username: String, email: String, password: String): Resource<Unit> {
         return withContext(Dispatchers.IO) {

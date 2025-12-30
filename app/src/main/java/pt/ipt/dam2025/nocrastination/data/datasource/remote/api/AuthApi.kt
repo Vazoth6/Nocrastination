@@ -17,17 +17,4 @@ interface AuthApi {
 
     @GET("api/users/me")
     suspend fun getCurrentUser(): Response<UserResponse>
-
-    /*@POST("auth/local/register")
-    suspend fun register(
-        @Body request: RegisterRequest
-    ): Response<AuthResponse>
-
-    @POST("auth/local")
-    suspend fun login(
-        @Body request: LoginRequest
-    ): Response<AuthResponse>*/
-
-    // Strapi doesn't have built-in logout endpoint
-    // You'll need to handle JWT invalidation on client-side
 }

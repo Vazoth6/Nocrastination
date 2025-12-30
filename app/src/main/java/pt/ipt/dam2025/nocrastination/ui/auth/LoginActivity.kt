@@ -3,6 +3,7 @@ package pt.ipt.dam2025.nocrastination.ui.auth
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
@@ -12,11 +13,17 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import pt.ipt.dam2025.nocrastination.MainActivity
 import pt.ipt.dam2025.nocrastination.R
 import pt.ipt.dam2025.nocrastination.presentations.viewmodel.AuthViewModel
 import pt.ipt.dam2025.nocrastination.utils.Resource
+import java.util.concurrent.TimeUnit
 
 class LoginActivity : AppCompatActivity() {
 
@@ -25,6 +32,8 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+
+        testConnection()
 
         // Check if user is already logged in
         if (authViewModel.isLoggedIn()) {
@@ -107,5 +116,42 @@ class LoginActivity : AppCompatActivity() {
     private fun isValidEmail(email: String): Boolean {
         val emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+"
         return email.matches(emailPattern.toRegex())
+    }
+
+    private fun testConnection() {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                // Teste direto com OkHttp (sem Retrofit)
+                val client = OkHttpClient.Builder()
+                    .connectTimeout(10, TimeUnit.SECONDS)
+                    .build()
+
+                val request = Request.Builder()
+                    .url("http://10.0.2.2:1337")
+                    .build()
+
+                val response = client.newCall(request).execute()
+
+                runOnUiThread {
+                    if (response.isSuccessful) {
+                        Toast.makeText(this@LoginActivity,
+                            "✅ Conexão OK! Status: ${response.code}",
+                            Toast.LENGTH_LONG).show()
+                    } else {
+                        Toast.makeText(this@LoginActivity,
+                            "⚠️ Strapi respondeu: ${response.code}",
+                            Toast.LENGTH_LONG).show()
+                    }
+                }
+
+            } catch (e: Exception) {
+                runOnUiThread {
+                    Toast.makeText(this@LoginActivity,
+                        "❌ Erro: ${e.message}",
+                        Toast.LENGTH_LONG).show()
+                    Log.e("ConnectionTest", "Erro: ${e.message}", e)
+                }
+            }
+        }
     }
 }

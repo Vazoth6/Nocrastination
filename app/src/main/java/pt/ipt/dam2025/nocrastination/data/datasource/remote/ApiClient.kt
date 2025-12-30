@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit
 
 object ApiClient {
 
-    private const val BASE_URL = "https://10.0.2.2:1337/" // Alterar isto em produção
+    private const val BASE_URL = "http://10.0.2.2:1337/" // Alterar isto em produção
     private var retrofit: Retrofit? = null
 
     // API Service instances
@@ -52,6 +52,8 @@ object ApiClient {
             .addInterceptor(loggingInterceptor)
             .addInterceptor(ConnectivityInterceptor(context))
             .addInterceptor(AuthInterceptor(context))
+            // Adicione isso para ignorar problemas de SSL em desenvolvimento
+            .hostnameVerifier { _, _ -> true } // Apenas para desenvolvimento!
             .build()
 
         return Retrofit.Builder()

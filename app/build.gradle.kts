@@ -31,11 +31,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
     buildFeatures {
         compose = true
@@ -73,13 +73,6 @@ dependencies {
     // Navegação
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
-
-    // Hilt (Dependency Injection)
-    //implementation(libs.hilt.android)
-    //kapt(libs.hilt.compiler)
-
-    // Hilt Navigation
-    //implementation(libs.androidx.hilt.navigation.fragment)
 
     // Retrofit & Networking
     implementation(libs.retrofit)
@@ -124,10 +117,3 @@ dependencies {
     testImplementation("io.insert-koin:koin-test:3.5.0")
     testImplementation("io.insert-koin:koin-test-junit4:3.5.0")
 }
-
-/*kapt {
-    correctErrorTypes = true
-    javacOptions {
-        option("-Adagger.hilt.android.internal.disableAndroidSuperclassValidation=true")
-    }
-}*/

@@ -18,7 +18,7 @@ class AuthInterceptor(
         val originalRequest = chain.request()
 
         // Skip adding auth header for authentication endpoints
-        if (originalRequest.url.encodedPath.contains("/auth/")) {
+        if (originalRequest.url.encodedPath.contains("/api/auth/")) {
             return chain.proceed(originalRequest)
         }
 
