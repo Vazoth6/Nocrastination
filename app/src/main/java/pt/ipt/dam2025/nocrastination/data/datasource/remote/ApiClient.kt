@@ -1,10 +1,11 @@
 package pt.ipt.dam2025.nocrastination.data.datasource.remote
 
 import android.content.Context
-import com.auth0.android.jwt.BuildConfig
+import android.util.Log
 import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import com.auth0.android.jwt.BuildConfig
 import pt.ipt.dam2025.nocrastination.data.datasource.remote.api.AuthApi
 import pt.ipt.dam2025.nocrastination.data.datasource.remote.api.TaskApi
 import pt.ipt.dam2025.nocrastination.data.datasource.remote.interceptor.AuthInterceptor
@@ -15,7 +16,8 @@ import java.util.concurrent.TimeUnit
 
 object ApiClient {
 
-    private const val BASE_URL = "http://10.0.2.2:1337/" // Alterar isto em produção
+    // CORREÇÃO: Use HTTP (não HTTPS) para desenvolvimento local
+    private const val BASE_URL = "http://10.0.2.2:1337/"
     private var retrofit: Retrofit? = null
 
     // API Service instances
@@ -25,10 +27,13 @@ object ApiClient {
     fun initialize(context: Context) {
         if (retrofit == null) {
             retrofit = buildRetrofit(context)
+            Log.d("ApiClient", "✅ Retrofit inicializado com URL: $BASE_URL")
         }
     }
 
     private fun buildRetrofit(context: Context): Retrofit {
+        Log.d("ApiClient", "🔄 Construindo Retrofit...")
+
         // Gson configuration
         val gson = GsonBuilder()
             .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
@@ -36,7 +41,9 @@ object ApiClient {
             .create()
 
         // HTTP logging (only in debug mode)
-        val loggingInterceptor = HttpLoggingInterceptor().apply {
+        val loggingInterceptor = HttpLoggingInterceptor { message ->
+            Log.d("API", message)
+        }.apply {
             level = if (BuildConfig.DEBUG) {
                 HttpLoggingInterceptor.Level.BODY
             } else {
@@ -67,6 +74,7 @@ object ApiClient {
     fun getAuthApi(context: Context): AuthApi {
         if (authApi == null) {
             authApi = getRetrofit(context).create(AuthApi::class.java)
+            Log.d("ApiClient", "✅ AuthApi criada")
         }
         return authApi!!
     }
@@ -74,6 +82,7 @@ object ApiClient {
     fun getTaskApi(context: Context): TaskApi {
         if (taskApi == null) {
             taskApi = getRetrofit(context).create(TaskApi::class.java)
+            Log.d("ApiClient", "✅ TaskApi criada")
         }
         return taskApi!!
     }
@@ -85,36 +94,12 @@ object ApiClient {
         return retrofit!!
     }
 
-    // Helper method to update base URL (for testing/debugging)
-    fun updateBaseUrl(newBaseUrl: String, context: Context) {
-        retrofit = null
-        authApi = null
-        taskApi = null
-
-        // Reinitialize with new URL
-        val loggingInterceptor = HttpLoggingInterceptor().apply {
-            level = if (BuildConfig.DEBUG) {
-                HttpLoggingInterceptor.Level.BODY
-            } else {
-                HttpLoggingInterceptor.Level.NONE
-            }
-        }
-
-        val okHttpClient = OkHttpClient.Builder()
-            .addInterceptor(loggingInterceptor)
-            .addInterceptor(ConnectivityInterceptor(context))
-            .addInterceptor(AuthInterceptor(context))
-            .build()
-
-        val gson = GsonBuilder()
-            .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-            .serializeNulls()
-            .create()
-
-        retrofit = Retrofit.Builder()
-            .baseUrl(newBaseUrl)
-            .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .build()
+    // Método para testar a conexão
+    fun testConnection() {
+        Log.d("ApiClient", "🔗 Testando conexão com: $BASE_URL")
+        Log.d("ApiClient", "📡 Endpoints disponíveis:")
+        Log.d("ApiClient", "  - POST ${BASE_URL}api/auth/local")
+        Log.d("ApiClient", "  - POST ${BASE_URL}api/auth/local/register")
+        Log.d("ApiClient", "  - GET ${BASE_URL}api/users/me")
     }
 }

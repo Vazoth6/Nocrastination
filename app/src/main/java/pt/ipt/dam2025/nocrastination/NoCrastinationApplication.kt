@@ -60,7 +60,7 @@ class NoCrastinationApplication : Application() {
         // Retrofit
         single {
             Retrofit.Builder()
-                .baseUrl("https://10.0.2.2:1337/")
+                .baseUrl("http://10.0.2.2:1337/")
                 .client(get())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
