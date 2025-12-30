@@ -1,3 +1,4 @@
+// AuthInterceptor.kt
 package pt.ipt.dam2025.nocrastination.data.datasource.remote.interceptor
 
 import android.content.Context

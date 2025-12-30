@@ -1,18 +1,16 @@
+// AuthViewModel.kt
 package pt.ipt.dam2025.nocrastination.presentations.viewmodel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import pt.ipt.dam2025.nocrastination.data.repositories.AuthRepositoryImpl
+import pt.ipt.dam2025.nocrastination.domain.repository.AuthRepository
 import pt.ipt.dam2025.nocrastination.utils.Resource
-import javax.inject.Inject
 
-@HiltViewModel
-class AuthViewModel @Inject constructor(
-    private val authRepository: AuthRepositoryImpl
+class AuthViewModel(
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
     private val _loginState = MutableLiveData<Resource<Unit>?>()
@@ -43,5 +41,9 @@ class AuthViewModel @Inject constructor(
 
     fun clearRegisterState() {
         _registerState.value = null
+    }
+
+    fun isLoggedIn(): Boolean {
+        return authRepository.isLoggedIn()
     }
 }

@@ -3,7 +3,6 @@ package pt.ipt.dam2025.nocrastination.presentations.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,10 +12,8 @@ import pt.ipt.dam2025.nocrastination.domain.models.Task
 import pt.ipt.dam2025.nocrastination.domain.repository.TaskRepository
 import java.text.SimpleDateFormat
 import java.util.*
-import javax.inject.Inject
 
-@HiltViewModel
-class TasksViewModel @Inject constructor(
+class TasksViewModel  constructor(
     private val taskRepository: TaskRepository
 ) : ViewModel() {
 

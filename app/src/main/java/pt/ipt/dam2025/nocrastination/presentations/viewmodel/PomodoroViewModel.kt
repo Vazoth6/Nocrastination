@@ -3,7 +3,6 @@ package pt.ipt.dam2025.nocrastination.presentations.viewmodel  // Fixed: present
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,10 +13,8 @@ import pt.ipt.dam2025.nocrastination.domain.models.SessionType
 import pt.ipt.dam2025.nocrastination.domain.repository.PomodoroRepository
 import java.text.SimpleDateFormat
 import java.util.*
-import javax.inject.Inject
 
-@HiltViewModel
-class PomodoroViewModel @Inject constructor(
+class PomodoroViewModel constructor(
     private val pomodoroRepository: PomodoroRepository
 ) : ViewModel() {
 

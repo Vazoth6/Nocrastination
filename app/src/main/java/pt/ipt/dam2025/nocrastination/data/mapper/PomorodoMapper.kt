@@ -8,9 +8,8 @@ import pt.ipt.dam2025.nocrastination.domain.models.PomodoroSession
 import pt.ipt.dam2025.nocrastination.domain.models.SessionType
 import java.text.SimpleDateFormat
 import java.util.*
-import javax.inject.Inject
 
-class PomodoroMapper @Inject constructor() {
+class PomodoroMapper constructor() {
 
     private val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault()).apply {
         timeZone = TimeZone.getTimeZone("UTC")

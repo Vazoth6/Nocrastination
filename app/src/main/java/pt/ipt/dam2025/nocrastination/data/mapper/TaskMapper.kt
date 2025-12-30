@@ -5,9 +5,8 @@ import pt.ipt.dam2025.nocrastination.data.datasource.remote.models.requests.*
 import pt.ipt.dam2025.nocrastination.data.datasource.remote.models.responses.TaskData
 import pt.ipt.dam2025.nocrastination.domain.models.Task
 import pt.ipt.dam2025.nocrastination.domain.models.TaskPriority
-import javax.inject.Inject
 
-class TaskMapper @Inject constructor() {
+class TaskMapper constructor() {
 
     fun mapToDomain(data: TaskData): Task {
         return Task(

@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import pt.ipt.dam2025.nocrastination.TaskDialogFragment
@@ -17,7 +16,6 @@ import pt.ipt.dam2025.nocrastination.databinding.FragmentTasksBinding
 import pt.ipt.dam2025.nocrastination.presentations.viewmodel.TasksViewModel  // Fixed: presentations → presentation
 import pt.ipt.dam2025.nocrastination.ui.tasks.adapter.TaskAdapter
 
-@AndroidEntryPoint
 class TasksFragment : Fragment() {
 
     private var _binding: FragmentTasksBinding? = null

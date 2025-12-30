@@ -5,9 +5,8 @@ import pt.ipt.dam2025.nocrastination.data.mapper.TaskMapper
 import pt.ipt.dam2025.nocrastination.domain.models.Task
 import pt.ipt.dam2025.nocrastination.domain.repository.TaskRepository
 import pt.ipt.dam2025.nocrastination.domain.models.Result
-import javax.inject.Inject
 
-class TaskRepositoryImpl @Inject constructor(
+class TaskRepositoryImpl constructor(
     private val taskApi: TaskApi,
     private val taskMapper: TaskMapper
 ) : TaskRepository {

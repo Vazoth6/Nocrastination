@@ -75,7 +75,7 @@ dependencies {
     implementation(libs.androidx.navigation.ui.ktx)
 
     // Hilt (Dependency Injection)
-    implementation(libs.hilt.android)
+    //implementation(libs.hilt.android)
     //kapt(libs.hilt.compiler)
 
     // Hilt Navigation
@@ -116,8 +116,18 @@ dependencies {
 
     // Additional utility
     implementation(libs.threetenabp) // For better date handling
+
+    // Koin DI (REPLACES Hilt)
+    implementation("io.insert-koin:koin-android:3.5.0")
+    implementation("io.insert-koin:koin-androidx-compose:3.5.0")  // For Compose support
+    implementation("io.insert-koin:koin-androidx-workmanager:3.5.0")  // For WorkManager support
+    testImplementation("io.insert-koin:koin-test:3.5.0")
+    testImplementation("io.insert-koin:koin-test-junit4:3.5.0")
 }
 
 /*kapt {
     correctErrorTypes = true
+    javacOptions {
+        option("-Adagger.hilt.android.internal.disableAndroidSuperclassValidation=true")
+    }
 }*/

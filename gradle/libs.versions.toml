@@ -12,6 +12,14 @@ fragmentKtx = "1.6.2"
 googleMaterial = "1.9.0"
 hiltCompiler = "2.48"
 jwtdecode = "2.0.2"
+koinAndroid = "3.5.0"
+koinAndroidVersion = "3.4.0"
+koinAndroidxNavigation = "3.5.0"
+koinAndroidxViewmodel = "3.5.0"
+koinAndroidxViewmodelVersion = "3.4.0"
+koinCore = "3.4.0"
+koinTest = "3.5.0"
+koinTestJunit4 = "3.5.0"
 kotlin = "1.9.0"
 coreKtx = "1.17.0"
 junit = "4.13.2"
@@ -77,6 +85,14 @@ androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 jwtdecode = { module = "com.auth0.android:jwtdecode", version.ref = "jwtdecode" }
+koin-android-v340 = { module = "io.insert-koin:koin-android", version.ref = "koinAndroidVersion" }
+koin-androidx-navigation = { module = "io.insert-koin:koin-androidx-navigation", version.ref = "koinAndroidxNavigation" }
+koin-androidx-viewmodel = { module = "io.insert-koin:koin-androidx-viewmodel", version.ref = "koinAndroidxViewmodel" }
+koin-android = { module = "io.insert-koin:koin-android", version.ref = "koinAndroid" }
+koin-androidx-viewmodel-v340 = { module = "io.insert-koin:koin-androidx-viewmodel", version.ref = "koinAndroidxViewmodelVersion" }
+koin-core = { module = "io.insert-koin:koin-core", version.ref = "koinCore" }
+koin-test-junit4 = { module = "io.insert-koin:koin-test-junit4", version.ref = "koinTestJunit4" }
+koin-test = { module = "io.insert-koin:koin-test", version.ref = "koinTest" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlinStdlib" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
 kotlinx-coroutines-android-v173 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroidVersion" }

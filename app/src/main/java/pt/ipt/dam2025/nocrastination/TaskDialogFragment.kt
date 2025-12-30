@@ -11,7 +11,6 @@ import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import pt.ipt.dam2025.nocrastination.databinding.TaskDialogBinding
 import pt.ipt.dam2025.nocrastination.domain.models.Task
@@ -20,7 +19,6 @@ import pt.ipt.dam2025.nocrastination.presentations.viewmodel.TasksViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
-@AndroidEntryPoint
 class TaskDialogFragment : DialogFragment() {
 
     private var _binding: TaskDialogBinding? = null

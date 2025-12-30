@@ -12,9 +12,8 @@ import pt.ipt.dam2025.nocrastination.domain.repository.PomodoroRepository
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.util.*
-import javax.inject.Inject
 
-class PomodoroRepositoryImpl @Inject constructor(
+class PomodoroRepositoryImpl constructor(
     private val pomodoroApi: PomodoroApi,
     private val pomodoroMapper: PomodoroMapper
 ) : PomodoroRepository {

@@ -1,3 +1,4 @@
+// RegisterActivity.kt
 package pt.ipt.dam2025.nocrastination.ui.auth
 
 import android.os.Bundle
@@ -5,18 +6,22 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import pt.ipt.dam2025.nocrastination.R
+import pt.ipt.dam2025.nocrastination.presentations.viewmodel.AuthViewModel
 import java.util.regex.Pattern
 
 class RegisterActivity : AppCompatActivity() {
+
+    private val authViewModel: AuthViewModel by viewModel()
 
     // Password policy constants
     companion object {
         private const val MIN_PASSWORD_LENGTH = 8
         private const val MIN_USERNAME_LENGTH = 3
 
-        // Regular expressions for password validation
         private val UPPERCASE_PATTERN = Pattern.compile("[A-Z]")
         private val LOWERCASE_PATTERN = Pattern.compile("[a-z]")
         private val DIGIT_PATTERN = Pattern.compile("[0-9]")
@@ -33,6 +38,28 @@ class RegisterActivity : AppCompatActivity() {
         val confirmPasswordEditText = findViewById<EditText>(R.id.confirmPasswordEditText)
         val registerButton = findViewById<Button>(R.id.registerButton)
         val backToLoginTextView = findViewById<TextView>(R.id.backToLoginTextView)
+
+        // Setup register state observer
+        authViewModel.registerState.observe(this) { state ->
+            when (state) {
+                is pt.ipt.dam2025.nocrastination.utils.Resource.Loading -> {
+                    registerButton.isEnabled = false
+                }
+                is pt.ipt.dam2025.nocrastination.utils.Resource.Success -> {
+                    registerButton.isEnabled = true
+                    Toast.makeText(this, "Registo bem-sucedido!", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+                is pt.ipt.dam2025.nocrastination.utils.Resource.Error -> {
+                    registerButton.isEnabled = true
+                    val errorMessage = state.message ?: "Erro desconhecido"
+                    Toast.makeText(this, "Erro: $errorMessage", Toast.LENGTH_SHORT).show()
+                }
+                else -> {
+                    registerButton.isEnabled = true
+                }
+            }
+        }
 
         registerButton.setOnClickListener {
             val name = nameEditText.text.toString().trim()
@@ -56,6 +83,12 @@ class RegisterActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
+            // Validate email
+            if (!isValidEmail(email)) {
+                emailEditText.error = "Por favor, insira um email válido"
+                return@setOnClickListener
+            }
+
             // Validate password strength
             val passwordValidation = validatePassword(password)
             if (!passwordValidation.isValid) {
@@ -73,9 +106,8 @@ class RegisterActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // All validations passed - register successful
-            Toast.makeText(this, "Registo bem-sucedido!", Toast.LENGTH_SHORT).show()
-            finish()
+            // All validations passed - call ViewModel to register
+            authViewModel.register(name, email, password)
         }
 
         backToLoginTextView.setOnClickListener {
@@ -83,12 +115,12 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Validates password against strong password policy
-     * Returns a PasswordValidationResult with isValid flag and error message
-     */
+    private fun isValidEmail(email: String): Boolean {
+        val emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+"
+        return email.matches(emailPattern.toRegex())
+    }
+
     private fun validatePassword(password: String): PasswordValidationResult {
-        // Check minimum length
         if (password.length < MIN_PASSWORD_LENGTH) {
             return PasswordValidationResult(
                 false,
@@ -96,7 +128,6 @@ class RegisterActivity : AppCompatActivity() {
             )
         }
 
-        // Check for at least one uppercase letter
         if (!UPPERCASE_PATTERN.matcher(password).find()) {
             return PasswordValidationResult(
                 false,
@@ -104,7 +135,6 @@ class RegisterActivity : AppCompatActivity() {
             )
         }
 
-        // Check for at least one lowercase letter
         if (!LOWERCASE_PATTERN.matcher(password).find()) {
             return PasswordValidationResult(
                 false,
@@ -112,7 +142,6 @@ class RegisterActivity : AppCompatActivity() {
             )
         }
 
-        // Check for at least one digit
         if (!DIGIT_PATTERN.matcher(password).find()) {
             return PasswordValidationResult(
                 false,
@@ -120,7 +149,6 @@ class RegisterActivity : AppCompatActivity() {
             )
         }
 
-        // Check for at least one special character
         if (!SPECIAL_CHAR_PATTERN.matcher(password).find()) {
             return PasswordValidationResult(
                 false,
@@ -128,13 +156,9 @@ class RegisterActivity : AppCompatActivity() {
             )
         }
 
-        // All checks passed
         return PasswordValidationResult(true, null)
     }
 
-    /**
-     * Data class to hold password validation result
-     */
     data class PasswordValidationResult(
         val isValid: Boolean,
         val errorMessage: String?
