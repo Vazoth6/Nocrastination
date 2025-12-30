@@ -7,14 +7,14 @@ import pt.ipt.dam2025.nocrastination.data.datasource.remote.ApiClient
 import pt.ipt.dam2025.nocrastination.data.datasource.remote.models.requests.LoginRequest
 import pt.ipt.dam2025.nocrastination.data.datasource.remote.models.requests.RegisterRequest
 import pt.ipt.dam2025.nocrastination.utils.PreferenceManager
-import java.lang.Exception
+import pt.ipt.dam2025.nocrastination.utils.Resource
 
 class AuthRepositoryImpl(private val context: Context) {
 
     private val authApi = ApiClient.getAuthApi(context)
     private val preferenceManager = PreferenceManager(context)
 
-    suspend fun login(email: String, password: String): Result<Unit> {
+    suspend fun login(email: String, password: String): Resource<Unit> {
         return withContext(Dispatchers.IO) {
             try {
                 val response = authApi.login(LoginRequest(email, password))
@@ -25,22 +25,19 @@ class AuthRepositoryImpl(private val context: Context) {
                         preferenceManager.saveAuthToken(authResponse.jwt)
                         preferenceManager.saveUserId(authResponse.user.id)
 
-                        // Update API client with new token
-                        // (AuthInterceptor will automatically add it to requests)
-
-                        Result.success(Unit)
-                    } ?: Result.failure(Exception("Empty response"))
+                        Resource.Success(Unit)
+                    } ?: Resource.Error("Empty response")
                 } else {
                     val errorBody = response.errorBody()?.string() ?: "Unknown error"
-                    Result.failure(Exception("Login failed: $errorBody"))
+                    Resource.Error("Login failed: $errorBody")
                 }
             } catch (e: Exception) {
-                Result.failure(e)
+                Resource.Error(e.message ?: "Unknown error")
             }
         }
     }
 
-    suspend fun register(username: String, email: String, password: String): Result<Unit> {
+    suspend fun register(username: String, email: String, password: String): Resource<Unit> {
         return withContext(Dispatchers.IO) {
             try {
                 val response = authApi.register(RegisterRequest(username, email, password))
@@ -50,10 +47,10 @@ class AuthRepositoryImpl(private val context: Context) {
                     login(email, password)
                 } else {
                     val errorBody = response.errorBody()?.string() ?: "Unknown error"
-                    Result.failure(Exception("Registration failed: $errorBody"))
+                    Resource.Error("Registration failed: $errorBody")
                 }
             } catch (e: Exception) {
-                Result.failure(e)
+                Resource.Error(e.message ?: "Unknown error")
             }
         }
     }

@@ -16,14 +16,14 @@ class AuthInterceptor(
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest = chain.request()
 
-        // Skip adding auth header for login/register endpoints
+        // Skip adding auth header for authentication endpoints
         if (originalRequest.url.encodedPath.contains("/auth/")) {
             return chain.proceed(originalRequest)
         }
 
         val token = preferenceManager.getAuthToken()
 
-        return if (token != null) {
+        return if (!token.isNullOrEmpty()) {
             val requestWithAuth = originalRequest.newBuilder()
                 .header("Authorization", "Bearer $token")
                 .build()

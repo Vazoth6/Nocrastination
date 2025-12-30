@@ -38,4 +38,6 @@
 
     <string name="username_helper">Deve ter pelo menos 3 caracteres</string>
     <string name="password_requirements">Mínimo 8 caracteres, com maiúsculas, minúsculas, números e caracteres especiais</string>
+
+    
 </resources>

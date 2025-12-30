@@ -1,4 +1,4 @@
-package pt.ipt.dam2025.nocrastination
+package pt.ipt.dam2025.nocrastination.ui.auth
 
 import android.os.Bundle
 import android.widget.Button
@@ -6,6 +6,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import pt.ipt.dam2025.nocrastination.R
 import java.util.regex.Pattern
 
 class RegisterActivity : AppCompatActivity() {

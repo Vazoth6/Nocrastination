@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit
 
 object ApiClient {
 
-    private const val BASE_URL = "https://10.0.0.2:1337/api/" // Alterar isto em produção
+    private const val BASE_URL = "https://10.0.2.2:1337/" // Alterar isto em produção
     private var retrofit: Retrofit? = null
 
     // API Service instances

@@ -1,4 +1,4 @@
-package pt.ipt.dam2025.nocrastination
+package pt.ipt.dam2025.nocrastination.ui.auth
 
 import android.content.Intent
 import android.os.Bundle
@@ -11,6 +11,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import pt.ipt.dam2025.nocrastination.MainActivity
+import pt.ipt.dam2025.nocrastination.R
 import pt.ipt.dam2025.nocrastination.data.repositories.AuthRepositoryImpl
 import pt.ipt.dam2025.nocrastination.presentations.viewmodel.AuthViewModel
 import pt.ipt.dam2025.nocrastination.presentations.viewmodel.AuthViewModelFactory

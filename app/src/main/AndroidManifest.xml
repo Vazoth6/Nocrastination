@@ -18,9 +18,10 @@
 
         <!-- Login Activity (ponto de entrada PRINCIPAL) -->
         <activity
-            android:name=".LoginActivity"
+            android:name=".ui.auth.LoginActivity"
             android:exported="true"
-            android:windowSoftInputMode="adjustResize">
+            android:windowSoftInputMode="adjustResize"
+            android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -29,15 +30,17 @@
 
         <!-- Register Activity -->
         <activity
-            android:name=".RegisterActivity"
+            android:name=".ui.auth.RegisterActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="adjustResize"
+            android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar" />
 
         <!-- Main Activity (após login) -->
         <activity
             android:name=".MainActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="adjustResize"
+            android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar" />
 
     </application>
 

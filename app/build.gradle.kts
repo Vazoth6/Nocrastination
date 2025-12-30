@@ -53,6 +53,7 @@ android {
 
 dependencies {
 
+    // Core Android
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -73,7 +74,14 @@ dependencies {
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
 
-    // Redes
+    // Hilt (Dependency Injection)
+    implementation(libs.hilt.android)
+    //kapt(libs.hilt.compiler)
+
+    // Hilt Navigation
+    //implementation(libs.androidx.hilt.navigation.fragment)
+
+    // Retrofit & Networking
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.okhttp)
@@ -82,11 +90,10 @@ dependencies {
     // JWT Decoding
     implementation(libs.jwtdecode)
 
-    // Co-rotinas
+    // Coroutines
     implementation(libs.kotlinx.coroutines.android)
-    implementation(libs.kotlinx.coroutines.core)
 
-    // Compose (if using)
+    // Compose
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
@@ -95,7 +102,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.cronet.embedded)
 
-    // Testes
+    // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -107,11 +114,10 @@ dependencies {
     // Kotlin Standard Library
     implementation(libs.kotlin.stdlib)
 
-    implementation(libs.hilt.android)
-    //kapt(libs.hilt.compiler)
-
-    // Retrofit
-    implementation(libs.retrofit)
-    implementation(libs.converter.gson)
-
+    // Additional utility
+    implementation(libs.threetenabp) // For better date handling
 }
+
+/*kapt {
+    correctErrorTypes = true
+}*/
