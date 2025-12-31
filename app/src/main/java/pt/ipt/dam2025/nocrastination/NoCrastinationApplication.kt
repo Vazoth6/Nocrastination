@@ -10,11 +10,16 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
 import pt.ipt.dam2025.nocrastination.data.datasource.remote.api.AuthApi
+import pt.ipt.dam2025.nocrastination.data.datasource.remote.api.TaskApi
 import pt.ipt.dam2025.nocrastination.data.datasource.remote.interceptor.AuthInterceptor
 import pt.ipt.dam2025.nocrastination.data.datasource.remote.interceptor.ConnectivityInterceptor
+import pt.ipt.dam2025.nocrastination.data.mapper.TaskMapper
 import pt.ipt.dam2025.nocrastination.data.repositories.AuthRepositoryImpl
+import pt.ipt.dam2025.nocrastination.data.repositories.TaskRepositoryImpl
 import pt.ipt.dam2025.nocrastination.domain.repository.AuthRepository
+import pt.ipt.dam2025.nocrastination.domain.repository.TaskRepository
 import pt.ipt.dam2025.nocrastination.presentations.viewmodel.AuthViewModel
+import pt.ipt.dam2025.nocrastination.presentations.viewmodel.TasksViewModel
 import pt.ipt.dam2025.nocrastination.utils.PreferenceManager
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -28,36 +33,40 @@ class NoCrastinationApplication : Application() {
         startKoin {
             androidLogger()
             androidContext(this@NoCrastinationApplication)
-            modules(appModule)
+            modules(
+                listOf(
+                    appModule,
+                    apiModule,
+                    repositoryModule,
+                    viewModelModule
+                )
+            )
         }
     }
 
+    // Módulo de aplicação (preferences, interceptors)
     private val appModule = module {
-
-        // Preference Manager
         single { PreferenceManager(get()) }
-
-        // Interceptors
         single { AuthInterceptor(get()) }
         single { ConnectivityInterceptor(get()) }
+        single { TaskMapper() }
+    }
 
-        // OkHttpClient
+    // Módulo de API (Retrofit, APIs)
+    private val apiModule = module {
         single {
-            val loggingInterceptor = HttpLoggingInterceptor().apply {
-                level = HttpLoggingInterceptor.Level.BODY
-            }
-
             OkHttpClient.Builder()
                 .connectTimeout(30, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
                 .writeTimeout(30, TimeUnit.SECONDS)
-                .addInterceptor(loggingInterceptor)
+                .addInterceptor(HttpLoggingInterceptor().apply {
+                    level = HttpLoggingInterceptor.Level.BODY
+                })
                 .addInterceptor(get<ConnectivityInterceptor>())
                 .addInterceptor(get<AuthInterceptor>())
                 .build()
         }
 
-        // Retrofit
         single {
             Retrofit.Builder()
                 .baseUrl("http://10.0.2.2:1337/")
@@ -66,13 +75,37 @@ class NoCrastinationApplication : Application() {
                 .build()
         }
 
-        // API Services
         single { get<Retrofit>().create(AuthApi::class.java) }
+        single { get<Retrofit>().create(TaskApi::class.java) }
+    }
 
-        // Repositories
-        single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
+    // Módulo de repositórios
+    private val repositoryModule = module {
+        single<AuthRepository> {
+            AuthRepositoryImpl(
+                authApi = get(),
+                preferenceManager = get()
+            )
+        }
+        single<TaskRepository> {
+            TaskRepositoryImpl(
+                taskApi = get(),
+                taskMapper = get()
+            )
+        }
+    }
 
-        // ViewModels
-        viewModel { AuthViewModel(get()) }
+    // Módulo de ViewModels
+    private val viewModelModule = module {
+        viewModel {
+            AuthViewModel(
+                authRepository = get()
+            )
+        }
+        viewModel {
+            TasksViewModel(
+                tasksRepository = get()
+            )
+        }
     }
 }

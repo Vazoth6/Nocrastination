@@ -1,4 +1,3 @@
-// presentation/viewmodel/TasksViewModel.kt
 package pt.ipt.dam2025.nocrastination.presentations.viewmodel
 
 import androidx.lifecycle.ViewModel
@@ -7,15 +6,28 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import pt.ipt.dam2025.nocrastination.data.datasource.remote.ApiClient
+import pt.ipt.dam2025.nocrastination.data.mapper.TaskMapper
+import pt.ipt.dam2025.nocrastination.data.repositories.TaskRepositoryImpl
 import pt.ipt.dam2025.nocrastination.domain.models.Result
 import pt.ipt.dam2025.nocrastination.domain.models.Task
+import pt.ipt.dam2025.nocrastination.domain.repository.AuthRepository
 import pt.ipt.dam2025.nocrastination.domain.repository.TaskRepository
 import java.text.SimpleDateFormat
 import java.util.*
 
-class TasksViewModel  constructor(
-    private val taskRepository: TaskRepository
+class TasksViewModel(
+    private val tasksRepository: TaskRepository
 ) : ViewModel() {
+
+    // Instanciar dependências manualmente
+    private val taskRepository by lazy {
+        // Obter contexto da aplicação (precisa ser injetado)
+        val context = android.app.Application().applicationContext
+        val taskApi = ApiClient.getTaskApi(context)
+        val taskMapper = TaskMapper()
+        TaskRepositoryImpl(taskApi, taskMapper)
+    }
 
     private val _tasks = MutableStateFlow<List<Task>>(emptyList())
     val tasks: StateFlow<List<Task>> = _tasks.asStateFlow()
@@ -48,7 +60,6 @@ class TasksViewModel  constructor(
             _error.value = null
             when (val result = taskRepository.createTask(task)) {
                 is Result.Success -> {
-                    // Update local list
                     _tasks.value = _tasks.value + result.data
                 }
                 is Result.Error -> {
@@ -65,7 +76,6 @@ class TasksViewModel  constructor(
             _error.value = null
             when (val result = taskRepository.updateTask(task)) {
                 is Result.Success -> {
-                    // Update local list
                     _tasks.value = _tasks.value.map {
                         if (it.id == result.data.id) result.data else it
                     }
@@ -97,7 +107,6 @@ class TasksViewModel  constructor(
             _error.value = null
             when (val result = taskRepository.deleteTask(taskId)) {
                 is Result.Success -> {
-                    // Remove from local list
                     _tasks.value = _tasks.value.filter { it.id != taskId }
                 }
                 is Result.Error -> {
