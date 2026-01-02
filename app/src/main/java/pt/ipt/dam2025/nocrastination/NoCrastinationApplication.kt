@@ -8,6 +8,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.context.startKoin
+import org.koin.core.logger.Level
 import org.koin.dsl.module
 import pt.ipt.dam2025.nocrastination.data.datasource.remote.api.AuthApi
 import pt.ipt.dam2025.nocrastination.data.datasource.remote.api.TaskApi
@@ -31,7 +32,7 @@ class NoCrastinationApplication : Application() {
         super.onCreate()
 
         startKoin {
-            androidLogger()
+            androidLogger(Level.DEBUG)
             androidContext(this@NoCrastinationApplication)
             modules(
                 listOf(

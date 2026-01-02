@@ -1,5 +1,6 @@
 package pt.ipt.dam2025.nocrastination.ui.auth
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -11,41 +12,50 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
-import kotlinx.coroutines.CoroutineScope
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.android.ext.android.inject
 import pt.ipt.dam2025.nocrastination.MainActivity
 import pt.ipt.dam2025.nocrastination.R
 import pt.ipt.dam2025.nocrastination.data.datasource.remote.ApiClient
 import pt.ipt.dam2025.nocrastination.presentations.viewmodel.AuthViewModel
+import pt.ipt.dam2025.nocrastination.utils.PreferenceManager
 import pt.ipt.dam2025.nocrastination.utils.Resource
 import java.util.concurrent.TimeUnit
 
 class LoginActivity : AppCompatActivity() {
 
-    private val authViewModel: AuthViewModel by viewModel()
+    // Use inject ao invés de viewModel se tiver problemas
+    private val authViewModel: AuthViewModel by inject()
+    private val preferenceManager: PreferenceManager by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login)
 
-        // Inicialize o ApiClient
-        ApiClient.initialize(this)
-        ApiClient.testConnection()
+        // Verificação rápida ANTES de qualquer coisa
+        val prefs = getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
+        val token = prefs.getString("auth_token", null)
 
-        // Teste de conexão
-        testConnection()
+        Log.d("LoginActivity", "Token direto do SharedPreferences: $token")
 
-        // Check if user is already logged in
-        if (authViewModel.isLoggedIn()) {
+        if (!token.isNullOrEmpty()) {
+            Log.d("LoginActivity", "Token encontrado, navegando para MainActivity")
             navigateToMain()
             return
         }
 
-        // Resto do código permanece igual...
+        // Só se não houver token, continuar com o login
+        setContentView(R.layout.activity_login)
+
+        // 3. Agora inicialize o ApiClient
+        ApiClient.initialize(this)
+
+        // 4. Teste de conexão (opcional, pode ser removido)
+        testConnection()
+
         // Initialize views
         val emailEditText = findViewById<EditText>(R.id.emailEditText)
         val passwordEditText = findViewById<EditText>(R.id.passwordEditText)
@@ -55,14 +65,17 @@ class LoginActivity : AppCompatActivity() {
 
         // Setup login state observer
         authViewModel.loginState.observe(this, Observer { state ->
+            Log.d("LoginActivity", "Observer chamado com estado: $state")
             when (state) {
                 is Resource.Loading -> {
                     loginButton.isEnabled = false
                     progressBar.isVisible = true
+                    Log.d("LoginActivity", "⏳ Carregando...")
                 }
                 is Resource.Success -> {
                     loginButton.isEnabled = true
                     progressBar.isVisible = false
+                    Log.d("LoginActivity", "✅ Login bem-sucedido!")
                     Toast.makeText(this, "Login bem-sucedido!", Toast.LENGTH_SHORT).show()
                     navigateToMain()
                 }
@@ -70,8 +83,8 @@ class LoginActivity : AppCompatActivity() {
                     loginButton.isEnabled = true
                     progressBar.isVisible = false
                     val errorMessage = state.message ?: "Erro desconhecido"
+                    Log.e("LoginActivity", "❌ Erro de login: $errorMessage")
                     Toast.makeText(this, "Erro: $errorMessage", Toast.LENGTH_SHORT).show()
-                    Log.e("LoginActivity", "Erro de login: $errorMessage")
                 }
                 else -> {
                     loginButton.isEnabled = true
@@ -111,12 +124,19 @@ class LoginActivity : AppCompatActivity() {
             val intent = Intent(this, RegisterActivity::class.java)
             startActivity(intent)
         }
+
+        Log.d("LoginActivity", "✅ Activity inicializada corretamente")
+    }
+
+    private fun isUserLoggedIn(): Boolean {
+        // Verifique diretamente nas preferências
+        return preferenceManager.getAuthToken() != null
     }
 
     private fun navigateToMain() {
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
-        finish()
+        finish() // IMPORTANTE: finalizar a LoginActivity
     }
 
     private fun isValidEmail(email: String): Boolean {
@@ -125,15 +145,13 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun testConnection() {
-        CoroutineScope(Dispatchers.IO).launch {
+        lifecycleScope.launch(Dispatchers.IO) {
             try {
-                // Teste direto com OkHttp (sem Retrofit)
                 val client = OkHttpClient.Builder()
                     .connectTimeout(10, TimeUnit.SECONDS)
-                    .hostnameVerifier { _, _ -> true } // Ignora SSL para teste
+                    .hostnameVerifier { _, _ -> true }
                     .build()
 
-                // Teste a URL CORRETA: http://10.0.2.2:1337
                 val request = Request.Builder()
                     .url("http://10.0.2.2:1337")
                     .build()
@@ -142,23 +160,14 @@ class LoginActivity : AppCompatActivity() {
 
                 runOnUiThread {
                     if (response.isSuccessful) {
-                        Toast.makeText(this@LoginActivity,
-                            "✅ Conexão com Strapi OK! Status: ${response.code}",
-                            Toast.LENGTH_LONG).show()
                         Log.d("ConnectionTest", "✅ Strapi responde: ${response.code}")
                     } else {
-                        Toast.makeText(this@LoginActivity,
-                            "⚠️ Strapi respondeu: ${response.code}",
-                            Toast.LENGTH_LONG).show()
                         Log.w("ConnectionTest", "⚠️ Strapi respondeu: ${response.code}")
                     }
                 }
 
             } catch (e: Exception) {
                 runOnUiThread {
-                    Toast.makeText(this@LoginActivity,
-                        "❌ Erro de conexão: ${e.message}",
-                        Toast.LENGTH_LONG).show()
                     Log.e("ConnectionTest", "❌ Erro: ${e.message}", e)
                 }
             }

@@ -1,5 +1,6 @@
 package pt.ipt.dam2025.nocrastination.ui.profile
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -8,13 +9,19 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import pt.ipt.dam2025.nocrastination.databinding.FragmentProfileBinding
+import pt.ipt.dam2025.nocrastination.presentations.viewmodel.AuthViewModel
+import pt.ipt.dam2025.nocrastination.ui.auth.LoginActivity
 import pt.ipt.dam2025.nocrastination.ui.dialogs.AboutAppDialogFragment
 
 class ProfileFragment : Fragment() {
 
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
+
+    // Injetar o ViewModel do Koin
+    private val authViewModel: AuthViewModel by viewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -28,12 +35,14 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Carregar dados reais do usuário (você precisará implementar isso)
         loadUserProfile()
         setupClickListeners()
     }
 
     private fun loadUserProfile() {
-        // Dados mock do utilizador (substituir por dados reais depois)
+        // TODO: Implementar carregamento real do perfil do usuário
+        // Por enquanto, vamos usar dados mock
         binding.apply {
             textUserName.text = "Rodrigo Calisto"
             textUserEmail.text = "rodrigo@example.com"
@@ -86,12 +95,37 @@ class ProfileFragment : Fragment() {
             .setTitle("Terminar Sessão")
             .setMessage("Tem a certeza que deseja terminar sessão?")
             .setPositiveButton("Terminar") { _, _ ->
-                // Implementar logout real
-                requireActivity().finish()
-                Toast.makeText(context, "Sessão terminada", Toast.LENGTH_SHORT).show()
+                performLogout()
             }
             .setNegativeButton("Cancelar", null)
             .show()
+    }
+
+    private fun performLogout() {
+        try {
+            // 1. Limpar todas as preferências manualmente para garantir
+            val prefs = requireContext().getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
+            prefs.edit().clear().apply()
+
+            // 2. Chamar logout no ViewModel (se tiver lógica adicional)
+            authViewModel.logout()
+
+            // 3. Navegar para LoginActivity e limpar pilha de atividades
+            val intent = Intent(requireActivity(), LoginActivity::class.java)
+
+            // Flags importantes para limpar a pilha
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+
+            startActivity(intent)
+
+            // 4. Finalizar a atividade atual
+            requireActivity().finish()
+
+            Toast.makeText(context, "Sessão terminada com sucesso", Toast.LENGTH_SHORT).show()
+
+        } catch (e: Exception) {
+            Toast.makeText(context, "Erro ao terminar sessão: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun openAboutAppDialog() {

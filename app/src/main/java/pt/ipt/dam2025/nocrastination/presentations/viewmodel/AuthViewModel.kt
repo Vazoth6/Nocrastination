@@ -46,4 +46,12 @@ class AuthViewModel(
     fun isLoggedIn(): Boolean {
         return authRepository.isLoggedIn()
     }
+
+    fun logout() {
+        authRepository.logout()
+        // Limpa os estados para garantir
+        _loginState.value = null
+        _registerState.value = null
+    }
+
 }

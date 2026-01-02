@@ -8,27 +8,27 @@ import retrofit2.http.*
 
 interface TaskApi {
 
-    @GET("api/tasks")
+    @GET("api/task")
     suspend fun getTasks(): Response<TaskListResponse>
 
-    @GET("api/tasks/{id}")
+    @GET("api/task/{id}")
     suspend fun getTaskById(@Path("id") id: Int): Response<TaskResponse>
 
-    @POST("api/tasks")
+    @POST("api/task")
     suspend fun createTask(@Body request: CreateTaskRequest): Response<TaskResponse>
 
-    @PUT("api/tasks/{id}")
+    @PUT("api/task/{id}")
     suspend fun updateTask(
         @Path("id") id: Int,
         @Body request: UpdateTaskRequest
     ): Response<TaskResponse>
 
-    @PUT("api/tasks/{id}/complete")
+    @PUT("api/task/{id}/complete")
     suspend fun completeTask(
         @Path("id") id: Int,
         @Body request: CompleteTaskRequest
     ): Response<TaskResponse>
 
-    @DELETE("api/tasks/{id}")
+    @DELETE("api/task/{id}")
     suspend fun deleteTask(@Path("id") id: Int): Response<Unit>
 }

@@ -2,9 +2,11 @@ package pt.ipt.dam2025.nocrastination.utils
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import androidx.core.content.edit
 
 class PreferenceManager(context: Context) {
+
 
     private val prefs: SharedPreferences = context.getSharedPreferences(
         "app_preferences",
@@ -13,11 +15,14 @@ class PreferenceManager(context: Context) {
 
     // Authentication
     fun saveAuthToken(token: String) {
-        prefs.edit().putString("auth_token", token).apply()
+        Log.d("PreferenceManager", "💾 Salvando token: ${token.take(20)}...")
+        prefs.edit { putString(KEY_AUTH_TOKEN, token) }
     }
 
     fun getAuthToken(): String? {
-        return this.prefs.getString("auth_token", null)
+        val token = prefs.getString(KEY_AUTH_TOKEN, null)
+        Log.d("PreferenceManager", "🔍 Token recuperado: ${if (token != null) "EXISTE" else "NULO"}")
+        return token
     }
 
     fun clearAuthToken() {
@@ -56,6 +61,12 @@ class PreferenceManager(context: Context) {
 
     // Clear all data (logout)
     fun clearAll() {
+        Log.d("PreferenceManager", "🗑️ Limpando todas as preferências")
         prefs.edit().clear().apply()
+    }
+
+    companion object {
+        private const val KEY_AUTH_TOKEN = "auth_token"
+        private const val KEY_USER_ID = "user_id"
     }
 }
