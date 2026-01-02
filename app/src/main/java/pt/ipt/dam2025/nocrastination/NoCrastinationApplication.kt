@@ -2,6 +2,7 @@
 package pt.ipt.dam2025.nocrastination
 
 import android.app.Application
+import android.util.Log
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
@@ -31,6 +32,8 @@ class NoCrastinationApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        Log.d("NoCrastinationApp", "🚀 Aplicação iniciando...")
+
         startKoin {
             androidLogger(Level.DEBUG)
             androidContext(this@NoCrastinationApplication)
@@ -43,6 +46,8 @@ class NoCrastinationApplication : Application() {
                 )
             )
         }
+
+        Log.d("NoCrastinationApp", "✅ Koin inicializado")
     }
 
     // Módulo de aplicação (preferences, interceptors)
@@ -61,10 +66,15 @@ class NoCrastinationApplication : Application() {
                 .readTimeout(30, TimeUnit.SECONDS)
                 .writeTimeout(30, TimeUnit.SECONDS)
                 .addInterceptor(HttpLoggingInterceptor().apply {
-                    level = HttpLoggingInterceptor.Level.BODY
+                    level = if (BuildConfig.DEBUG) {
+                        HttpLoggingInterceptor.Level.BODY
+                    } else {
+                        HttpLoggingInterceptor.Level.NONE
+                    }
                 })
                 .addInterceptor(get<ConnectivityInterceptor>())
                 .addInterceptor(get<AuthInterceptor>())
+                .hostnameVerifier { _, _ -> true } // Para desenvolvimento
                 .build()
         }
 
@@ -105,7 +115,7 @@ class NoCrastinationApplication : Application() {
         }
         viewModel {
             TasksViewModel(
-                tasksRepository = get()
+                taskRepository = get()
             )
         }
     }

@@ -6,28 +6,15 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import pt.ipt.dam2025.nocrastination.data.datasource.remote.ApiClient
-import pt.ipt.dam2025.nocrastination.data.mapper.TaskMapper
-import pt.ipt.dam2025.nocrastination.data.repositories.TaskRepositoryImpl
 import pt.ipt.dam2025.nocrastination.domain.models.Result
 import pt.ipt.dam2025.nocrastination.domain.models.Task
-import pt.ipt.dam2025.nocrastination.domain.repository.AuthRepository
 import pt.ipt.dam2025.nocrastination.domain.repository.TaskRepository
 import java.text.SimpleDateFormat
 import java.util.*
 
 class TasksViewModel(
-    private val tasksRepository: TaskRepository
+    private val taskRepository: TaskRepository
 ) : ViewModel() {
-
-    // Instanciar dependências manualmente
-    private val taskRepository by lazy {
-        // Obter contexto da aplicação (precisa ser injetado)
-        val context = android.app.Application().applicationContext
-        val taskApi = ApiClient.getTaskApi(context)
-        val taskMapper = TaskMapper()
-        TaskRepositoryImpl(taskApi, taskMapper)
-    }
 
     private val _tasks = MutableStateFlow<List<Task>>(emptyList())
     val tasks: StateFlow<List<Task>> = _tasks.asStateFlow()

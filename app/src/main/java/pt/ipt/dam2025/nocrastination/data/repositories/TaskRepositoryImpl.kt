@@ -1,5 +1,6 @@
 package pt.ipt.dam2025.nocrastination.data.repositories
 
+import android.util.Log
 import pt.ipt.dam2025.nocrastination.data.datasource.remote.api.TaskApi
 import pt.ipt.dam2025.nocrastination.data.mapper.TaskMapper
 import pt.ipt.dam2025.nocrastination.domain.models.Task
@@ -13,16 +14,28 @@ class TaskRepositoryImpl constructor(
 
     override suspend fun getTasks(): Result<List<Task>> {
         return try {
+            Log.d("TaskRepository", "🔄 Buscando tarefas da API...")
             val response = taskApi.getTasks()
+
+            Log.d("TaskRepository", "📡 Resposta código: ${response.code()}")
+            Log.d("TaskRepository", "📡 Resposta mensagem: ${response.message()}")
+
             if (response.isSuccessful) {
                 response.body()?.let { apiResponse ->
+                    Log.d("TaskRepository", "✅ ${apiResponse.data.size} tarefas recebidas")
                     val tasks = apiResponse.data.map { taskMapper.mapToDomain(it) }
                     Result.Success(tasks)
-                } ?: Result.Success(emptyList())
+                } ?: run {
+                    Log.w("TaskRepository", "⚠️ Resposta vazia")
+                    Result.Success(emptyList())
+                }
             } else {
-                Result.Error(Exception("Failed to fetch tasks: ${response.code()} ${response.message()}"))
+                val errorBody = response.errorBody()?.string() ?: "Sem detalhes"
+                Log.e("TaskRepository", "❌ Erro na resposta: ${response.code()} - $errorBody")
+                Result.Error(Exception("Falha ao buscar tarefas: ${response.code()} $errorBody"))
             }
         } catch (e: Exception) {
+            Log.e("TaskRepository", "❌ Exceção: ${e.message}", e)
             Result.Error(e)
         }
     }

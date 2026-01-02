@@ -6,6 +6,9 @@ import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import com.auth0.android.jwt.BuildConfig
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import pt.ipt.dam2025.nocrastination.data.datasource.remote.api.AuthApi
 import pt.ipt.dam2025.nocrastination.data.datasource.remote.api.TaskApi
 import pt.ipt.dam2025.nocrastination.data.datasource.remote.interceptor.AuthInterceptor
@@ -101,5 +104,30 @@ object ApiClient {
         Log.d("ApiClient", "  - POST ${BASE_URL}api/auth/local")
         Log.d("ApiClient", "  - POST ${BASE_URL}api/auth/local/register")
         Log.d("ApiClient", "  - GET ${BASE_URL}api/users/me")
+    }
+
+    fun testTaskConnection(context: Context) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val taskApi = getTaskApi(context)
+                val response = taskApi.getTasks()
+
+                Log.d("ApiClient", "🔍 Teste de tasks - Código: ${response.code()}")
+                Log.d("ApiClient", "🔍 Teste de tasks - Sucesso: ${response.isSuccessful}")
+
+                if (response.isSuccessful) {
+                    response.body()?.let {
+                        Log.d("ApiClient", "✅ ${it.data.size} tarefas encontradas")
+                        it.data.forEach { taskData ->
+                            Log.d("ApiClient", "   - ${taskData.id}: ${taskData.attributes.title}")
+                        }
+                    }
+                } else {
+                    Log.e("ApiClient", "❌ Erro: ${response.errorBody()?.string()}")
+                }
+            } catch (e: Exception) {
+                Log.e("ApiClient", "❌ Exceção: ${e.message}", e)
+            }
+        }
     }
 }

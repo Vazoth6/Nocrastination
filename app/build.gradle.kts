@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("kotlin-parcelize")
+
 }
 
 android {
@@ -111,7 +112,7 @@ dependencies {
     // Additional utility
     implementation(libs.threetenabp) // For better date handling
 
-    // Koin DI (REPLACES Hilt)
+    // Koin DI
     implementation("io.insert-koin:koin-android:3.5.0")
     implementation("io.insert-koin:koin-androidx-compose:3.5.0")  // For Compose support
     implementation("io.insert-koin:koin-androidx-workmanager:3.5.0")  // For WorkManager support
