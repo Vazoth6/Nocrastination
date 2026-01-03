@@ -1,99 +1,228 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
+<com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/cardTask"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="8dp"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="8dp"
+    app:cardCornerRadius="12dp"
     app:cardElevation="2dp"
-    app:cardUseCompatPadding="true">
+    app:strokeColor="@color/purple_100"
+    app:strokeWidth="1dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="16dp">
 
-        <TextView
-            android:id="@+id/textTaskTitle"
+        <!-- Top Row: Title + Priority + Checkbox -->
+        <LinearLayout
+            android:id="@+id/topRow"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Título da Tarefa"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/black"
-            app:layout_constraintEnd_toStartOf="@+id/checkBoxCompleted"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
 
+            <!-- Title with optional strike-through -->
+            <TextView
+                android:id="@+id/textTaskTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Título da Tarefa"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/primary_text"
+                android:ellipsize="end"
+                android:maxLines="1" />
+
+            <!-- Priority Chip -->
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipPriority"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Média"
+                android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
+                android:layout_marginStart="8dp"
+                app:chipBackgroundColor="@color/priority_medium"
+                app:chipStrokeWidth="0dp" />
+
+            <!-- Checkbox for completion -->
+            <androidx.appcompat.widget.AppCompatCheckBox
+                android:id="@+id/checkBoxCompleted"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                app:buttonTint="@color/purple_500" />
+
+        </LinearLayout>
+
+        <!-- Description -->
         <TextView
             android:id="@+id/textTaskDescription"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Descrição da tarefa"
+            android:layout_marginTop="8dp"
+            android:text="Descrição da tarefa com mais detalhes sobre o que precisa ser feito nesta tarefa específica."
             android:textSize="14sp"
-            android:textColor="@android:color/darker_gray"
-            android:layout_marginTop="4dp"
-            app:layout_constraintEnd_toStartOf="@+id/chipPriority"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textTaskTitle" />
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipPriority"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Média"
-            android:textColor="@android:color/white"
-            app:chipBackgroundColor="@color/priority_medium"
-            app:layout_constraintBottom_toBottomOf="@+id/textTaskDescription"
+            android:textColor="@color/secondary_text"
+            android:ellipsize="end"
+            android:maxLines="2"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/textTaskDescription" />
-
-        <TextView
-            android:id="@+id/textDueDate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="12 Dez"
-            android:textSize="12sp"
-            android:textColor="@android:color/darker_gray"
-            android:layout_marginTop="12dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textTaskDescription" />
+            app:layout_constraintTop_toBottomOf="@id/topRow" />
 
-        <CheckBox
-            android:id="@+id/checkBoxCompleted"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:buttonTint="@color/purple_500"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
+        <!-- Bottom Row: Date + Action Buttons -->
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:id="@+id/bottomRow"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
             android:layout_marginTop="12dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textDueDate">
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            app:layout_constraintTop_toBottomOf="@id/textTaskDescription">
 
-            <Button
-                android:id="@+id/buttonEdit"
+            <!-- Date Info -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginEnd="4dp"
+                    android:src="@drawable/ic_calendar"
+                    android:contentDescription="@string/icon_date"
+                    app:tint="@color/secondary_text" />
+
+                <TextView
+                    android:id="@+id/textDueDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="15 Dez, 2024"
+                    android:textSize="12sp"
+                    android:textColor="@color/secondary_text"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/textDueTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="• 14:30"
+                    android:textSize="12sp"
+                    android:textColor="@color/secondary_text" />
+
+            </LinearLayout>
+
+            <!-- Action Buttons -->
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Editar"
-                android:padding="4dp" />
+                android:orientation="horizontal">
 
-            <Button
-                android:id="@+id/buttonDelete"
+                <!-- Edit Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/buttonEdit"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minWidth="0dp"
+                    android:minHeight="0dp"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="4dp"
+                    android:text="@string/edit"
+                    android:textSize="12sp"
+                    app:icon="@drawable/ic_edit"
+                    app:iconSize="16dp"
+                    app:iconPadding="0dp"
+                    app:iconGravity="textStart" />
+
+                <!-- Delete Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/buttonDelete"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:minWidth="0dp"
+                    android:minHeight="0dp"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="4dp"
+                    android:text="@string/delete"
+                    android:textSize="12sp"
+                    android:textColor="@color/error"
+                    app:icon="@drawable/ic_delete"
+                    app:iconSize="16dp"
+                    app:iconTint="@color/error"
+                    app:iconPadding="0dp"
+                    app:iconGravity="textStart" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Progress Indicator (for estimated time) -->
+        <LinearLayout
+            android:id="@+id/progressLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/bottomRow">
+
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Eliminar"
-                android:padding="4dp" />
+                android:text="Progresso"
+                android:textSize="12sp"
+                android:textColor="@color/secondary_text" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/textTimeSpent"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="0h 30min"
+                    android:textSize="12sp"
+                    android:textColor="@color/secondary_text" />
+
+                <TextView
+                    android:id="@+id/textTimeRemaining"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="/ 2h 00min"
+                    android:textSize="12sp"
+                    android:textColor="@color/secondary_text" />
+
+            </LinearLayout>
+
+            <com.google.android.material.progressindicator.LinearProgressIndicator
+                android:id="@+id/progressBar"
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:layout_marginTop="4dp"
+                app:indicatorColor="@color/purple_500"
+                app:trackColor="@color/purple_100" />
 
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

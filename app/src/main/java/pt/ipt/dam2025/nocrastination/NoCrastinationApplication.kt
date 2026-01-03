@@ -12,15 +12,20 @@ import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
 import org.koin.dsl.module
 import pt.ipt.dam2025.nocrastination.data.datasource.remote.api.AuthApi
+import pt.ipt.dam2025.nocrastination.data.datasource.remote.api.PomodoroApi
 import pt.ipt.dam2025.nocrastination.data.datasource.remote.api.TaskApi
 import pt.ipt.dam2025.nocrastination.data.datasource.remote.interceptor.AuthInterceptor
 import pt.ipt.dam2025.nocrastination.data.datasource.remote.interceptor.ConnectivityInterceptor
+import pt.ipt.dam2025.nocrastination.data.mapper.PomodoroMapper
 import pt.ipt.dam2025.nocrastination.data.mapper.TaskMapper
 import pt.ipt.dam2025.nocrastination.data.repositories.AuthRepositoryImpl
+import pt.ipt.dam2025.nocrastination.data.repositories.PomodoroRepositoryImpl
 import pt.ipt.dam2025.nocrastination.data.repositories.TaskRepositoryImpl
 import pt.ipt.dam2025.nocrastination.domain.repository.AuthRepository
+import pt.ipt.dam2025.nocrastination.domain.repository.PomodoroRepository
 import pt.ipt.dam2025.nocrastination.domain.repository.TaskRepository
 import pt.ipt.dam2025.nocrastination.presentations.viewmodel.AuthViewModel
+import pt.ipt.dam2025.nocrastination.presentations.viewmodel.PomodoroViewModel
 import pt.ipt.dam2025.nocrastination.presentations.viewmodel.TasksViewModel
 import pt.ipt.dam2025.nocrastination.utils.PreferenceManager
 import retrofit2.Retrofit
@@ -56,6 +61,7 @@ class NoCrastinationApplication : Application() {
         single { AuthInterceptor(get()) }
         single { ConnectivityInterceptor(get()) }
         single { TaskMapper() }
+        single  { PomodoroMapper() }
     }
 
     // Módulo de API (Retrofit, APIs)
@@ -88,6 +94,7 @@ class NoCrastinationApplication : Application() {
 
         single { get<Retrofit>().create(AuthApi::class.java) }
         single { get<Retrofit>().create(TaskApi::class.java) }
+        single { get<Retrofit>().create(PomodoroApi::class.java) }
     }
 
     // Módulo de repositórios
@@ -104,6 +111,12 @@ class NoCrastinationApplication : Application() {
                 taskMapper = get()
             )
         }
+        single<PomodoroRepository> {  // ADICIONAR
+            PomodoroRepositoryImpl(
+                pomodoroApi = get(),
+                pomodoroMapper = get()
+            )
+        }
     }
 
     // Módulo de ViewModels
@@ -116,6 +129,11 @@ class NoCrastinationApplication : Application() {
         viewModel {
             TasksViewModel(
                 taskRepository = get()
+            )
+        }
+        viewModel {  // ADICIONAR
+            PomodoroViewModel(
+                pomodoroRepository = get()
             )
         }
     }

@@ -1,4 +1,3 @@
-// data/datasource/remote/api/PomodoroApi.kt
 package pt.ipt.dam2025.nocrastination.data.datasource.remote.api
 
 import pt.ipt.dam2025.nocrastination.data.datasource.remote.models.requests.CreatePomodoroSessionRequest
@@ -10,7 +9,7 @@ import retrofit2.http.*
 
 interface PomodoroApi {
 
-    // Get all pomodoro sessions with optional filters
+    // Get all pomodoro sessions
     @GET("api/pomodoro-sessions")
     suspend fun getPomodoroSessions(
         @Query("filters[startTime][\$gte]") startTimeGte: String? = null,

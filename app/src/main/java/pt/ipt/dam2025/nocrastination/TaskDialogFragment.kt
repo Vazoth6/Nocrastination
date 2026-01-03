@@ -12,6 +12,8 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import pt.ipt.dam2025.nocrastination.databinding.TaskDialogBinding
 import pt.ipt.dam2025.nocrastination.domain.models.Task
 import pt.ipt.dam2025.nocrastination.domain.models.TaskPriority
@@ -24,7 +26,7 @@ class TaskDialogFragment : DialogFragment() {
     private var _binding: TaskDialogBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: TasksViewModel by activityViewModels()
+    private val viewModel: TasksViewModel by viewModel()
 
     private var task: Task? = null
     private val calendar = Calendar.getInstance()

@@ -1,4 +1,3 @@
-// data/mapper/PomodoroMapper.kt
 package pt.ipt.dam2025.nocrastination.data.mapper
 
 import pt.ipt.dam2025.nocrastination.data.datasource.remote.models.requests.*
@@ -32,7 +31,7 @@ class PomodoroMapper constructor() {
             endTime = endTimeMillis,
             durationMinutes = data.attributes.durationMinutes,
             completed = data.attributes.completed,
-            taskId = data.attributes.task?.data?.id
+            taskId = data.attributes.taskId  // Mudança: agora é um campo direto no PomodoroAttributes
         )
     }
 
@@ -42,7 +41,11 @@ class PomodoroMapper constructor() {
         return CreatePomodoroSessionRequest(
             data = CreatePomodoroSessionRequest.Data(
                 attributes = CreatePomodoroSessionRequest.Attributes(
-                    sessionType = session.sessionType.name,
+                    sessionType = when (session.sessionType) {
+                        SessionType.WORK -> "WORK"
+                        SessionType.SHORT_BREAK -> "SHORT_BREAK"
+                        SessionType.LONG_BREAK -> "LONG_BREAK"
+                    },
                     startTime = startTimeString,
                     durationMinutes = session.durationMinutes,
                     completed = session.completed,
@@ -60,8 +63,13 @@ class PomodoroMapper constructor() {
         return UpdatePomodoroSessionRequest(
             data = UpdatePomodoroSessionRequest.Data(
                 attributes = UpdatePomodoroSessionRequest.Attributes(
-                    sessionType = session.sessionType.name,
-                    startTime = session.startTime.let { formatFromMillis(it) },
+                    sessionType = when (session.sessionType) {
+                        SessionType.WORK -> "WORK"
+                        SessionType.SHORT_BREAK -> "SHORT_BREAK"
+                        SessionType.LONG_BREAK -> "LONG_BREAK"
+                        else -> null
+                    },
+                    startTime = formatFromMillis(session.startTime),
                     endTime = endTimeString,
                     durationMinutes = session.durationMinutes,
                     completed = session.completed,
