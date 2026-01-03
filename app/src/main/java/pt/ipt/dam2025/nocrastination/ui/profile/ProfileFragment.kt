@@ -9,9 +9,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import com.bumptech.glide.Glide
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import pt.ipt.dam2025.nocrastination.databinding.FragmentProfileBinding
+import pt.ipt.dam2025.nocrastination.domain.models.UserProfile
 import pt.ipt.dam2025.nocrastination.presentations.viewmodel.AuthViewModel
+import pt.ipt.dam2025.nocrastination.presentations.viewmodel.UserProfileViewModel
 import pt.ipt.dam2025.nocrastination.ui.auth.LoginActivity
 import pt.ipt.dam2025.nocrastination.ui.dialogs.AboutAppDialogFragment
 
@@ -20,8 +26,8 @@ class ProfileFragment : Fragment() {
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
 
-    // Injetar o ViewModel do Koin
     private val authViewModel: AuthViewModel by viewModel()
+    private val userProfileViewModel: UserProfileViewModel by viewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -35,43 +41,72 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Carregar dados reais do usuário (você precisará implementar isso)
-        loadUserProfile()
+        setupObservers()
         setupClickListeners()
     }
 
-    private fun loadUserProfile() {
-        // TODO: Implementar carregamento real do perfil do usuário
-        // Por enquanto, vamos usar dados mock
-        binding.apply {
-            textUserName.text = "Rodrigo Calisto"
-            textUserEmail.text = "rodrigo@example.com"
+    private fun setupObservers() {
+        lifecycleScope.launch {
+            userProfileViewModel.profileState.collectLatest { profile ->
+                profile?.let { updateUI(it) }
+            }
+        }
 
-            // Estatísticas do perfil
-            textTasksCompleted.text = "12 tarefas"
-            textTotalFocusTime.text = "25h 30m"
-            textCurrentStreak.text = "7 dias"
-            textLevel.text = "Nível 5"
+        lifecycleScope.launch {
+            userProfileViewModel.isLoading.collectLatest { isLoading ->
+                binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+                binding.contentLayout.visibility = if (isLoading) View.GONE else View.VISIBLE
+            }
+        }
+
+        lifecycleScope.launch {
+            userProfileViewModel.errorMessage.collectLatest { error ->
+                error?.let {
+                    Toast.makeText(context, "Erro: $it", Toast.LENGTH_SHORT).show()
+                    userProfileViewModel.clearError()
+                }
+            }
+        }
+    }
+
+    private fun updateUI(profile: UserProfile) {
+        binding.apply {
+            textUserName.text = profile.fullName
+            textUserEmail.text = "ID: ${profile.userId}"
+
+            // Carregar avatar se existir
+            profile.avatarUrl?.let { avatarUrl ->
+                Glide.with(this@ProfileFragment)
+                    .load(avatarUrl)
+                    .circleCrop()
+                    .into(imageAvatar)
+            }
+
+            // Atualizar estatísticas
+            textTasksCompleted.text = "${profile.dailyGoalMinutes} min/dia"
+            textTotalFocusTime.text = "${profile.pomodoroWorkDuration}min trabalho"
+            textCurrentStreak.text = "${profile.pomodoroShortBreak}min pausa curta"
+            textLevel.text = "${profile.pomodoroLongBreak}min pausa longa"
         }
     }
 
     private fun setupClickListeners() {
-        // Botão de logout
+        // Botão de logout - MANTIDO COMO ESTAVA
         binding.buttonLogout.setOnClickListener {
             showLogoutConfirmation()
         }
 
         // Botão de editar perfil
         binding.buttonEditProfile.setOnClickListener {
-            Toast.makeText(context, "Funcionalidade em desenvolvimento", Toast.LENGTH_SHORT).show()
+            openEditProfile()
         }
 
         // Botão de definições
         binding.buttonSettings.setOnClickListener {
-            Toast.makeText(context, "Definições em desenvolvimento", Toast.LENGTH_SHORT).show()
+            openSettings()
         }
 
-        // SECÇÃO "SOBRE A APP" (OBRIGATÓRIO)
+        // SECÇÃO "SOBRE A APP"
         binding.cardAboutApp.setOnClickListener {
             openAboutAppDialog()
         }
@@ -103,29 +138,28 @@ class ProfileFragment : Fragment() {
 
     private fun performLogout() {
         try {
-            // 1. Limpar todas as preferências manualmente para garantir
             val prefs = requireContext().getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
             prefs.edit().clear().apply()
 
-            // 2. Chamar logout no ViewModel (se tiver lógica adicional)
             authViewModel.logout()
 
-            // 3. Navegar para LoginActivity e limpar pilha de atividades
             val intent = Intent(requireActivity(), LoginActivity::class.java)
-
-            // Flags importantes para limpar a pilha
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-
             startActivity(intent)
-
-            // 4. Finalizar a atividade atual
             requireActivity().finish()
 
             Toast.makeText(context, "Sessão terminada com sucesso", Toast.LENGTH_SHORT).show()
-
         } catch (e: Exception) {
             Toast.makeText(context, "Erro ao terminar sessão: ${e.message}", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun openEditProfile() {
+        Toast.makeText(context, "Funcionalidade em desenvolvimento", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun openSettings() {
+        Toast.makeText(context, "Definições em desenvolvimento", Toast.LENGTH_SHORT).show()
     }
 
     private fun openAboutAppDialog() {

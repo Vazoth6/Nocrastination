@@ -118,4 +118,8 @@ dependencies {
     implementation("io.insert-koin:koin-androidx-workmanager:3.5.0")  // For WorkManager support
     testImplementation("io.insert-koin:koin-test:3.5.0")
     testImplementation("io.insert-koin:koin-test-junit4:3.5.0")
+
+    // Glide para carregamento de imagens
+    implementation("com.github.bumptech.glide:glide:4.14.2")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.14.2")
 }

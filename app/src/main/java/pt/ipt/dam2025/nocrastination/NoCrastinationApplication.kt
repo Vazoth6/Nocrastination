@@ -14,19 +14,24 @@ import org.koin.dsl.module
 import pt.ipt.dam2025.nocrastination.data.datasource.remote.api.AuthApi
 import pt.ipt.dam2025.nocrastination.data.datasource.remote.api.PomodoroApi
 import pt.ipt.dam2025.nocrastination.data.datasource.remote.api.TaskApi
+import pt.ipt.dam2025.nocrastination.data.datasource.remote.api.UserProfileApi
 import pt.ipt.dam2025.nocrastination.data.datasource.remote.interceptor.AuthInterceptor
 import pt.ipt.dam2025.nocrastination.data.datasource.remote.interceptor.ConnectivityInterceptor
 import pt.ipt.dam2025.nocrastination.data.mapper.PomodoroMapper
 import pt.ipt.dam2025.nocrastination.data.mapper.TaskMapper
+import pt.ipt.dam2025.nocrastination.data.mapper.UserProfileMapper
 import pt.ipt.dam2025.nocrastination.data.repositories.AuthRepositoryImpl
 import pt.ipt.dam2025.nocrastination.data.repositories.PomodoroRepositoryImpl
 import pt.ipt.dam2025.nocrastination.data.repositories.TaskRepositoryImpl
+import pt.ipt.dam2025.nocrastination.data.repositories.UserProfileRepositoryImpl
 import pt.ipt.dam2025.nocrastination.domain.repository.AuthRepository
 import pt.ipt.dam2025.nocrastination.domain.repository.PomodoroRepository
 import pt.ipt.dam2025.nocrastination.domain.repository.TaskRepository
+import pt.ipt.dam2025.nocrastination.domain.repository.UserProfileRepository
 import pt.ipt.dam2025.nocrastination.presentations.viewmodel.AuthViewModel
 import pt.ipt.dam2025.nocrastination.presentations.viewmodel.PomodoroViewModel
 import pt.ipt.dam2025.nocrastination.presentations.viewmodel.TasksViewModel
+import pt.ipt.dam2025.nocrastination.presentations.viewmodel.UserProfileViewModel
 import pt.ipt.dam2025.nocrastination.utils.PreferenceManager
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -62,6 +67,7 @@ class NoCrastinationApplication : Application() {
         single { ConnectivityInterceptor(get()) }
         single { TaskMapper() }
         single  { PomodoroMapper() }
+        single { UserProfileMapper }
     }
 
     // Módulo de API (Retrofit, APIs)
@@ -95,6 +101,7 @@ class NoCrastinationApplication : Application() {
         single { get<Retrofit>().create(AuthApi::class.java) }
         single { get<Retrofit>().create(TaskApi::class.java) }
         single { get<Retrofit>().create(PomodoroApi::class.java) }
+        single { get<Retrofit>().create(UserProfileApi::class.java) }
     }
 
     // Módulo de repositórios
@@ -117,6 +124,12 @@ class NoCrastinationApplication : Application() {
                 pomodoroMapper = get()
             )
         }
+        single<UserProfileRepository> {
+            UserProfileRepositoryImpl(
+                userProfileApi = get(),
+                userProfileMapper = get()
+            )
+        }
     }
 
     // Módulo de ViewModels
@@ -131,9 +144,14 @@ class NoCrastinationApplication : Application() {
                 taskRepository = get()
             )
         }
-        viewModel {  // ADICIONAR
+        viewModel {
             PomodoroViewModel(
                 pomodoroRepository = get()
+            )
+        }
+        viewModel {
+            UserProfileViewModel(
+                userProfileRepository = get()
             )
         }
     }

@@ -43,4 +43,31 @@
     <!-- Cores de estado -->
     <color name="error">#B3261E</color>
 
+    <!-- Primary Colors -->
+    <color name="primary_color">#6366F1</color>
+    <color name="primary_dark">#4F46E5</color>
+    <color name="primary_light">#818CF8</color>
+
+    <!-- Background Colors -->
+    <color name="background_grey">#F9FAFB</color>
+    <color name="card_background">#FFFFFF</color>
+    <color name="card_stroke">#E5E7EB</color>
+
+    <!-- Text Colors -->
+    <color name="text_primary">#111827</color>
+    <color name="text_secondary">#6B7280</color>
+    <color name="text_tertiary">#9CA3AF</color>
+
+    <!-- Status Colors -->
+    <color name="success_color">#10B981</color>
+    <color name="error_color">#EF4444</color>
+    <color name="warning_color">#F59E0B</color>
+
+    <!-- UI Colors -->
+    <color name="divider_color">#E5E7EB</color>
+
+    <color name="secondary_color">#03DAC6</color>
+    <color name="background_color">#F5F5F5</color>
+    <color name="highlight_color">#E3F2FD</color>
+
 </resources>

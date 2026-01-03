@@ -67,7 +67,7 @@
             android:id="@+id/textAuthors"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Rodrigo Calisto"
+            android:text="Rodrigo Miguel Oliveira Calisto, 24851"
             android:textSize="16sp"
             android:layout_marginBottom="16dp" />
 
