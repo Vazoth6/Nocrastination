@@ -23,7 +23,8 @@ class TaskMapper constructor() {
             completed = data.attributes.completed,
             completedAt = data.attributes.completedAt,
             createdAt = data.attributes.createdAt,
-            updatedAt = data.attributes.updatedAt
+            updatedAt = data.attributes.updatedAt,
+            estimatedMinutes = null
         )
     }
 
@@ -35,7 +36,8 @@ class TaskMapper constructor() {
                     description = task.description.takeIf { it.isNotBlank() },
                     dueDate = task.dueDate,
                     priority = task.priority.name,
-                    completed = task.completed
+                    completed = task.completed,
+                    estimatedMinutes = task.estimatedMinutes
                 )
             )
         )
@@ -50,7 +52,8 @@ class TaskMapper constructor() {
                     dueDate = task.dueDate,
                     priority = task.priority.name,
                     completed = task.completed,
-                    completedAt = task.completedAt
+                    completedAt = task.completedAt,
+                    estimatedMinutes = task.estimatedMinutes
                 )
             )
         )

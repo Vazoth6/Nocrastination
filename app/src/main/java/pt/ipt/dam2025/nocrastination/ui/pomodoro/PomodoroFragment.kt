@@ -9,13 +9,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import pt.ipt.dam2025.nocrastination.databinding.FragmentPomodoroBinding
+import pt.ipt.dam2025.nocrastination.domain.models.Task
 import pt.ipt.dam2025.nocrastination.presentation.viewmodel.PomodoroViewModel
+import pt.ipt.dam2025.nocrastination.presentations.viewmodel.TasksViewModel
+import java.text.SimpleDateFormat
 import java.util.*
 
 class PomodoroFragment : Fragment() {
@@ -24,6 +27,9 @@ class PomodoroFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val pomodoroViewModel: PomodoroViewModel by viewModel()
+    private val tasksViewModel: TasksViewModel by viewModel()
+
+    private var currentTask: Task? = null
 
     private var timer: CountDownTimer? = null
     private var isTimerRunning = false
@@ -43,11 +49,40 @@ class PomodoroFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Receber a tarefa dos argumentos usando Bundle
+        arguments?.let {
+            currentTask = it.getParcelable("task")
+            currentTask?.let { task ->
+                setupTaskForPomodoro(task)
+            }
+        }
+
         setupObservers()
         setupClickListeners()
         updateCountDownText()
         updateButtons()
         updateStats()
+    }
+
+    private fun setupTaskForPomodoro(task: Task) {
+        // Mostrar título da tarefa
+        binding.textTaskTitle.text = "Tarefa: ${task.title}"
+        binding.textTaskTitle.visibility = View.VISIBLE
+
+        // Usar estimatedMinutes da tarefa, ou padrão de 25
+        val estimatedMinutes = task.estimatedMinutes ?: 25
+
+        // Atualizar duração customizada
+        pomodoroViewModel.updateCustomWorkDuration(estimatedMinutes)
+
+        // Definir como Work
+        pomodoroViewModel.setCycleState(PomodoroViewModel.CycleState.WORK)
+
+        // Atualizar texto de duração
+        binding.textCustomDuration.text = "${estimatedMinutes}min"
+
+        // Configurar timer inicial com a duração da tarefa
+        setTimer(estimatedMinutes * 60 * 1000L, "TRABALHO", "WORK")
     }
 
     private fun setupObservers() {
@@ -136,7 +171,7 @@ class PomodoroFragment : Fragment() {
             if (!isTimerRunning) {
                 pomodoroViewModel.selectBreakType(PomodoroViewModel.BreakType.SHORT)
                 pomodoroViewModel.setCycleState(PomodoroViewModel.CycleState.BREAK)
-                resetTimer() // Reinicia o timer com a nova duração
+                resetTimer()
             }
         }
 
@@ -144,14 +179,14 @@ class PomodoroFragment : Fragment() {
             if (!isTimerRunning) {
                 pomodoroViewModel.selectBreakType(PomodoroViewModel.BreakType.LONG)
                 pomodoroViewModel.setCycleState(PomodoroViewModel.CycleState.BREAK)
-                resetTimer() // Reinicia o timer com a nova duração
+                resetTimer()
             }
         }
 
         binding.buttonBackToWork.setOnClickListener {
             if (!isTimerRunning) {
                 pomodoroViewModel.setCycleState(PomodoroViewModel.CycleState.WORK)
-                resetTimer() // Reinicia o timer com a nova duração
+                resetTimer()
             }
         }
 
@@ -161,7 +196,7 @@ class PomodoroFragment : Fragment() {
     }
 
     private fun showCustomTimeDialog() {
-        val builder = MaterialAlertDialogBuilder(requireContext())
+        val builder = android.app.AlertDialog.Builder(requireContext())
         builder.setTitle("Definir tempo de trabalho")
 
         val input = EditText(requireContext())
@@ -187,7 +222,7 @@ class PomodoroFragment : Fragment() {
             PomodoroViewModel.BreakType.LONG -> 1
         }
 
-        MaterialAlertDialogBuilder(requireContext())
+        android.app.AlertDialog.Builder(requireContext())
             .setTitle("Selecionar tipo de pausa")
             .setSingleChoiceItems(breakTypes, currentSelection) { dialog, which ->
                 val selectedType = when (which) {
@@ -211,9 +246,13 @@ class PomodoroFragment : Fragment() {
 
     private fun startWorkTimer() {
         val duration = pomodoroViewModel.customWorkDuration.value
+        val task = currentTask
 
         lifecycleScope.launch {
-            pomodoroViewModel.startPomodoro(useCustomDuration = true, taskId = null)
+            pomodoroViewModel.startPomodoro(
+                useCustomDuration = true,
+                taskId = task?.id
+            )
         }
 
         timer = object : CountDownTimer(timeLeftInMillis, 1000) {
@@ -231,6 +270,11 @@ class PomodoroFragment : Fragment() {
 
                 lifecycleScope.launch {
                     pomodoroViewModel.completePomodoro()
+
+                    // Marcar tarefa como completa quando o timer acabar
+                    currentTask?.let { task ->
+                        tasksViewModel.completeTask(task.id)
+                    }
                 }
 
                 showCompletionNotification()
@@ -245,9 +289,10 @@ class PomodoroFragment : Fragment() {
 
     private fun startBreakTimer() {
         val breakType = pomodoroViewModel.selectedBreakType.value
+        val task = currentTask
 
         lifecycleScope.launch {
-            pomodoroViewModel.startBreak(breakType, null)
+            pomodoroViewModel.startBreak(breakType, task?.id)
         }
 
         timer = object : CountDownTimer(timeLeftInMillis, 1000) {
@@ -311,18 +356,31 @@ class PomodoroFragment : Fragment() {
 
         binding.textTimerType.text = timerType
 
+        // CORREÇÃO: Usar ContextCompat.getColor() em vez de resources.getColor()
         when (sessionType) {
             "WORK" -> {
-                binding.cardTimerType.setCardBackgroundColor(resources.getColor(android.R.color.holo_orange_dark, null))
-                binding.progressCircular.setIndicatorColor(resources.getColor(android.R.color.holo_orange_dark, null))
+                binding.cardTimerType.setCardBackgroundColor(
+                    ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark)
+                )
+                binding.progressCircular.setIndicatorColor(
+                    ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark)
+                )
             }
             "SHORT_BREAK" -> {
-                binding.cardTimerType.setCardBackgroundColor(resources.getColor(android.R.color.holo_green_dark, null))
-                binding.progressCircular.setIndicatorColor(resources.getColor(android.R.color.holo_green_dark, null))
+                binding.cardTimerType.setCardBackgroundColor(
+                    ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark)
+                )
+                binding.progressCircular.setIndicatorColor(
+                    ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark)
+                )
             }
             "LONG_BREAK" -> {
-                binding.cardTimerType.setCardBackgroundColor(resources.getColor(android.R.color.holo_blue_dark, null))
-                binding.progressCircular.setIndicatorColor(resources.getColor(android.R.color.holo_blue_dark, null))
+                binding.cardTimerType.setCardBackgroundColor(
+                    ContextCompat.getColor(requireContext(), android.R.color.holo_blue_dark)
+                )
+                binding.progressCircular.setIndicatorColor(
+                    ContextCompat.getColor(requireContext(), android.R.color.holo_blue_dark)
+                )
             }
         }
     }
@@ -385,10 +443,16 @@ class PomodoroFragment : Fragment() {
     private fun showCompletionNotification() {
         Toast.makeText(
             context,
-            "🎉 Tempo de trabalho esgotado! Iniciando pausa...",
+            "🎉 Tempo de trabalho esgotado! Tarefa marcada como completa.",
             Toast.LENGTH_LONG
         ).show()
         sessionCount++
+    }
+
+    private fun getCurrentISOTimestamp(): String {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+        dateFormat.timeZone = TimeZone.getTimeZone("UTC")
+        return dateFormat.format(Date())
     }
 
     override fun onDestroyView() {

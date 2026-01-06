@@ -2,12 +2,14 @@ package pt.ipt.dam2025.nocrastination.presentations.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import pt.ipt.dam2025.nocrastination.domain.models.Result
 import pt.ipt.dam2025.nocrastination.domain.models.Task
+import pt.ipt.dam2025.nocrastination.domain.models.UIEvent
 import pt.ipt.dam2025.nocrastination.domain.repository.TaskRepository
 import java.text.SimpleDateFormat
 import java.util.*
@@ -25,6 +27,10 @@ class TasksViewModel(
 
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
+
+    // Eventos UI
+    private val _uiEvents = MutableSharedFlow<UIEvent>()
+    val uiEvents = _uiEvents
 
     fun loadTasks() {
         viewModelScope.launch {
@@ -52,6 +58,8 @@ class TasksViewModel(
                     _tasks.value = _tasks.value + result.data
                     // Recarrega todas as tarefas para garantir sincronização
                     loadTasks()
+                    // Enviar evento de sucesso
+                    _uiEvents.emit(UIEvent.ShowToast("Tarefa criada com sucesso!"))
                 }
                 is Result.Error -> {
                     _error.value = result.exception.message ?: "Erro ao criar tarefa"
@@ -70,6 +78,7 @@ class TasksViewModel(
                     _tasks.value = _tasks.value.map {
                         if (it.id == result.data.id) result.data else it
                     }
+                    _uiEvents.emit(UIEvent.ShowToast("Tarefa atualizada!"))
                 }
                 is Result.Error -> {
                     _error.value = result.exception.message ?: "Erro ao atualizar tarefa"
@@ -81,28 +90,26 @@ class TasksViewModel(
 
     fun completeTask(taskId: Int) {
         viewModelScope.launch {
-            val task = _tasks.value.find { it.id == taskId }
-            task?.let {
-                _loading.value = true
-                _error.value = null
+            _loading.value = true
+            _error.value = null
 
-                val completedAt = getCurrentISOTimestamp()
-                when (val result = taskRepository.completeTask(taskId, completedAt)) {
-                    is Result.Success -> {
-                        // Atualiza a lista local com a tarefa completa
-                        _tasks.value = _tasks.value.map {
-                            if (it.id == taskId) result.data else it
-                        }
+            val completedAt = getCurrentISOTimestamp()
+            when (val result = taskRepository.completeTask(taskId, completedAt)) {
+                is Result.Success -> {
+                    // Atualizar a lista local com a tarefa completa
+                    _tasks.value = _tasks.value.map {
+                        if (it.id == taskId) result.data else it
                     }
-                    is Result.Error -> {
-                        _error.value = result.exception.message ?: "Erro ao concluir tarefa"
-                    }
+                    // Enviar evento de sucesso
+                    _uiEvents.emit(UIEvent.ShowToast("✅ Tarefa concluída!"))
                 }
-                _loading.value = false
+                is Result.Error -> {
+                    _error.value = result.exception.message ?: "Erro ao concluir tarefa"
+                }
             }
+            _loading.value = false
         }
     }
-
 
     fun deleteTask(taskId: Int) {
         viewModelScope.launch {
@@ -111,6 +118,7 @@ class TasksViewModel(
             when (val result = taskRepository.deleteTask(taskId)) {
                 is Result.Success -> {
                     _tasks.value = _tasks.value.filter { it.id != taskId }
+                    _uiEvents.emit(UIEvent.ShowToast("Tarefa eliminada!"))
                 }
                 is Result.Error -> {
                     _error.value = result.exception.message ?: "Erro ao eliminar tarefa"

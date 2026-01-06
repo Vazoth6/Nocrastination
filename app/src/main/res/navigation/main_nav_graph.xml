@@ -9,13 +9,26 @@
         android:id="@+id/tasksFragment"
         android:name="pt.ipt.dam2025.nocrastination.ui.tasks.TasksFragment"
         android:label="Tarefas"
-        tools:layout="@layout/fragment_tasks" />
+        tools:layout="@layout/fragment_tasks">
+
+        <action
+            android:id="@+id/action_tasksFragment_to_pomodoroFragment"
+            app:destination="@id/pomodoroFragment" />
+
+    </fragment>
 
     <fragment
         android:id="@+id/pomodoroFragment"
         android:name="pt.ipt.dam2025.nocrastination.ui.pomodoro.PomodoroFragment"
         android:label="Pomodoro"
-        tools:layout="@layout/fragment_pomodoro" />
+        tools:layout="@layout/fragment_pomodoro">
+
+        <argument
+            android:name="task"
+            app:argType="pt.ipt.dam2025.nocrastination.domain.models.Task"
+            android:defaultValue="@null" />
+
+    </fragment>
 
     <fragment
         android:id="@+id/statisticsFragment"

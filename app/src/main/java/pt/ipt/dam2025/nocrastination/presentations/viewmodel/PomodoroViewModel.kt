@@ -71,7 +71,7 @@ class PomodoroViewModel constructor(
                 endTime = null,
                 durationMinutes = workDuration,
                 completed = false,
-                taskId = taskId
+                taskId = taskId  // Passar taskId aqui
             )
 
             when (val result = pomodoroRepository.startSession(newSession)) {
@@ -110,7 +110,7 @@ class PomodoroViewModel constructor(
                 endTime = null,
                 durationMinutes = breakDuration,
                 completed = false,
-                taskId = taskId
+                taskId = taskId  // Passar taskId aqui
             )
 
             when (val result = pomodoroRepository.startSession(breakSession)) {

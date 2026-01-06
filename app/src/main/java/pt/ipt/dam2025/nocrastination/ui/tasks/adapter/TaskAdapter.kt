@@ -17,7 +17,8 @@ class TaskAdapter(
     private val onTaskClick: (Task) -> Unit,
     private val onCompleteClick: (Int) -> Unit,
     private val onEditClick: (Task) -> Unit,
-    private val onDeleteClick: (Int) -> Unit
+    private val onDeleteClick: (Int) -> Unit,
+    private val onStartPomodoro: (Task) -> Unit
 ) : ListAdapter<Task, TaskAdapter.TaskViewHolder>(TaskDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
@@ -47,6 +48,10 @@ class TaskAdapter(
                 TaskPriority.LOW -> "Baixa"
                 TaskPriority.MEDIUM -> "Média"
                 TaskPriority.HIGH -> "Alta"
+            }
+
+            binding.buttonPomodoro.setOnClickListener {
+                onStartPomodoro(task)
             }
 
             // Set chip color based on priority

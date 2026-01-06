@@ -8,12 +8,16 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import pt.ipt.dam2025.nocrastination.R
 import pt.ipt.dam2025.nocrastination.TaskDialogFragment
 import pt.ipt.dam2025.nocrastination.databinding.FragmentTasksBinding
+import pt.ipt.dam2025.nocrastination.domain.models.Task
+import pt.ipt.dam2025.nocrastination.domain.models.UIEvent
 import pt.ipt.dam2025.nocrastination.presentations.viewmodel.TasksViewModel
 import pt.ipt.dam2025.nocrastination.ui.tasks.adapter.TaskAdapter
 
@@ -22,9 +26,7 @@ class TasksFragment : Fragment() {
     private var _binding: FragmentTasksBinding? = null
     private val binding get() = _binding!!
 
-    // CORREÇÃO: Use viewModel() do Koin ao invés de activityViewModels()
     private val viewModel: TasksViewModel by viewModel()
-
     private lateinit var taskAdapter: TaskAdapter
 
     override fun onCreateView(
@@ -44,8 +46,6 @@ class TasksFragment : Fragment() {
         setupRecyclerView()
         setupObservers()
         setupClickListeners()
-
-        // Carregar tarefas ao iniciar
         viewModel.loadTasks()
     }
 
@@ -62,6 +62,9 @@ class TasksFragment : Fragment() {
             },
             onDeleteClick = { taskId ->
                 showDeleteConfirmation(taskId)
+            },
+            onStartPomodoro = { task ->
+                navigateToPomodoroWithTask(task)
             }
         )
 
@@ -71,30 +74,60 @@ class TasksFragment : Fragment() {
         }
     }
 
+    private fun navigateToPomodoroWithTask(task: Task) {
+        val bundle = Bundle().apply {
+            putParcelable("task", task)
+        }
+        findNavController().navigate(
+            R.id.action_tasksFragment_to_pomodoroFragment,
+            bundle
+        )
+    }
+
     private fun setupObservers() {
+        // Observar tarefas
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.tasks.collectLatest { tasks ->
                 Log.d("TasksFragment", "Tasks atualizadas: ${tasks.size} tarefas")
                 taskAdapter.submitList(tasks)
 
-                // Mostrar/ocultar estado vazio
                 binding.emptyState.root.visibility = if (tasks.isEmpty()) View.VISIBLE else View.GONE
                 binding.recyclerViewTasks.visibility = if (tasks.isEmpty()) View.GONE else View.VISIBLE
             }
         }
 
+        // Observar loading
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.loading.collectLatest { isLoading ->
                 binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
             }
         }
 
+        // Observar erros
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.error.collectLatest { errorMessage ->
                 errorMessage?.let {
                     Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
                     Log.e("TasksFragment", "Erro: $errorMessage")
                     viewModel.clearError()
+                }
+            }
+        }
+
+        // Observar eventos UI
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.uiEvents.collect { event ->
+                when (event) {
+                    is UIEvent.ShowToast -> {
+                        Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                    }
+                    is UIEvent.ShowSnackbar -> {
+                        // Se quiser usar Snackbar em vez de Toast
+                        // Snackbar.make(binding.root, event.message, Snackbar.LENGTH_SHORT).show()
+                    }
+                    UIEvent.NavigateBack -> {
+                        // Navegar para trás se necessário
+                    }
                 }
             }
         }
@@ -105,7 +138,6 @@ class TasksFragment : Fragment() {
             openTaskDialog(null)
         }
 
-        // Filtros por chip
         binding.chipAll.setOnClickListener {
             // TODO: Implementar filtro
             Toast.makeText(context, "Mostrar todas as tarefas", Toast.LENGTH_SHORT).show()

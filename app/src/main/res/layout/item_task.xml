@@ -103,13 +103,14 @@
                     android:contentDescription="@string/icon_date"
                     app:tint="@color/secondary_text" />
 
+                <!-- Tempo estimado -->
                 <TextView
                     android:id="@+id/textDueDate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="15 Dez, 2024"
-                    android:textSize="12sp"
                     android:textColor="@color/secondary_text"
+                    android:textSize="12sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -118,8 +119,18 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:text="• 14:30"
+                    android:textColor="@color/secondary_text"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/textEstimatedTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="• 25min"
                     android:textSize="12sp"
-                    android:textColor="@color/secondary_text" />
+                    android:textColor="@color/secondary_text"
+                    android:visibility="gone" />
 
             </LinearLayout>
 
@@ -129,12 +140,30 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
+                <!-- Pomodoro Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/buttonPomodoro"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:minWidth="0dp"
+                    android:minHeight="0dp"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="4dp"
+                    android:textSize="12sp"
+                    android:visibility="visible"
+                    app:icon="@drawable/ic_time"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    app:iconSize="16dp" />
+
                 <!-- Edit Button -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonEdit"
                     style="@style/Widget.Material3.Button.TextButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
                     android:minWidth="0dp"
                     android:minHeight="0dp"
                     android:paddingHorizontal="8dp"
