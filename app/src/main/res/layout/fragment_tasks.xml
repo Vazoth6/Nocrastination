@@ -75,7 +75,7 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
         android:contentDescription="Adicionar tarefa"
-        app:backgroundTint="@color/purple_500"
+        app:backgroundTint="@color/gray_400"
         android:src="@android:drawable/ic_input_add" />
 
     <include

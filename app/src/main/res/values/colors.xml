@@ -11,6 +11,7 @@
 
     <!-- Cores para a app -->
     <color name="background_gray">#F5F5F5</color>
+    <color name="gray_400">#D3D3D3</color>
     <color name="gray_500">#9E9E9E</color>
     <color name="gray_600">#757575</color>
 

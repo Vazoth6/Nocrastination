@@ -1,17 +1,22 @@
+// ui/pomodoro/PomodoroFragment.kt
 package pt.ipt.dam2025.nocrastination.ui.pomodoro
 
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import pt.ipt.dam2025.nocrastination.databinding.FragmentPomodoroBinding
-import pt.ipt.dam2025.nocrastination.presentations.viewmodel.PomodoroViewModel
+import pt.ipt.dam2025.nocrastination.presentation.viewmodel.PomodoroViewModel
+import java.util.*
 
 class PomodoroFragment : Fragment() {
 
@@ -22,7 +27,7 @@ class PomodoroFragment : Fragment() {
 
     private var timer: CountDownTimer? = null
     private var isTimerRunning = false
-    private var timeLeftInMillis = 25 * 60 * 1000L // 25 minutos em milissegundos
+    private var timeLeftInMillis = 25 * 60 * 1000L
     private var totalTimeMillis = 25 * 60 * 1000L
     private var sessionCount = 1
 
@@ -59,6 +64,55 @@ class PomodoroFragment : Fragment() {
                 updateStats()
             }
         }
+
+        lifecycleScope.launch {
+            pomodoroViewModel.customWorkDuration.collect { duration ->
+                binding.textCustomDuration.text = "${duration}min"
+                if (pomodoroViewModel.cycleState.value == PomodoroViewModel.CycleState.WORK) {
+                    setTimer(duration * 60 * 1000L, "TRABALHO", "WORK")
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            pomodoroViewModel.selectedBreakType.collect { breakType ->
+                val breakText = when (breakType) {
+                    PomodoroViewModel.BreakType.SHORT -> "PAUSA CURTA (5min)"
+                    PomodoroViewModel.BreakType.LONG -> "PAUSA LONGA (15min)"
+                }
+                binding.textBreakType.text = breakText
+            }
+        }
+
+        lifecycleScope.launch {
+            pomodoroViewModel.cycleState.collect { state ->
+                when (state) {
+                    PomodoroViewModel.CycleState.WORK -> {
+                        val duration = pomodoroViewModel.customWorkDuration.value
+                        setTimer(duration * 60 * 1000L, "TRABALHO", "WORK")
+                        binding.buttonBackToWork.visibility = View.GONE
+                        binding.buttonBreakSelector.visibility = View.VISIBLE
+                    }
+                    PomodoroViewModel.CycleState.BREAK -> {
+                        val breakDuration = when (pomodoroViewModel.selectedBreakType.value) {
+                            PomodoroViewModel.BreakType.SHORT -> 5
+                            PomodoroViewModel.BreakType.LONG -> 15
+                        }
+                        val breakType = when (pomodoroViewModel.selectedBreakType.value) {
+                            PomodoroViewModel.BreakType.SHORT -> "PAUSA CURTA"
+                            PomodoroViewModel.BreakType.LONG -> "PAUSA LONGA"
+                        }
+                        val sessionType = when (pomodoroViewModel.selectedBreakType.value) {
+                            PomodoroViewModel.BreakType.SHORT -> "SHORT_BREAK"
+                            PomodoroViewModel.BreakType.LONG -> "LONG_BREAK"
+                        }
+                        setTimer(breakDuration * 60 * 1000L, breakType, sessionType)
+                        binding.buttonBackToWork.visibility = View.VISIBLE
+                        binding.buttonBreakSelector.visibility = View.GONE
+                    }
+                }
+            }
+        }
     }
 
     private fun setupClickListeners() {
@@ -74,26 +128,92 @@ class PomodoroFragment : Fragment() {
             resetTimer()
         }
 
+        binding.buttonCustomDuration.setOnClickListener {
+            showCustomTimeDialog()
+        }
+
         binding.buttonShortBreak.setOnClickListener {
-            setTimer(5 * 60 * 1000L, "PAUSA CURTA", "SHORT_BREAK")
+            if (!isTimerRunning) {
+                pomodoroViewModel.selectBreakType(PomodoroViewModel.BreakType.SHORT)
+                pomodoroViewModel.setCycleState(PomodoroViewModel.CycleState.BREAK)
+                resetTimer() // Reinicia o timer com a nova duração
+            }
         }
 
         binding.buttonLongBreak.setOnClickListener {
-            setTimer(15 * 60 * 1000L, "PAUSA LONGA", "LONG_BREAK")
+            if (!isTimerRunning) {
+                pomodoroViewModel.selectBreakType(PomodoroViewModel.BreakType.LONG)
+                pomodoroViewModel.setCycleState(PomodoroViewModel.CycleState.BREAK)
+                resetTimer() // Reinicia o timer com a nova duração
+            }
         }
 
-        binding.buttonPomodoro.setOnClickListener {
-            setTimer(25 * 60 * 1000L, "POMODORO", "WORK")
+        binding.buttonBackToWork.setOnClickListener {
+            if (!isTimerRunning) {
+                pomodoroViewModel.setCycleState(PomodoroViewModel.CycleState.WORK)
+                resetTimer() // Reinicia o timer com a nova duração
+            }
+        }
+
+        binding.buttonBreakSelector.setOnClickListener {
+            showBreakTypeSelector()
         }
     }
 
+    private fun showCustomTimeDialog() {
+        val builder = MaterialAlertDialogBuilder(requireContext())
+        builder.setTitle("Definir tempo de trabalho")
+
+        val input = EditText(requireContext())
+        input.inputType = InputType.TYPE_CLASS_NUMBER
+        input.hint = "Minutos (1-120)"
+        input.setText(pomodoroViewModel.customWorkDuration.value.toString())
+
+        builder.setView(input)
+
+        builder.setPositiveButton("OK") { dialog, which ->
+            val minutes = input.text.toString().toIntOrNull() ?: 25
+            pomodoroViewModel.updateCustomWorkDuration(minutes)
+        }
+        builder.setNegativeButton("Cancelar", null)
+
+        builder.show()
+    }
+
+    private fun showBreakTypeSelector() {
+        val breakTypes = arrayOf("Pausa Curta (5min)", "Pausa Longa (15min)")
+        val currentSelection = when (pomodoroViewModel.selectedBreakType.value) {
+            PomodoroViewModel.BreakType.SHORT -> 0
+            PomodoroViewModel.BreakType.LONG -> 1
+        }
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Selecionar tipo de pausa")
+            .setSingleChoiceItems(breakTypes, currentSelection) { dialog, which ->
+                val selectedType = when (which) {
+                    0 -> PomodoroViewModel.BreakType.SHORT
+                    else -> PomodoroViewModel.BreakType.LONG
+                }
+                pomodoroViewModel.selectBreakType(selectedType)
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
     private fun startTimer() {
-        // Iniciar sessão no backend
+        if (pomodoroViewModel.cycleState.value == PomodoroViewModel.CycleState.WORK) {
+            startWorkTimer()
+        } else {
+            startBreakTimer()
+        }
+    }
+
+    private fun startWorkTimer() {
+        val duration = pomodoroViewModel.customWorkDuration.value
+
         lifecycleScope.launch {
-            pomodoroViewModel.startPomodoro(
-                workDuration = (totalTimeMillis / 60000).toInt(),
-                taskId = null
-            )
+            pomodoroViewModel.startPomodoro(useCustomDuration = true, taskId = null)
         }
 
         timer = object : CountDownTimer(timeLeftInMillis, 1000) {
@@ -101,7 +221,6 @@ class PomodoroFragment : Fragment() {
                 timeLeftInMillis = millisUntilFinished
                 updateCountDownText()
 
-                // Atualizar progresso circular
                 val progress = ((totalTimeMillis - millisUntilFinished) * 100 / totalTimeMillis).toInt()
                 binding.progressCircular.progress = progress
             }
@@ -110,12 +229,10 @@ class PomodoroFragment : Fragment() {
                 isTimerRunning = false
                 updateButtons()
 
-                // Completar a sessão no backend
                 lifecycleScope.launch {
                     pomodoroViewModel.completePomodoro()
                 }
 
-                // Mostrar notificação
                 showCompletionNotification()
                 updateStats()
             }
@@ -124,6 +241,48 @@ class PomodoroFragment : Fragment() {
         isTimerRunning = true
         updateButtons()
         binding.textSessionInfo.text = "Sessão #${sessionCount}"
+    }
+
+    private fun startBreakTimer() {
+        val breakType = pomodoroViewModel.selectedBreakType.value
+
+        lifecycleScope.launch {
+            pomodoroViewModel.startBreak(breakType, null)
+        }
+
+        timer = object : CountDownTimer(timeLeftInMillis, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                timeLeftInMillis = millisUntilFinished
+                updateCountDownText()
+
+                val progress = ((totalTimeMillis - millisUntilFinished) * 100 / totalTimeMillis).toInt()
+                binding.progressCircular.progress = progress
+            }
+
+            override fun onFinish() {
+                isTimerRunning = false
+                updateButtons()
+
+                lifecycleScope.launch {
+                    pomodoroViewModel.completePomodoro()
+                }
+
+                Toast.makeText(
+                    context,
+                    "⏰ Pausa terminada! Volte ao trabalho.",
+                    Toast.LENGTH_LONG
+                ).show()
+
+                updateStats()
+            }
+        }.start()
+
+        isTimerRunning = true
+        updateButtons()
+        binding.textSessionInfo.text = when (breakType) {
+            PomodoroViewModel.BreakType.SHORT -> "Pausa Curta"
+            PomodoroViewModel.BreakType.LONG -> "Pausa Longa"
+        }
     }
 
     private fun pauseTimer() {
@@ -152,7 +311,6 @@ class PomodoroFragment : Fragment() {
 
         binding.textTimerType.text = timerType
 
-        // Atualizar cores baseadas no tipo
         when (sessionType) {
             "WORK" -> {
                 binding.cardTimerType.setCardBackgroundColor(resources.getColor(android.R.color.holo_orange_dark, null))
@@ -167,8 +325,6 @@ class PomodoroFragment : Fragment() {
                 binding.progressCircular.setIndicatorColor(resources.getColor(android.R.color.holo_blue_dark, null))
             }
         }
-
-        Toast.makeText(context, "Timer definido: $timerType", Toast.LENGTH_SHORT).show()
     }
 
     private fun updateCountDownText() {
@@ -182,12 +338,22 @@ class PomodoroFragment : Fragment() {
     private fun updateButtons() {
         if (isTimerRunning) {
             binding.buttonStartPause.text = "PAUSAR"
-            binding.buttonStartPause.icon = resources.getDrawable(android.R.drawable.ic_media_pause, null)
+            binding.buttonStartPause.setIconResource(android.R.drawable.ic_media_pause)
             binding.buttonReset.visibility = View.GONE
+            binding.buttonCustomDuration.isEnabled = false
+            binding.buttonShortBreak.isEnabled = false
+            binding.buttonLongBreak.isEnabled = false
+            binding.buttonBreakSelector.isEnabled = false
+            binding.buttonBackToWork.isEnabled = false
         } else {
             binding.buttonStartPause.text = "INICIAR"
-            binding.buttonStartPause.icon = resources.getDrawable(android.R.drawable.ic_media_play, null)
+            binding.buttonStartPause.setIconResource(android.R.drawable.ic_media_play)
             binding.buttonReset.visibility = View.VISIBLE
+            binding.buttonCustomDuration.isEnabled = true
+            binding.buttonShortBreak.isEnabled = true
+            binding.buttonLongBreak.isEnabled = true
+            binding.buttonBreakSelector.isEnabled = true
+            binding.buttonBackToWork.isEnabled = true
         }
     }
 
@@ -204,7 +370,7 @@ class PomodoroFragment : Fragment() {
             val totalMinutes = todaySessions.sumOf { it.durationMinutes }
             val hours = totalMinutes / 60
             val minutes = totalMinutes % 60
-            binding.textTodayFocus.text = if (hours > 0) "${hours}h" else "${minutes}m"
+            binding.textTodayFocus.text = if (hours > 0) "${hours}h${minutes}m" else "${minutes}m"
 
             val completed = todaySessions.count { it.completed }
             val completionRate = if (todaySessions.isNotEmpty()) {
@@ -219,11 +385,9 @@ class PomodoroFragment : Fragment() {
     private fun showCompletionNotification() {
         Toast.makeText(
             context,
-            "🎉 Tempo esgotado! Bom trabalho!",
+            "🎉 Tempo de trabalho esgotado! Iniciando pausa...",
             Toast.LENGTH_LONG
         ).show()
-
-        // Incrementar contador de sessões
         sessionCount++
     }
 

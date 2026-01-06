@@ -1,5 +1,5 @@
 // presentation/viewmodel/PomodoroViewModel.kt
-package pt.ipt.dam2025.nocrastination.presentations.viewmodel  // Fixed: presentations → presentation
+package pt.ipt.dam2025.nocrastination.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -30,10 +30,39 @@ class PomodoroViewModel constructor(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
-    fun startPomodoro(workDuration: Int, taskId: Int? = null) {
+    // Configurações do usuário
+    private val _customWorkDuration = MutableStateFlow(25) // minutos
+    val customWorkDuration: StateFlow<Int> = _customWorkDuration.asStateFlow()
+
+    private val _selectedBreakType = MutableStateFlow(BreakType.SHORT) // Tipo de pausa selecionada
+    val selectedBreakType: StateFlow<BreakType> = _selectedBreakType.asStateFlow()
+
+    // Estado do ciclo - usando enum em vez de sealed class
+    private val _cycleState = MutableStateFlow(CycleState.WORK)
+    val cycleState: StateFlow<CycleState> = _cycleState.asStateFlow()
+
+    fun updateCustomWorkDuration(minutes: Int) {
+        _customWorkDuration.value = minutes.coerceIn(1, 120) // Limitar entre 1 e 120 minutos
+    }
+
+    fun selectBreakType(breakType: BreakType) {
+        _selectedBreakType.value = breakType
+    }
+
+    fun setCycleState(state: CycleState) {
+        _cycleState.value = state
+    }
+
+    fun startPomodoro(useCustomDuration: Boolean = true, taskId: Int? = null) {
         viewModelScope.launch {
             _loading.value = true
             _error.value = null
+
+            val workDuration = if (useCustomDuration) {
+                _customWorkDuration.value
+            } else {
+                25 // Default
+            }
 
             val newSession = PomodoroSession(
                 id = 0,
@@ -48,10 +77,50 @@ class PomodoroViewModel constructor(
             when (val result = pomodoroRepository.startSession(newSession)) {
                 is Result.Success -> {
                     _currentSession.value = result.data
+                    _cycleState.value = CycleState.WORK
                     loadTodaySessions()
                 }
                 is Result.Error -> {
                     _error.value = result.exception.message ?: "Erro ao iniciar pomodoro"
+                }
+            }
+            _loading.value = false
+        }
+    }
+
+    fun startBreak(breakType: BreakType, taskId: Int? = null) {
+        viewModelScope.launch {
+            _loading.value = true
+            _error.value = null
+
+            val breakDuration = when (breakType) {
+                BreakType.SHORT -> 5
+                BreakType.LONG -> 15
+            }
+
+            val sessionType = when (breakType) {
+                BreakType.SHORT -> SessionType.SHORT_BREAK
+                BreakType.LONG -> SessionType.LONG_BREAK
+            }
+
+            val breakSession = PomodoroSession(
+                id = 0,
+                sessionType = sessionType,
+                startTime = System.currentTimeMillis(),
+                endTime = null,
+                durationMinutes = breakDuration,
+                completed = false,
+                taskId = taskId
+            )
+
+            when (val result = pomodoroRepository.startSession(breakSession)) {
+                is Result.Success -> {
+                    _currentSession.value = result.data
+                    _cycleState.value = CycleState.BREAK
+                    loadTodaySessions()
+                }
+                is Result.Error -> {
+                    _error.value = result.exception.message ?: "Erro ao iniciar pausa"
                 }
             }
             _loading.value = false
@@ -71,6 +140,14 @@ class PomodoroViewModel constructor(
                 when (val result = pomodoroRepository.completeSession(session.id, endTime)) {
                     is Result.Success -> {
                         _currentSession.value = null
+
+                        // Iniciar pausa automática após completar trabalho
+                        if (_cycleState.value == CycleState.WORK) {
+                            startBreak(_selectedBreakType.value)
+                        } else {
+                            _cycleState.value = CycleState.WORK
+                        }
+
                         loadTodaySessions()
                     }
                     is Result.Error -> {
@@ -101,5 +178,14 @@ class PomodoroViewModel constructor(
 
     fun clearError() {
         _error.value = null
+    }
+
+    // Usar enum em vez de sealed class com objects
+    enum class CycleState {
+        WORK, BREAK
+    }
+
+    enum class BreakType {
+        SHORT, LONG
     }
 }

@@ -29,7 +29,7 @@ import pt.ipt.dam2025.nocrastination.domain.repository.PomodoroRepository
 import pt.ipt.dam2025.nocrastination.domain.repository.TaskRepository
 import pt.ipt.dam2025.nocrastination.domain.repository.UserProfileRepository
 import pt.ipt.dam2025.nocrastination.presentations.viewmodel.AuthViewModel
-import pt.ipt.dam2025.nocrastination.presentations.viewmodel.PomodoroViewModel
+import pt.ipt.dam2025.nocrastination.presentation.viewmodel.PomodoroViewModel
 import pt.ipt.dam2025.nocrastination.presentations.viewmodel.TasksViewModel
 import pt.ipt.dam2025.nocrastination.presentations.viewmodel.UserProfileViewModel
 import pt.ipt.dam2025.nocrastination.utils.PreferenceManager
