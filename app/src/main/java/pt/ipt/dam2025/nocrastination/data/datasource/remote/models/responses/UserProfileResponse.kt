@@ -48,3 +48,4 @@ fun UserProfileResponse.toDomain(): UserProfile {
         pomodoroLongBreak = pomodoroLongBreak ?: 15
     )
 }
+

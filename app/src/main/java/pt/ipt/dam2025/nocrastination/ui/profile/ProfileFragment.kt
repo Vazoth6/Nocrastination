@@ -14,12 +14,14 @@ import com.bumptech.glide.Glide
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import pt.ipt.dam2025.nocrastination.R
 import pt.ipt.dam2025.nocrastination.databinding.FragmentProfileBinding
 import pt.ipt.dam2025.nocrastination.domain.models.UserProfile
 import pt.ipt.dam2025.nocrastination.presentations.viewmodel.AuthViewModel
 import pt.ipt.dam2025.nocrastination.presentations.viewmodel.UserProfileViewModel
 import pt.ipt.dam2025.nocrastination.ui.auth.LoginActivity
 import pt.ipt.dam2025.nocrastination.ui.dialogs.AboutAppDialogFragment
+import pt.ipt.dam2025.nocrastination.utils.PreferenceManager
 
 class ProfileFragment : Fragment() {
 
@@ -41,8 +43,38 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setupObservers()
-        setupClickListeners()
+        // Verificar se o usuário está logado
+        val preferenceManager = PreferenceManager(requireContext())
+        val token = preferenceManager.getAuthToken()
+
+        if (token.isNullOrEmpty()) {
+            showLoginRequired()
+        } else {
+            setupObservers()
+            setupClickListeners()
+            loadProfile()
+        }
+    }
+
+    private fun loadProfile() {
+        userProfileViewModel.loadProfile()
+    }
+
+    private fun showLoginRequired() {
+        binding.apply {
+            contentLayout.visibility = View.GONE
+            progressBar.visibility = View.GONE
+
+            val message = "Por favor, faça login para ver seu perfil"
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+
+            buttonLogout.text = "Fazer Login"
+            buttonLogout.setOnClickListener {
+                val intent = Intent(requireActivity(), LoginActivity::class.java)
+                startActivity(intent)
+                requireActivity().finish()
+            }
+        }
     }
 
     private fun setupObservers() {
@@ -63,6 +95,12 @@ class ProfileFragment : Fragment() {
             userProfileViewModel.errorMessage.collectLatest { error ->
                 error?.let {
                     Toast.makeText(context, "Erro: $it", Toast.LENGTH_SHORT).show()
+
+                    // Se for erro 401 (não autorizado), token pode ter expirado
+                    if (it.contains("401") || it.contains("Unauthorized")) {
+                        showLoginRequired()
+                    }
+
                     userProfileViewModel.clearError()
                 }
             }
@@ -74,15 +112,16 @@ class ProfileFragment : Fragment() {
             textUserName.text = profile.fullName
             textUserEmail.text = "ID: ${profile.userId}"
 
-            // Carregar avatar se existir
+            // Carregar avatar
             profile.avatarUrl?.let { avatarUrl ->
                 Glide.with(this@ProfileFragment)
                     .load(avatarUrl)
                     .circleCrop()
+                    .placeholder(R.drawable.ic_profile)
                     .into(imageAvatar)
             }
 
-            // Atualizar estatísticas
+            // Atualizar configurações Pomodoro
             textTasksCompleted.text = "${profile.dailyGoalMinutes} min/dia"
             textTotalFocusTime.text = "${profile.pomodoroWorkDuration}min trabalho"
             textCurrentStreak.text = "${profile.pomodoroShortBreak}min pausa curta"
@@ -138,11 +177,14 @@ class ProfileFragment : Fragment() {
 
     private fun performLogout() {
         try {
-            val prefs = requireContext().getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
-            prefs.edit().clear().apply()
+            // Limpar preferências
+            val preferenceManager = PreferenceManager(requireContext())
+            preferenceManager.clearAll()
 
+            // Chamar logout no ViewModel
             authViewModel.logout()
 
+            // Redirecionar para login
             val intent = Intent(requireActivity(), LoginActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
@@ -187,6 +229,15 @@ class ProfileFragment : Fragment() {
             startActivity(intent)
         } else {
             Toast.makeText(context, "Nenhuma app de email encontrada", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Recarregar perfil quando voltar ao fragment
+        val preferenceManager = PreferenceManager(requireContext())
+        if (!preferenceManager.getAuthToken().isNullOrEmpty()) {
+            loadProfile()
         }
     }
 

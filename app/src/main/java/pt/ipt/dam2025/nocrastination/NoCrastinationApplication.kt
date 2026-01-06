@@ -151,7 +151,8 @@ class NoCrastinationApplication : Application() {
         }
         viewModel {
             UserProfileViewModel(
-                userProfileRepository = get()
+                userProfileRepository = get(),
+                authRepository = get()
             )
         }
     }

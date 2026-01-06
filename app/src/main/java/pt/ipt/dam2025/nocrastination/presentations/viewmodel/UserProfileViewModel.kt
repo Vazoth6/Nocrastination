@@ -7,9 +7,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import pt.ipt.dam2025.nocrastination.domain.models.UserProfile
+import pt.ipt.dam2025.nocrastination.domain.repository.AuthRepository
 import pt.ipt.dam2025.nocrastination.domain.repository.UserProfileRepository
+import pt.ipt.dam2025.nocrastination.utils.Resource
 
 class UserProfileViewModel(
+    private val authRepository: AuthRepository,
     private val userProfileRepository: UserProfileRepository
 ) : ViewModel() {
 
@@ -31,11 +34,17 @@ class UserProfileViewModel(
             _isLoading.value = true
             _errorMessage.value = null
 
-            val result = userProfileRepository.getMyProfile()
-            if (result.isSuccess) {
-                _profileState.value = result.getOrNull()
-            } else {
-                _errorMessage.value = result.exceptionOrNull()?.message ?: "Failed to load profile"
+            val result = authRepository.getCurrentUser()
+
+            when (result) {
+                is Resource.Success -> {
+                    _profileState.value = result.data
+                }
+                is Resource.Error -> {
+                    _errorMessage.value = result.message
+                }
+
+                is Resource.Loading<*> -> TODO()
             }
 
             _isLoading.value = false

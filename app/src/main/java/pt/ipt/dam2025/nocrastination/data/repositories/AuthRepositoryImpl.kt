@@ -1,12 +1,14 @@
 // AuthRepositoryImpl.kt
 package pt.ipt.dam2025.nocrastination.data.repositories
 
-import android.content.Context
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import pt.ipt.dam2025.nocrastination.data.datasource.remote.api.AuthApi
 import pt.ipt.dam2025.nocrastination.data.datasource.remote.models.requests.LoginRequest
 import pt.ipt.dam2025.nocrastination.data.datasource.remote.models.requests.RegisterRequest
+import pt.ipt.dam2025.nocrastination.data.datasource.remote.models.responses.toDomain
+import pt.ipt.dam2025.nocrastination.domain.models.UserProfile
 import pt.ipt.dam2025.nocrastination.domain.repository.AuthRepository
 import pt.ipt.dam2025.nocrastination.utils.PreferenceManager
 import pt.ipt.dam2025.nocrastination.utils.Resource
@@ -69,5 +71,38 @@ class AuthRepositoryImpl(
 
     override fun isLoggedIn(): Boolean {
         return preferenceManager.getAuthToken() != null
+    }
+
+    override suspend fun getCurrentUser(): Resource<UserProfile> {
+        return withContext(Dispatchers.IO) {
+            try {
+                Log.d("AuthRepository", "🔄 Buscando usuário atual via /api/users/me")
+
+                val response = authApi.getCurrentUser()
+
+                if (response.isSuccessful) {
+                    val userResponse = response.body()
+                    if (userResponse != null) {
+                        Log.d("AuthRepository", "✅ Usuário encontrado: ${userResponse.email}")
+
+                        // Converter UserResponse para UserProfile
+                        val userProfile = userResponse.toDomain()
+                        return@withContext Resource.Success(userProfile)
+                    } else {
+                        Log.e("AuthRepository", "❌ Resposta vazia")
+                        return@withContext Resource.Error("Resposta vazia do servidor")
+                    }
+                } else {
+                    val errorCode = response.code()
+                    val errorBody = response.errorBody()?.string() ?: "Erro desconhecido"
+                    Log.e("AuthRepository", "❌ Erro $errorCode: $errorBody")
+
+                    return@withContext Resource.Error("Falha ao obter usuário: $errorCode")
+                }
+            } catch (e: Exception) {
+                Log.e("AuthRepository", "❌ Exceção: ${e.message}", e)
+                return@withContext Resource.Error("Erro de rede: ${e.message}")
+            }
+        }
     }
 }
