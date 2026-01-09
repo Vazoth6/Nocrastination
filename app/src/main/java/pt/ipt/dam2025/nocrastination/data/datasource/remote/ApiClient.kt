@@ -97,7 +97,7 @@ object ApiClient {
         return retrofit!!
     }
 
-    // Método para testar a conexão
+    // Metodo para testar a conexão
     fun testConnection() {
         Log.d("ApiClient", "🔗 Testando conexão com: $BASE_URL")
         Log.d("ApiClient", "📡 Endpoints disponíveis:")

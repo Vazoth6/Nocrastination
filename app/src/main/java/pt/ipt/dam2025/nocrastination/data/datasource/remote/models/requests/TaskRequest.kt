@@ -12,7 +12,6 @@ data class CreateTaskRequest(
         val description: String? = null,
         val dueDate: String? = null,
         val priority: String,
-        val category: String? = null,
         val estimatedMinutes: Int? = null,
         val completed: Boolean = false
     )
@@ -30,7 +29,6 @@ data class UpdateTaskRequest(
         val description: String? = null,
         val dueDate: String? = null,
         val priority: String? = null,
-        val category: String? = null,
         val estimatedMinutes: Int? = null,
         val completed: Boolean? = null,
         val completedAt: String? = null // Set this when marking as completed

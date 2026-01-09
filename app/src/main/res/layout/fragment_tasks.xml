@@ -34,12 +34,6 @@
                 android:text="Todas" />
 
             <com.google.android.material.chip.Chip
-                android:id="@+id/chipPending"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Pendentes" />
-
-            <com.google.android.material.chip.Chip
                 android:id="@+id/chipCompleted"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

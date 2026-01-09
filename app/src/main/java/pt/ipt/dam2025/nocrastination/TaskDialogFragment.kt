@@ -3,6 +3,7 @@ package pt.ipt.dam2025.nocrastination
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +12,7 @@ import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -161,23 +163,33 @@ class TaskDialogFragment : DialogFragment() {
             else -> TaskPriority.MEDIUM
         }
 
-        val dueDate = binding.textSelectedDateTime.text.toString().takeIf {
-            it != "Não definida" && it.isNotEmpty()
-        }?.let {
-            // Convert from "dd/MM/yyyy HH:mm" to ISO format
-            val displayFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-            val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
-            isoFormat.timeZone = TimeZone.getTimeZone("UTC")
-
-            val date = displayFormat.parse(it)
-            isoFormat.format(date ?: Date())
-        }
-
         // Validações
         if (title.isEmpty()) {
             binding.editTitle.error = "O título é obrigatório"
             return
         }
+
+        // Formatar a data corretamente
+        val dueDate = if (binding.textSelectedDateTime.text != "Não definida" &&
+            binding.textSelectedDateTime.text.isNotEmpty()) {
+            try {
+                // Converter de "dd/MM/yyyy HH:mm" para ISO 8601
+                val displayFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+                val date = displayFormat.parse(binding.textSelectedDateTime.text.toString())
+
+                val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+                isoFormat.timeZone = TimeZone.getTimeZone("UTC")
+
+                isoFormat.format(date ?: Date())
+            } catch (e: Exception) {
+                Log.e("TaskDialog", "Erro ao formatar data: ${e.message}")
+                null
+            }
+        } else {
+            null
+        }
+
+        Log.d("TaskDialog", "📅 Data formatada: $dueDate")
 
         lifecycleScope.launch {
             if (task == null) {
@@ -191,10 +203,17 @@ class TaskDialogFragment : DialogFragment() {
                     completed = false,
                     completedAt = null,
                     createdAt = getCurrentISOTimestamp(),
-                    updatedAt = getCurrentISOTimestamp()
+                    updatedAt = getCurrentISOTimestamp(),
+                    estimatedMinutes = null // Você pode adicionar um campo para isso se necessário
                 )
 
+                Log.d("TaskDialog", "📤 Enviando tarefa: $newTask")
                 viewModel.createTask(newTask)
+
+                // Aguarde um momento antes de recarregar
+                delay(500) // Pequeno delay para garantir que o servidor processou
+                viewModel.loadTasks() // Força o reload
+
                 Toast.makeText(context, "Tarefa criada com sucesso!", Toast.LENGTH_SHORT).show()
             } else {
                 // Update existing task

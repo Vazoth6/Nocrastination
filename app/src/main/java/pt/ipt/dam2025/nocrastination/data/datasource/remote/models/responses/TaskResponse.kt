@@ -42,5 +42,8 @@ data class TaskAttributes(
     val createdAt: String,
 
     @SerializedName("updatedAt")
-    val updatedAt: String
+    val updatedAt: String,
+
+    @SerializedName("estimatedMinutes") // Adicione este campo
+    val estimatedMinutes: Int? = null
 )

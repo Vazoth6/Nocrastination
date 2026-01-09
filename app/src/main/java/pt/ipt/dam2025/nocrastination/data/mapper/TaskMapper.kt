@@ -24,7 +24,7 @@ class TaskMapper constructor() {
             completedAt = data.attributes.completedAt,
             createdAt = data.attributes.createdAt,
             updatedAt = data.attributes.updatedAt,
-            estimatedMinutes = null
+            estimatedMinutes = data.attributes.estimatedMinutes
         )
     }
 

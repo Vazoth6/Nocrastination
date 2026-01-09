@@ -45,7 +45,7 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
         android:contentDescription="Adicionar zona de foco"
-        app:backgroundTint="@color/purple_500"
+        app:backgroundTint="@color/gray_400"
         app:srcCompat="@drawable/ic_add_location" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

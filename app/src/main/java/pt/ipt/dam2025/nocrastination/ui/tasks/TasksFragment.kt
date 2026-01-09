@@ -145,11 +145,6 @@ class TasksFragment : Fragment() {
             Toast.makeText(context, "Mostrar todas as tarefas", Toast.LENGTH_SHORT).show()
         }
 
-        binding.chipPending.setOnClickListener {
-            // TODO: Implementar filtro
-            Toast.makeText(context, "Mostrar tarefas pendentes", Toast.LENGTH_SHORT).show()
-        }
-
         binding.chipCompleted.setOnClickListener {
             // TODO: Implementar filtro
             Toast.makeText(context, "Mostrar tarefas concluídas", Toast.LENGTH_SHORT).show()

@@ -1,5 +1,6 @@
 package pt.ipt.dam2025.nocrastination.presentations.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -36,11 +37,20 @@ class TasksViewModel(
         viewModelScope.launch {
             _loading.value = true
             _error.value = null
+            Log.d("TasksViewModel", "🔄 Carregando tarefas...")
+
             when (val result = taskRepository.getTasks()) {
                 is Result.Success -> {
+                    Log.d("TasksViewModel", "✅ ${result.data.size} tarefas carregadas")
                     _tasks.value = result.data
+
+                    // Debug: Mostrar IDs das tarefas
+                    result.data.forEachIndexed { index, task ->
+                        Log.d("TasksViewModel", "   $index. ID: ${task.id}, Título: ${task.title}")
+                    }
                 }
                 is Result.Error -> {
+                    Log.e("TasksViewModel", "❌ Erro ao carregar tarefas: ${result.exception.message}")
                     _error.value = result.exception.message ?: "Erro ao carregar tarefas"
                 }
             }
@@ -52,17 +62,25 @@ class TasksViewModel(
         viewModelScope.launch {
             _loading.value = true
             _error.value = null
+            Log.d("TasksViewModel", "📝 Iniciando criação da tarefa: ${task.title}")
+            Log.d("TasksViewModel", "📝 Task antes de enviar: $task")
+
             when (val result = taskRepository.createTask(task)) {
                 is Result.Success -> {
-                    // Adiciona a nova tarefa e recarrega a lista do servidor
-                    _tasks.value = _tasks.value + result.data
-                    // Recarrega todas as tarefas para garantir sincronização
-                    loadTasks()
-                    // Enviar evento de sucesso
+                    Log.d("TasksViewModel", "✅ Tarefa criada com sucesso no servidor!")
+                    Log.d("TasksViewModel", "🆔 Nova tarefa ID: ${result.data.id}")
+                    Log.d("TasksViewModel", "📋 Tarefa retornada: ${result.data}")
+
+                    // Recarrega todas as tarefas do servidor para garantir sincronização
+                    Log.d("TasksViewModel", "🔄 Recarregando lista completa...")
+                    loadTasks() // Isso vai buscar todas as tarefas novamente
+
                     _uiEvents.emit(UIEvent.ShowToast("Tarefa criada com sucesso!"))
                 }
                 is Result.Error -> {
+                    Log.e("TasksViewModel", "❌ Erro ao criar tarefa: ${result.exception.message}")
                     _error.value = result.exception.message ?: "Erro ao criar tarefa"
+                    _uiEvents.emit(UIEvent.ShowToast("Erro ao criar tarefa: ${result.exception.message}"))
                 }
             }
             _loading.value = false
@@ -110,6 +128,8 @@ class TasksViewModel(
             _loading.value = false
         }
     }
+
+
 
     fun deleteTask(taskId: Int) {
         viewModelScope.launch {
