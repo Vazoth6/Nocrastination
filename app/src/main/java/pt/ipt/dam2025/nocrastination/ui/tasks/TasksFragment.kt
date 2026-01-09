@@ -46,6 +46,8 @@ class TasksFragment : Fragment() {
         setupRecyclerView()
         setupObservers()
         setupClickListeners()
+        setupToolbar()
+
         viewModel.loadTasks()
     }
 
@@ -169,6 +171,23 @@ class TasksFragment : Fragment() {
             .setNegativeButton("Cancelar", null)
             .show()
     }
+
+    private fun setupToolbar() {
+        binding.toolbar.inflateMenu(R.menu.menu_tasks)
+        binding.toolbar.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.action_focus_locations -> {
+                    findNavController().navigate(
+                        R.id.action_tasksFragment_to_focusLocationsFragment
+                    )
+                    true
+                }
+                else -> false
+            }
+        }
+    }
+
+
 
     override fun onDestroyView() {
         super.onDestroyView()

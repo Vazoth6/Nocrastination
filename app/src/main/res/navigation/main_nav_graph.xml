@@ -15,6 +15,24 @@
             android:id="@+id/action_tasksFragment_to_pomodoroFragment"
             app:destination="@id/pomodoroFragment" />
 
+        <action
+            android:id="@+id/action_tasksFragment_to_focusLocationsFragment"
+            app:destination="@id/focusLocationsFragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/focusLocationsFragment"
+        android:name="pt.ipt.dam2025.nocrastination.ui.focuslocations.FocusLocationsFragment"
+        android:label="Zonas de Foco"
+        tools:layout="@layout/fragment_focus_locations">
+
+        <action
+            android:id="@+id/action_focusLocationsFragment_to_tasksFragment"
+            app:destination="@id/tasksFragment"
+            app:popUpTo="@id/tasksFragment"
+            app:popUpToInclusive="false" />
+
     </fragment>
 
     <fragment

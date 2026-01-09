@@ -59,10 +59,28 @@ class MainActivity : AppCompatActivity() {
             // Update title based on fragment
             navController.addOnDestinationChangedListener { _, destination, _ ->
                 when (destination.id) {
-                    R.id.tasksFragment -> supportActionBar?.title = "Tarefas"
-                    R.id.pomodoroFragment -> supportActionBar?.title = "Pomodoro"
-                    R.id.statisticsFragment -> supportActionBar?.title = "Estatísticas"
-                    R.id.profileFragment -> supportActionBar?.title = "Perfil"
+                    R.id.tasksFragment -> {
+                        supportActionBar?.title = "Tarefas"
+                        // Mostrar o botão de zonas de foco apenas na tela de tarefas
+                        binding.toolbar.menu.findItem(R.id.action_focus_locations)?.isVisible = true
+                    }
+                    R.id.focusLocationsFragment -> {
+                        supportActionBar?.title = "Zonas de Foco"
+                        // Ocultar o botão de zonas de foco quando estiveres nesta tela
+                        binding.toolbar.menu.findItem(R.id.action_focus_locations)?.isVisible = false
+                    }
+                    R.id.pomodoroFragment -> {
+                        supportActionBar?.title = "Pomodoro"
+                        binding.toolbar.menu.findItem(R.id.action_focus_locations)?.isVisible = false
+                    }
+                    R.id.statisticsFragment -> {
+                        supportActionBar?.title = "Estatísticas"
+                        binding.toolbar.menu.findItem(R.id.action_focus_locations)?.isVisible = false
+                    }
+                    R.id.profileFragment -> {
+                        supportActionBar?.title = "Perfil"
+                        binding.toolbar.menu.findItem(R.id.action_focus_locations)?.isVisible = false
+                    }
                 }
             }
 

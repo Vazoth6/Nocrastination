@@ -122,4 +122,10 @@ dependencies {
     // Glide para carregamento de imagens
     implementation("com.github.bumptech.glide:glide:4.14.2")
     annotationProcessor("com.github.bumptech.glide:compiler:4.14.2")
+
+    // Google Play Services Location
+    implementation(libs.play.services.location)
+
+    // WorkManager para tarefas em background
+    implementation(libs.androidx.work.runtime.ktx)
 }
