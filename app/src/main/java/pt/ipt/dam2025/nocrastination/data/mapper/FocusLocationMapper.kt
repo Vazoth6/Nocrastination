@@ -8,47 +8,39 @@ class FocusLocationMapper {
     fun mapToDomain(data: FocusLocationData): FocusLocation {
         return FocusLocation(
             id = data.id,
-            name = data.attributes.name,
-            address = data.attributes.address,
-            latitude = data.attributes.latitude,
-            longitude = data.attributes.longitude,
-            radius = data.attributes.radius,
-            enabled = data.attributes.enabled,
-            notificationMessage = data.attributes.notificationMessage,
-            createdAt = data.attributes.createdAt,
-            updatedAt = data.attributes.updatedAt
+            name = data.name,
+            address = data.address,
+            latitude = data.latitude,
+            longitude = data.longitude,
+            radius = data.radius,
+            enabled = data.enabled,
+            notificationMessage = data.notificationMessage,
+            createdAt = data.createdAt,
+            updatedAt = data.updatedAt
         )
     }
 
     fun mapToCreateRequest(location: FocusLocation): CreateFocusLocationRequest {
         return CreateFocusLocationRequest(
-            data = CreateFocusLocationRequest.Data(
-                attributes = CreateFocusLocationRequest.Attributes(
-                    name = location.name,
-                    address = location.address,
-                    latitude = location.latitude,
-                    longitude = location.longitude,
-                    radius = location.radius,
-                    enabled = location.enabled,
-                    notificationMessage = location.notificationMessage
-                )
-            )
+            name = location.name,
+            address = location.address,
+            latitude = location.latitude,
+            longitude = location.longitude,
+            radius = location.radius,
+            enabled = location.enabled,
+            notificationMessage = location.notificationMessage
         )
     }
 
     fun mapToUpdateRequest(location: FocusLocation): UpdateFocusLocationRequest {
         return UpdateFocusLocationRequest(
-            data = UpdateFocusLocationRequest.Data(
-                attributes = UpdateFocusLocationRequest.Attributes(
-                    name = location.name,
-                    address = location.address,
-                    latitude = location.latitude,
-                    longitude = location.longitude,
-                    radius = location.radius,
-                    enabled = location.enabled,
-                    notificationMessage = location.notificationMessage
-                )
-            )
+            name = location.name,
+            address = location.address,
+            latitude = location.latitude,
+            longitude = location.longitude,
+            radius = location.radius,
+            enabled = location.enabled,
+            notificationMessage = location.notificationMessage
         )
     }
 }

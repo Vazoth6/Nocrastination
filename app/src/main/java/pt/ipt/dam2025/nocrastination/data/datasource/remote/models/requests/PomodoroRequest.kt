@@ -47,4 +47,3 @@ data class UpdatePomodoroSessionRequest(
     )
 }
 
-// Remove CompleteSessionRequest - we'll use UpdatePomodoroSessionRequest instead

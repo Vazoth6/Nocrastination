@@ -2,6 +2,7 @@ package pt.ipt.dam2025.nocrastination.data.datasource.remote.api
 
 import pt.ipt.dam2025.nocrastination.data.datasource.remote.models.requests.CreateFocusLocationRequest
 import pt.ipt.dam2025.nocrastination.data.datasource.remote.models.requests.UpdateFocusLocationRequest
+import pt.ipt.dam2025.nocrastination.data.datasource.remote.models.responses.FocusLocationData
 import pt.ipt.dam2025.nocrastination.data.datasource.remote.models.responses.FocusLocationListResponse
 import pt.ipt.dam2025.nocrastination.data.datasource.remote.models.responses.FocusLocationResponse
 import retrofit2.Response

@@ -9,14 +9,32 @@ data class FocusLocationResponse(
 
 data class FocusLocationListResponse(
     @SerializedName("data")
-    val data: List<FocusLocationData>
+    val data: List<FocusLocationData>,
+    @SerializedName("meta")
+    val meta: Meta? = null
 )
 
 data class FocusLocationData(
     @SerializedName("id")
     val id: Int,
-    @SerializedName("attributes")
-    val attributes: FocusLocationAttributes
+    @SerializedName("name")
+    val name: String,
+    @SerializedName("address")
+    val address: String,
+    @SerializedName("latitude")
+    val latitude: Double,
+    @SerializedName("longitude")
+    val longitude: Double,
+    @SerializedName("radius")
+    val radius: Float,
+    @SerializedName("enabled")
+    val enabled: Boolean,
+    @SerializedName("notificationMessage")
+    val notificationMessage: String,
+    @SerializedName("createdAt")
+    val createdAt: String,
+    @SerializedName("updatedAt")
+    val updatedAt: String
 )
 
 data class FocusLocationAttributes(

@@ -13,17 +13,35 @@ class FocusLocationRepositoryImpl(
 ) : FocusLocationRepository {
 
     override suspend fun getFocusLocations(): Result<List<FocusLocation>> {
+        Log.d("FocusLocationRepo", "🔄 Buscando focus locations da API...")
+
         return try {
             val response = focusLocationApi.getFocusLocations()
+
+            Log.d("FocusLocationRepo", "📡 Resposta código: ${response.code()}")
+            Log.d("FocusLocationRepo", "📡 Resposta mensagem: ${response.message()}")
+
             if (response.isSuccessful) {
                 response.body()?.let { apiResponse ->
+                    Log.d("FocusLocationRepo", "✅ ${apiResponse.data.size} focus locations recebidas")
                     val locations = apiResponse.data.map { focusLocationMapper.mapToDomain(it) }
                     Result.Success(locations)
-                } ?: Result.Success(emptyList())
+                } ?: run {
+                    Log.w("FocusLocationRepo", "⚠️ Resposta vazia")
+                    Result.Success(emptyList())
+                }
             } else {
-                Result.Error(Exception("Failed to fetch focus locations: ${response.code()}"))
+                val errorBody = response.errorBody()?.string() ?: "Sem detalhes"
+                Log.e("FocusLocationRepo", "❌ Erro na resposta: ${response.code()} - $errorBody")
+
+                when (response.code()) {
+                    401 -> Result.Error(Exception("Não autenticado. Faça login novamente."))
+                    403 -> Result.Error(Exception("Não tem permissão para aceder a este recurso"))
+                    else -> Result.Error(Exception("Falha ao buscar localizações: ${response.code()} $errorBody"))
+                }
             }
         } catch (e: Exception) {
+            Log.e("FocusLocationRepo", "❌ Exceção: ${e.message}", e)
             Result.Error(e)
         }
     }
