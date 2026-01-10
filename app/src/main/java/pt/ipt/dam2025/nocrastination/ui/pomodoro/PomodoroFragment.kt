@@ -9,11 +9,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import pt.ipt.dam2025.nocrastination.R
 import pt.ipt.dam2025.nocrastination.databinding.FragmentPomodoroBinding
 import pt.ipt.dam2025.nocrastination.domain.models.Task
 import pt.ipt.dam2025.nocrastination.presentation.viewmodel.PomodoroViewModel
@@ -62,6 +66,8 @@ class PomodoroFragment : Fragment() {
         updateCountDownText()
         updateButtons()
         updateStats()
+
+        pomodoroViewModel.resetGoToTasksButton()
     }
 
     private fun setupTaskForPomodoro(task: Task) {
@@ -147,6 +153,26 @@ class PomodoroFragment : Fragment() {
                     }
                 }
             }
+        }
+
+        lifecycleScope.launch {
+            pomodoroViewModel.showGoToTasksButton.collect { showButton ->
+                binding.buttonGoToTasks.visibility = if (showButton) View.VISIBLE else View.GONE
+
+                // Ajustar a margem do statsCard baseado na visibilidade do botão
+                val layoutParams = binding.statsCard.layoutParams as ConstraintLayout.LayoutParams
+                if (showButton) {
+                    layoutParams.topToBottom = R.id.buttonGoToTasks
+                } else {
+                    layoutParams.topToBottom = R.id.breakCard
+                }
+                binding.statsCard.layoutParams = layoutParams
+            }
+        }
+
+        // Configurar clique do botão (FORA do lifecycleScope.launch)
+        binding.buttonGoToTasks.setOnClickListener {
+            navigateToTasks()
         }
     }
 
@@ -440,6 +466,11 @@ class PomodoroFragment : Fragment() {
         }
     }
 
+    private fun navigateToTasks() {
+        val bottomNav = activity?.findViewById<BottomNavigationView>(R.id.bottomNavigation)
+        bottomNav?.selectedItemId = R.id.tasksFragment
+    }
+
     private fun showCompletionNotification() {
         Toast.makeText(
             context,
@@ -461,3 +492,4 @@ class PomodoroFragment : Fragment() {
         _binding = null
     }
 }
+

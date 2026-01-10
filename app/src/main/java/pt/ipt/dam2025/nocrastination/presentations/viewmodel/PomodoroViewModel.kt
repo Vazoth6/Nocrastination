@@ -41,6 +41,12 @@ class PomodoroViewModel constructor(
     private val _cycleState = MutableStateFlow(CycleState.WORK)
     val cycleState: StateFlow<CycleState> = _cycleState.asStateFlow()
 
+    private val _showGoToTasksButton = MutableStateFlow(false)
+    val showGoToTasksButton: StateFlow<Boolean> = _showGoToTasksButton.asStateFlow()
+
+    private val _completedBreakSession = MutableStateFlow<PomodoroSession?>(null)
+    val completedBreakSession: StateFlow<PomodoroSession?> = _completedBreakSession.asStateFlow()
+
     fun updateCustomWorkDuration(minutes: Int) {
         _customWorkDuration.value = minutes.coerceIn(1, 120) // Limitar entre 1 e 120 minutos
     }
@@ -57,6 +63,7 @@ class PomodoroViewModel constructor(
         viewModelScope.launch {
             _loading.value = true
             _error.value = null
+            resetGoToTasksButton()
 
             val workDuration = if (useCustomDuration) {
                 _customWorkDuration.value
@@ -92,6 +99,7 @@ class PomodoroViewModel constructor(
         viewModelScope.launch {
             _loading.value = true
             _error.value = null
+            resetGoToTasksButton()
 
             val breakDuration = when (breakType) {
                 BreakType.SHORT -> 5
@@ -139,6 +147,15 @@ class PomodoroViewModel constructor(
 
                 when (val result = pomodoroRepository.completeSession(session.id, endTime)) {
                     is Result.Success -> {
+                        // Se foi uma pausa que foi completada, mostrar botão para tarefas
+                        if (session.sessionType == SessionType.SHORT_BREAK ||
+                            session.sessionType == SessionType.LONG_BREAK) {
+                            _showGoToTasksButton.value = true
+                            _completedBreakSession.value = session
+                        } else {
+                            _showGoToTasksButton.value = false
+                        }
+
                         _currentSession.value = null
 
                         // Iniciar pausa automática após completar trabalho
@@ -174,6 +191,11 @@ class PomodoroViewModel constructor(
             }
             _loading.value = false
         }
+    }
+
+    fun resetGoToTasksButton() {
+        _showGoToTasksButton.value = false
+        _completedBreakSession.value = null
     }
 
     fun clearError() {

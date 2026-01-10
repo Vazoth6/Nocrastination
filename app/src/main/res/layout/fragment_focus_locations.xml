@@ -12,6 +12,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
+            android:background="@color/white"
             app:navigationIcon="@drawable/ic_arrow_back"
             app:title="Zonas de Foco"
             app:titleTextColor="@android:color/black" />
