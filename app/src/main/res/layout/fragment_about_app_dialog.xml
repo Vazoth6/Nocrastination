@@ -50,7 +50,7 @@
             android:id="@+id/textAcademicYear"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Ano Letivo: 25/28"
+            android:text="Ano Letivo: 25/26"
             android:textSize="16sp"
             android:layout_marginBottom="16dp" />
 
@@ -58,7 +58,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Autores"
+            android:text="Autor"
             android:textSize="18sp"
             android:textStyle="bold"
             android:layout_marginBottom="8dp" />
