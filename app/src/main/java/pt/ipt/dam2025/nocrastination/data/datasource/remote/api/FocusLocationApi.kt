@@ -1,8 +1,6 @@
 package pt.ipt.dam2025.nocrastination.data.datasource.remote.api
 
-import pt.ipt.dam2025.nocrastination.data.datasource.remote.models.requests.CreateFocusLocationRequest
-import pt.ipt.dam2025.nocrastination.data.datasource.remote.models.requests.UpdateFocusLocationRequest
-import pt.ipt.dam2025.nocrastination.data.datasource.remote.models.responses.FocusLocationData
+import pt.ipt.dam2025.nocrastination.data.datasource.remote.models.requests.FocusLocationRequest
 import pt.ipt.dam2025.nocrastination.data.datasource.remote.models.responses.FocusLocationListResponse
 import pt.ipt.dam2025.nocrastination.data.datasource.remote.models.responses.FocusLocationResponse
 import retrofit2.Response
@@ -16,12 +14,12 @@ interface FocusLocationApi {
     suspend fun getFocusLocationById(@Path("id") id: Int): Response<FocusLocationResponse>
 
     @POST("api/focus-locations")
-    suspend fun createFocusLocation(@Body request: CreateFocusLocationRequest): Response<FocusLocationResponse>
+    suspend fun createFocusLocation(@Body request: FocusLocationRequest): Response<FocusLocationResponse>
 
     @PUT("api/focus-locations/{id}")
     suspend fun updateFocusLocation(
         @Path("id") id: Int,
-        @Body request: UpdateFocusLocationRequest
+        @Body request: FocusLocationRequest
     ): Response<FocusLocationResponse>
 
     @DELETE("api/focus-locations/{id}")

@@ -12,7 +12,6 @@ import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationServices
 import pt.ipt.dam2025.nocrastination.domain.models.FocusLocation
-import pt.ipt.dam2025.nocrastination.utils.geofencing.GeofenceBroadcastReceiver
 
 class GeofencingManager(private val context: Context) {
 

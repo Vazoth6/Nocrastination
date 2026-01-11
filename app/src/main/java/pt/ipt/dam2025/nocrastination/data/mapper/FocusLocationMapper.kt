@@ -1,10 +1,14 @@
 package pt.ipt.dam2025.nocrastination.data.mapper
 
-import pt.ipt.dam2025.nocrastination.data.datasource.remote.models.requests.*
+import android.util.Log
+import pt.ipt.dam2025.nocrastination.data.datasource.remote.models.requests.FocusLocationAttributes
+import pt.ipt.dam2025.nocrastination.data.datasource.remote.models.requests.FocusLocationRequest
+import pt.ipt.dam2025.nocrastination.data.datasource.remote.models.requests.FocusLocationRequestData
 import pt.ipt.dam2025.nocrastination.data.datasource.remote.models.responses.FocusLocationData
 import pt.ipt.dam2025.nocrastination.domain.models.FocusLocation
 
 class FocusLocationMapper {
+
     fun mapToDomain(data: FocusLocationData): FocusLocation {
         return FocusLocation(
             id = data.id,
@@ -20,27 +24,39 @@ class FocusLocationMapper {
         )
     }
 
-    fun mapToCreateRequest(location: FocusLocation): CreateFocusLocationRequest {
-        return CreateFocusLocationRequest(
-            name = location.name,
-            address = location.address,
-            latitude = location.latitude,
-            longitude = location.longitude,
-            radius = location.radius,
-            enabled = location.enabled,
-            notificationMessage = location.notificationMessage
+    fun mapToCreateRequest(location: FocusLocation): FocusLocationRequest {
+        Log.d("FocusLocationMapper", "Mapeando para CreateRequest: ${location.name}")
+
+        return FocusLocationRequest(
+            data = FocusLocationRequestData(
+                attributes = FocusLocationAttributes(
+                    name = location.name,
+                    address = location.address,
+                    latitude = location.latitude,
+                    longitude = location.longitude,
+                    radius = location.radius,
+                    enabled = location.enabled,
+                    notificationMessage = location.notificationMessage
+                )
+            )
         )
     }
 
-    fun mapToUpdateRequest(location: FocusLocation): UpdateFocusLocationRequest {
-        return UpdateFocusLocationRequest(
-            name = location.name,
-            address = location.address,
-            latitude = location.latitude,
-            longitude = location.longitude,
-            radius = location.radius,
-            enabled = location.enabled,
-            notificationMessage = location.notificationMessage
+    fun mapToUpdateRequest(location: FocusLocation): FocusLocationRequest {
+        Log.d("FocusLocationMapper", "Mapeando para UpdateRequest: ID=${location.id}")
+
+        return FocusLocationRequest(
+            data = FocusLocationRequestData(
+                attributes = FocusLocationAttributes(
+                    name = location.name,
+                    address = location.address,
+                    latitude = location.latitude,
+                    longitude = location.longitude,
+                    radius = location.radius,
+                    enabled = location.enabled,
+                    notificationMessage = location.notificationMessage
+                )
+            )
         )
     }
 }

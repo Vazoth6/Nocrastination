@@ -1,5 +1,6 @@
 package pt.ipt.dam2025.nocrastination.presentations.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -51,18 +52,38 @@ class FocusLocationViewModel(
     }
 
     fun createFocusLocation(location: FocusLocation) {
+        Log.d("FocusLocationVM", "🔄 Iniciando createFocusLocation: ${location.name}")
+        Log.d("FocusLocationVM", "📍 Dados da localização: lat=${location.latitude}, lon=${location.longitude}")
+
         viewModelScope.launch {
             _loading.value = true
             _error.value = null
+
+            Log.d("FocusLocationVM", "📤 Chamando repositório...")
+
             when (val result = focusLocationRepository.createFocusLocation(location)) {
                 is Result.Success -> {
+                    Log.d("FocusLocationVM", "✅ Sucesso! Localização criada: ${result.data.id}")
+                    Log.d("FocusLocationVM", "📍 Dados retornados: ${result.data}")
+
                     _focusLocations.value = _focusLocations.value + result.data
-                    // Recarregar geofences
-                    geofencingManager.addGeofencesForFocusLocations(_focusLocations.value)
+
+                    Log.d("FocusLocationVM", "📊 Total de localizações: ${_focusLocations.value.size}")
+
+                    // Tentar recarregar geofences
+                    try {
+                        geofencingManager.addGeofencesForFocusLocations(_focusLocations.value)
+                        Log.d("FocusLocationVM", "✅ Geofences atualizados")
+                    } catch (e: Exception) {
+                        Log.e("FocusLocationVM", "⚠️ Erro em geofences: ${e.message}")
+                    }
+
                     _uiEvents.emit(UIEvent.ShowToast("Zona de foco criada!"))
                 }
                 is Result.Error -> {
+                    Log.e("FocusLocationVM", "❌ Erro no repositório: ${result.exception.message}", result.exception)
                     _error.value = result.exception.message ?: "Erro ao criar localização"
+                    _uiEvents.emit(UIEvent.ShowToast("Erro: ${result.exception.message}"))
                 }
             }
             _loading.value = false

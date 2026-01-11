@@ -1,21 +1,36 @@
 package pt.ipt.dam2025.nocrastination.data.datasource.remote.models.requests
 
-data class CreateFocusLocationRequest(
-    val name: String,
-    val address: String,
-    val latitude: Double,
-    val longitude: Double,
-    val radius: Float = 100f,
-    val enabled: Boolean = true,
-    val notificationMessage: String = "Vamos pôr as mãos ao trabalho!"
+import com.google.gson.annotations.SerializedName
+
+data class FocusLocationRequest(
+    @SerializedName("data")
+    val data: FocusLocationRequestData
 )
 
-data class UpdateFocusLocationRequest(
-    val name: String? = null,
-    val address: String? = null,
-    val latitude: Double? = null,
-    val longitude: Double? = null,
-    val radius: Float? = null,
-    val enabled: Boolean? = null,
-    val notificationMessage: String? = null
+data class FocusLocationRequestData(
+    @SerializedName("attributes")
+    val attributes: FocusLocationAttributes
+)
+
+data class FocusLocationAttributes(
+    @SerializedName("name")
+    val name: String,
+
+    @SerializedName("address")
+    val address: String,
+
+    @SerializedName("latitude")
+    val latitude: Double,
+
+    @SerializedName("longitude")
+    val longitude: Double,
+
+    @SerializedName("radius")
+    val radius: Float,
+
+    @SerializedName("enabled")
+    val enabled: Boolean = true,
+
+    @SerializedName("notificationMessage")
+    val notificationMessage: String = "Vamos pôr as mãos ao trabalho!"
 )

@@ -63,6 +63,8 @@ class AddFocusLocationDialogFragment : DialogFragment() {
         return binding.root
     }
 
+
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -329,6 +331,28 @@ class AddFocusLocationDialogFragment : DialogFragment() {
 
         onSaveListener?.invoke(location)
         dismiss()
+    }
+
+    fun prefillFields(name: String? = null, address: String? = null, latitude: Double? = null, longitude: Double? = null, radius: Float? = null, notificationMessage: String? = null) {
+        Log.d("AddFocusLocation", "🎯 Pré-preenchendo campos:")
+        Log.d("AddFocusLocation", "  Nome: $name")
+        Log.d("AddFocusLocation", "  Latitude: $latitude, Longitude: $longitude")
+
+        // Executar após a view ser criada
+        view?.post {
+            try {
+                name?.let { binding.editLocationName.setText(it) }
+                address?.let { binding.editLocationAddress.setText(it) }
+                latitude?.let { binding.editLatitude.setText(it.toString()) }
+                longitude?.let { binding.editLongitude.setText(it.toString()) }
+                radius?.let { binding.editRadius.setText(it.toString()) }
+                notificationMessage?.let { binding.editNotificationMessage.setText(it) }
+
+                Log.d("AddFocusLocation", "✅ Campos pré-preenchidos com sucesso")
+            } catch (e: Exception) {
+                Log.e("AddFocusLocation", "❌ Erro ao pré-preecher campos: ${e.message}")
+            }
+        }
     }
 
     override fun onDestroyView() {

@@ -1,4 +1,4 @@
-package pt.ipt.dam2025.nocrastination.utils.geofencing
+package pt.ipt.dam2025.nocrastination.utils
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -6,7 +6,6 @@ import android.content.Intent
 import android.util.Log
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingEvent
-import pt.ipt.dam2025.nocrastination.utils.NotificationHelper
 
 class GeofenceBroadcastReceiver : BroadcastReceiver() {
 
