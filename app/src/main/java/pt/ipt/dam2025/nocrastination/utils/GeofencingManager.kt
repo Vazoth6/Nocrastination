@@ -86,10 +86,10 @@ class GeofencingManager(private val context: Context) {
 
         geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent)?.run {
             addOnSuccessListener {
-                Log.d(TAG, "✅ Geofences adicionados com sucesso para ${enabledLocations.size} localizações")
+                Log.d(TAG, "Geofences adicionados com sucesso para ${enabledLocations.size} localizações")
             }
             addOnFailureListener { exception ->
-                Log.e(TAG, "❌ Erro ao adicionar geofences", exception)
+                Log.e(TAG, "Erro ao adicionar geofences", exception)
             }
         }
     }
@@ -100,10 +100,10 @@ class GeofencingManager(private val context: Context) {
     fun removeAllGeofences() {
         geofencingClient.removeGeofences(geofencePendingIntent)?.run {
             addOnSuccessListener {
-                Log.d(TAG, "✅ Todos os geofences removidos")
+                Log.d(TAG, "Todos os geofences removidos")
             }
             addOnFailureListener { exception ->
-                Log.e(TAG, "❌ Erro ao remover geofences", exception)
+                Log.e(TAG, "Erro ao remover geofences", exception)
             }
         }
     }
@@ -115,10 +115,10 @@ class GeofencingManager(private val context: Context) {
         val geofenceRequestId = "focus_location_$locationId"
         geofencingClient.removeGeofences(listOf(geofenceRequestId))?.run {
             addOnSuccessListener {
-                Log.d(TAG, "✅ Geofence removido: $locationId")
+                Log.d(TAG, "Geofence removido: $locationId")
             }
             addOnFailureListener { exception ->
-                Log.e(TAG, "❌ Erro ao remover geofence: $locationId", exception)
+                Log.e(TAG, "Erro ao remover geofence: $locationId", exception)
             }
         }
     }

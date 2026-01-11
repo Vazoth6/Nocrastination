@@ -13,26 +13,26 @@ class FocusLocationRepositoryImpl(
 ) : FocusLocationRepository {
 
     override suspend fun getFocusLocations(): Result<List<FocusLocation>> {
-        Log.d("FocusLocationRepo", "🔄 Buscando focus locations da API...")
+        Log.d("FocusLocationRepo", " A efetuar busca de locais de foco da API...")
 
         return try {
             val response = focusLocationApi.getFocusLocations()
 
-            Log.d("FocusLocationRepo", "📡 Resposta código: ${response.code()}")
-            Log.d("FocusLocationRepo", "📡 Resposta mensagem: ${response.message()}")
+            Log.d("FocusLocationRepo", " Resposta código: ${response.code()}")
+            Log.d("FocusLocationRepo", " Resposta mensagem: ${response.message()}")
 
             if (response.isSuccessful) {
                 response.body()?.let { apiResponse ->
-                    Log.d("FocusLocationRepo", "✅ ${apiResponse.data.size} focus locations recebidas")
+                    Log.d("FocusLocationRepo", " ${apiResponse.data.size} locais de foco recebidos")
                     val locations = apiResponse.data.map { focusLocationMapper.mapToDomain(it) }
                     Result.Success(locations)
                 } ?: run {
-                    Log.w("FocusLocationRepo", "⚠️ Resposta vazia")
+                    Log.w("FocusLocationRepo", " Resposta vazia")
                     Result.Success(emptyList())
                 }
             } else {
                 val errorBody = response.errorBody()?.string() ?: "Sem detalhes"
-                Log.e("FocusLocationRepo", "❌ Erro na resposta: ${response.code()} - $errorBody")
+                Log.e("FocusLocationRepo", " Erro na resposta: ${response.code()} - $errorBody")
 
                 when (response.code()) {
                     401 -> Result.Error(Exception("Não autenticado. Faça login novamente."))
@@ -41,7 +41,7 @@ class FocusLocationRepositoryImpl(
                 }
             }
         } catch (e: Exception) {
-            Log.e("FocusLocationRepo", "❌ Exceção: ${e.message}", e)
+            Log.e("FocusLocationRepo", " Exceção: ${e.message}", e)
             Result.Error(e)
         }
     }
@@ -53,9 +53,9 @@ class FocusLocationRepositoryImpl(
                 response.body()?.let { apiResponse ->
                     val location = focusLocationMapper.mapToDomain(apiResponse.data)
                     Result.Success(location)
-                } ?: Result.Error(Exception("Empty response"))
+                } ?: Result.Error(Exception("Resposta vazia"))
             } else {
-                Result.Error(Exception("Focus location not found: ${response.code()}"))
+                Result.Error(Exception("Local de foco não encontrado: ${response.code()}"))
             }
         } catch (e: Exception) {
             Result.Error(e)
@@ -63,8 +63,8 @@ class FocusLocationRepositoryImpl(
     }
 
     override suspend fun createFocusLocation(location: FocusLocation): Result<FocusLocation> {
-        Log.d("FocusLocationRepo", "🔄 Criando focus location: ${location.name}")
-        Log.d("FocusLocationRepo", "📍 Dados: lat=${location.latitude}, lon=${location.longitude}, radius=${location.radius}")
+        Log.d("FocusLocationRepo", " A criar local de foco: ${location.name}")
+        Log.d("FocusLocationRepo", " Dados: lat=${location.latitude}, lon=${location.longitude}, radius=${location.radius}")
 
         return try {
             val request = focusLocationMapper.mapToCreateRequest(location)
@@ -72,33 +72,33 @@ class FocusLocationRepositoryImpl(
             // Log detalhado do request
             val gson = com.google.gson.GsonBuilder().setPrettyPrinting().create()
             val jsonRequest = gson.toJson(request)
-            Log.d("FocusLocationRepo", "📤 JSON sendo enviado:\n$jsonRequest")
+            Log.d("FocusLocationRepo", " JSON a ser enviado:\n$jsonRequest")
 
             // Log dos headers (se houver autenticação)
-            Log.d("FocusLocationRepo", "🔑 Verificando autenticação...")
+            Log.d("FocusLocationRepo", " Verificando autenticação...")
 
             val response = focusLocationApi.createFocusLocation(request)
-            Log.d("FocusLocationRepo", "📥 Response code: ${response.code()}")
-            Log.d("FocusLocationRepo", "📥 Response message: ${response.message()}")
+            Log.d("FocusLocationRepo", " Resposta código: ${response.code()}")
+            Log.d("FocusLocationRepo", " Resposta mensagem: ${response.message()}")
 
             if (response.isSuccessful) {
                 response.body()?.let { apiResponse ->
-                    Log.d("FocusLocationRepo", "✅ Resposta da API: ${apiResponse.data}")
+                    Log.d("FocusLocationRepo", " Resposta da API: ${apiResponse.data}")
                     val createdLocation = focusLocationMapper.mapToDomain(apiResponse.data)
-                    Log.d("FocusLocationRepo", "✅ Mapeado para domínio: ID=${createdLocation.id}")
+                    Log.d("FocusLocationRepo", " Mapeado para domínio: ID=${createdLocation.id}")
                     Result.Success(createdLocation)
                 } ?: run {
-                    Log.e("FocusLocationRepo", "❌ Response body é null")
+                    Log.e("FocusLocationRepo", " Corpo de resposta é null")
                     Result.Error(Exception("Resposta vazia da API"))
                 }
             } else {
                 val errorBody = response.errorBody()?.string() ?: "Sem detalhes"
-                Log.e("FocusLocationRepo", "❌ Erro na API: ${response.code()} - $errorBody")
+                Log.e("FocusLocationRepo", " Erro na API: ${response.code()} - $errorBody")
 
                 // Tentar entender melhor o erro
                 if (response.code() == 500) {
-                    Log.e("FocusLocationRepo", "🔍 Erro 500 - Problema interno no servidor")
-                    Log.e("FocusLocationRepo", "🔍 Possíveis causas:")
+                    Log.e("FocusLocationRepo", " Erro 500 - Problema interno no servidor")
+                    Log.e("FocusLocationRepo", " Possíveis causas:")
                     Log.e("FocusLocationRepo", "   1. Campo 'type' faltando ou incorreto")
                     Log.e("FocusLocationRepo", "   2. Validação de dados falhou (ex: latitude inválida)")
                     Log.e("FocusLocationRepo", "   3. Erro no banco de dados do servidor")
@@ -108,13 +108,13 @@ class FocusLocationRepositoryImpl(
                 Result.Error(Exception("Erro ${response.code()}: $errorBody"))
             }
         } catch (e: Exception) {
-            Log.e("FocusLocationRepo", "❌ Exceção na criação: ${e.message}", e)
+            Log.e("FocusLocationRepo", " Exceção na criação: ${e.message}", e)
             Result.Error(e)
         }
     }
 
     override suspend fun updateFocusLocation(location: FocusLocation): Result<FocusLocation> {
-        Log.d("FocusLocationRepo", "🔄 Atualizando focus location ID: ${location.id}")
+        Log.d("FocusLocationRepo", " A atualizar o ID do local de foco: ${location.id}")
 
         return try {
             // USANDO FORMATO WRAPPER (JSON:API)
@@ -123,54 +123,54 @@ class FocusLocationRepositoryImpl(
             // Log do request como JSON
             val gson = com.google.gson.Gson()
             val jsonRequest = gson.toJson(request)
-            Log.d("FocusLocationRepo", "📤 JSON sendo enviado (wrapper): $jsonRequest")
+            Log.d("FocusLocationRepo", " JSON a se enviado (wrapper): $jsonRequest")
 
             val response = focusLocationApi.updateFocusLocation(location.id!!, request)
-            Log.d("FocusLocationRepo", "📥 Response code: ${response.code()}")
+            Log.d("FocusLocationRepo", " Resposta código: ${response.code()}")
 
             if (response.isSuccessful) {
                 response.body()?.let { apiResponse ->
-                    Log.d("FocusLocationRepo", "✅ Focus location atualizada")
+                    Log.d("FocusLocationRepo", " Local de foco atualizado")
                     val updatedLocation = focusLocationMapper.mapToDomain(apiResponse.data)
                     Result.Success(updatedLocation)
                 } ?: run {
-                    Log.e("FocusLocationRepo", "❌ Response body é null")
+                    Log.e("FocusLocationRepo", " Corpo de resposta é null")
                     Result.Error(Exception("Resposta vazia da API"))
                 }
             } else {
                 val errorBody = response.errorBody()?.string() ?: "Sem detalhes"
-                Log.e("FocusLocationRepo", "❌ Erro na API: ${response.code()} - $errorBody")
+                Log.e("FocusLocationRepo", " Erro na API: ${response.code()} - $errorBody")
                 Result.Error(Exception("Erro ${response.code()}: $errorBody"))
             }
         } catch (e: Exception) {
-            Log.e("FocusLocationRepo", "❌ Exceção na atualização: ${e.message}", e)
+            Log.e("FocusLocationRepo", " Exceção na atualização: ${e.message}", e)
             Result.Error(e)
         }
     }
 
     override suspend fun deleteFocusLocation(id: Int): Result<Unit> {
-        Log.d("FocusLocationRepo", "🔄 Apagando focus location ID: $id")
+        Log.d("FocusLocationRepo", " A apagar local de foco ID: $id")
 
         return try {
             val response = focusLocationApi.deleteFocusLocation(id)
-            Log.d("FocusLocationRepo", "📥 Response code: ${response.code()}")
+            Log.d("FocusLocationRepo", " Resposta código: ${response.code()}")
 
             if (response.isSuccessful) {
-                Log.d("FocusLocationRepo", "✅ Focus location apagada")
+                Log.d("FocusLocationRepo", " Local de foco apagada")
                 Result.Success(Unit)
             } else {
                 val errorBody = response.errorBody()?.string() ?: "Sem detalhes"
-                Log.e("FocusLocationRepo", "❌ Erro na API: ${response.code()} - $errorBody")
+                Log.e("FocusLocationRepo", " Erro na API: ${response.code()} - $errorBody")
                 Result.Error(Exception("Erro ${response.code()}: $errorBody"))
             }
         } catch (e: Exception) {
-            Log.e("FocusLocationRepo", "❌ Exceção na eliminação: ${e.message}", e)
+            Log.e("FocusLocationRepo", " Exceção na eliminação: ${e.message}", e)
             Result.Error(e)
         }
     }
 
     override suspend fun toggleFocusLocation(id: Int, enabled: Boolean): Result<FocusLocation> {
-        Log.d("FocusLocationRepo", "🔄 Alternando focus location ID: $id para $enabled")
+        Log.d("FocusLocationRepo", " Alternando focus location ID: $id para $enabled")
 
         return try {
             val request = mapOf("enabled" to enabled)
@@ -180,9 +180,9 @@ class FocusLocationRepositoryImpl(
                 response.body()?.let { apiResponse ->
                     val location = focusLocationMapper.mapToDomain(apiResponse.data)
                     Result.Success(location)
-                } ?: Result.Error(Exception("Empty response"))
+                } ?: Result.Error(Exception("Resposta vazia"))
             } else {
-                Result.Error(Exception("Failed to toggle focus location: ${response.code()}"))
+                Result.Error(Exception("Falha ao desligar local de foco: ${response.code()}"))
             }
         } catch (e: Exception) {
             Result.Error(e)

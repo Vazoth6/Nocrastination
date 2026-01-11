@@ -18,29 +18,29 @@ class AuthInterceptor(
         val originalRequest = chain.request()
 
         val url = originalRequest.url.toString()
-        Log.d("AuthInterceptor", "🔄 Interceptando requisição para: $url")
+        Log.d("AuthInterceptor", " A interceptar requisição para: $url")
 
         // Skip adding auth header for authentication endpoints
         if (url.contains("/api/auth/")) {
-            Log.d("AuthInterceptor", "✅ Endpoint de auth, pulando token")
+            Log.d("AuthInterceptor", " Endpoint de auth, a puxar token")
             return chain.proceed(originalRequest)
         }
 
         val token = preferenceManager.getAuthToken()
 
-        Log.d("AuthInterceptor", "🔍 Token disponível: ${!token.isNullOrEmpty()}")
+        Log.d("AuthInterceptor", " Token disponível: ${!token.isNullOrEmpty()}")
 
         return if (!token.isNullOrEmpty()) {
             val requestWithAuth = originalRequest.newBuilder()
                 .header("Authorization", "Bearer $token")
                 .build()
 
-            Log.d("AuthInterceptor", "✅ Adicionando token JWT à requisição")
-            Log.d("AuthInterceptor", "🔐 Token (primeiros 20 chars): ${token.take(20)}...")
+            Log.d("AuthInterceptor", " A adicionar token JWT à requisição")
+            Log.d("AuthInterceptor", " Token (primeiros 20 chars): ${token.take(20)}...")
 
             chain.proceed(requestWithAuth)
         } else {
-            Log.w("AuthInterceptor", "⚠️ Sem token JWT, enviando requisição sem autenticação")
+            Log.w("AuthInterceptor", " Sem token JWT, a enviar requisição sem autenticação")
             chain.proceed(originalRequest)
         }
     }

@@ -15,13 +15,13 @@ class PreferenceManager(context: Context) {
 
     // Authentication
     fun saveAuthToken(token: String) {
-        Log.d("PreferenceManager", "💾 Salvando token: ${token.take(20)}...")
+        Log.d("PreferenceManager", "A salvar token: ${token.take(20)}...")
         prefs.edit { putString(KEY_AUTH_TOKEN, token) }
     }
 
     fun getAuthToken(): String? {
         val token = prefs.getString(KEY_AUTH_TOKEN, null)
-        Log.d("PreferenceManager", "🔍 Token recuperado: ${if (token != null) "EXISTE" else "NULO"}")
+        Log.d("PreferenceManager", "Token recuperado: ${if (token != null) "EXISTE" else "NULO"}")
         return token
     }
 
@@ -61,7 +61,7 @@ class PreferenceManager(context: Context) {
 
     // Clear all data (logout)
     fun clearAll() {
-        Log.d("PreferenceManager", "🗑️ Limpando todas as preferências")
+        Log.d("PreferenceManager", "A limpar todas as preferências...")
         prefs.edit().clear().apply()
     }
 

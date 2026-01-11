@@ -63,8 +63,8 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
 
         // Por enquanto, usamos uma mensagem genérica
         // Em produção, poderias buscar os dados da localização de uma base de dados local
-        val title = "Zona de Produtividade 🎯"
-        val message = "Vamos pôr as mãos ao trabalho! Esta é a área ideal para focar."
+        val title = "Zona de Produtividade"
+        val message = "Vamos pôr as mãos ao trabalho! Esta é a área ideal para se focar."
 
         showNotification(context, title, message)
     }

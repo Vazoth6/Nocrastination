@@ -125,28 +125,10 @@ class FocusLocationsFragment : Fragment() {
 
 
         // Botão de teste direto para API
-        val testAPIButton = MaterialButton(requireContext()).apply {
-            text = "🧪 Testar API"
-            setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.purple_500))
-            setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
-            cornerRadius = 20.dpToPx()
 
-            layoutParams = ViewGroup.MarginLayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-
-            elevation = 8f
-
-            setOnClickListener {
-                Log.d("FocusLocations", "Botão de teste API clicado")
-                testDirectCreate()
-            }
-        }
 
         // Adicionar ambos ao layout principal
         (binding.root as? ViewGroup)?.addView(testGPSButton)
-        (binding.root as? ViewGroup)?.addView(testAPIButton)
 
         // Posicionar manualmente usando translation
         testGPSButton.post {
@@ -156,10 +138,6 @@ class FocusLocationsFragment : Fragment() {
             // Posicionar no canto superior direito
             testGPSButton.translationX = (parentWidth - buttonWidth - 16.dpToPx()).toFloat()
             testGPSButton.translationY = 16.dpToPx().toFloat()
-
-            // Posicionar o botão de API abaixo do primeiro
-            testAPIButton.translationX = (parentWidth - testAPIButton.measuredWidth - 16.dpToPx()).toFloat()
-            testAPIButton.translationY = (16 + testGPSButton.measuredHeight + 8).dpToPx().toFloat()
         }
     }
 

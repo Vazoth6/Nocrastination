@@ -67,6 +67,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Editar"
+                android:textSize="16sp"
                 app:icon="@drawable/ic_edit"
                 app:iconSize="16dp" />
 
@@ -76,6 +77,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Eliminar"
+                android:textSize="16sp"
                 android:textColor="@color/error"
                 app:icon="@drawable/ic_delete"
                 app:iconSize="16dp"

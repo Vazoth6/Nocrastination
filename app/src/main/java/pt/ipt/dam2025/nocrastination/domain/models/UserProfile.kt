@@ -1,7 +1,7 @@
 package pt.ipt.dam2025.nocrastination.domain.models
 
 data class UserProfile(
-    val userId: Int, // Links to Strapi User ID
+    val userId: Int,
     val fullName: String,
     val bio: String?,
     val avatarUrl: String?,

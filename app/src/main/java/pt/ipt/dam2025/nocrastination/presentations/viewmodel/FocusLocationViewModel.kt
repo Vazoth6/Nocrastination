@@ -52,8 +52,8 @@ class FocusLocationViewModel(
     }
 
     fun createFocusLocation(location: FocusLocation) {
-        Log.d("FocusLocationVM", "🔄 Iniciando createFocusLocation: ${location.name}")
-        Log.d("FocusLocationVM", "📍 Dados da localização: lat=${location.latitude}, lon=${location.longitude}")
+        Log.d("FocusLocationVM", " Iniciando createFocusLocation: ${location.name}")
+        Log.d("FocusLocationVM", " Dados da localização: lat=${location.latitude}, lon=${location.longitude}")
 
         viewModelScope.launch {
             _loading.value = true
@@ -63,19 +63,19 @@ class FocusLocationViewModel(
 
             when (val result = focusLocationRepository.createFocusLocation(location)) {
                 is Result.Success -> {
-                    Log.d("FocusLocationVM", "✅ Sucesso! Localização criada: ${result.data.id}")
-                    Log.d("FocusLocationVM", "📍 Dados retornados: ${result.data}")
+                    Log.d("FocusLocationVM", " Sucesso! Localização criada: ${result.data.id}")
+                    Log.d("FocusLocationVM", " Dados retornados: ${result.data}")
 
                     _focusLocations.value = _focusLocations.value + result.data
 
-                    Log.d("FocusLocationVM", "📊 Total de localizações: ${_focusLocations.value.size}")
+                    Log.d("FocusLocationVM", " Total de localizações: ${_focusLocations.value.size}")
 
                     // Tentar recarregar geofences
                     try {
                         geofencingManager.addGeofencesForFocusLocations(_focusLocations.value)
-                        Log.d("FocusLocationVM", "✅ Geofences atualizados")
+                        Log.d("FocusLocationVM", " Geofences atualizados")
                     } catch (e: Exception) {
-                        Log.e("FocusLocationVM", "⚠️ Erro em geofences: ${e.message}")
+                        Log.e("FocusLocationVM", " Erro em geofences: ${e.message}")
                     }
 
                     _uiEvents.emit(UIEvent.ShowToast("Zona de foco criada!"))

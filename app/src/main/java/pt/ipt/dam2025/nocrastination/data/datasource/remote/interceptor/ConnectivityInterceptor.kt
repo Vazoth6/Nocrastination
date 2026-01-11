@@ -18,7 +18,7 @@ class ConnectivityInterceptor(
     @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain): Response {
         if (!isNetworkAvailable()) {
-            throw NoInternetException("No internet connection. Please check your network settings.")
+            throw NoInternetException("Sem ligação à internet. Por favor verifique as suas definições de rede.")
         }
         return chain.proceed(chain.request())
     }

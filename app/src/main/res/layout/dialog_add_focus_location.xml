@@ -40,7 +40,10 @@
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
                     android:text="Localização Atual"
-                    app:icon="@drawable/ic_gps_fixed" />
+                    android:textSize="16sp"
+                    android:textColor="@color/black"
+                    app:icon="@drawable/ic_gps_fixed"
+                    app:iconTint="@color/black" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonSelectOnMap"
@@ -50,7 +53,10 @@
                     android:layout_weight="1"
                     android:layout_marginStart="8dp"
                     android:text="Selecionar no Mapa"
-                    app:icon="@drawable/ic_map" />
+                    android:textSize="16sp"
+                    android:textColor="@color/black"
+                    app:icon="@drawable/ic_map"
+                    app:iconTint="@color/black" />
 
             </LinearLayout>
 

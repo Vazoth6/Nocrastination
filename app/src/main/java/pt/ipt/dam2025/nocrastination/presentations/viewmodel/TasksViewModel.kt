@@ -62,23 +62,23 @@ class TasksViewModel(
         viewModelScope.launch {
             _loading.value = true
             _error.value = null
-            Log.d("TasksViewModel", "📝 Iniciando criação da tarefa: ${task.title}")
-            Log.d("TasksViewModel", "📝 Task antes de enviar: $task")
+            Log.d("TasksViewModel", " A iniciar criação da tarefa: ${task.title}")
+            Log.d("TasksViewModel", " Task antes de enviar: $task")
 
             when (val result = taskRepository.createTask(task)) {
                 is Result.Success -> {
-                    Log.d("TasksViewModel", "✅ Tarefa criada com sucesso no servidor!")
-                    Log.d("TasksViewModel", "🆔 Nova tarefa ID: ${result.data.id}")
-                    Log.d("TasksViewModel", "📋 Tarefa retornada: ${result.data}")
+                    Log.d("TasksViewModel", " Tarefa criada com sucesso no servidor!")
+                    Log.d("TasksViewModel", " Nova tarefa ID: ${result.data.id}")
+                    Log.d("TasksViewModel", " Tarefa retornada: ${result.data}")
 
                     // Recarrega todas as tarefas do servidor para garantir sincronização
-                    Log.d("TasksViewModel", "🔄 Recarregando lista completa...")
+                    Log.d("TasksViewModel", " A recarregar a lista completa...")
                     loadTasks() // Isso vai buscar todas as tarefas novamente
 
                     _uiEvents.emit(UIEvent.ShowToast("Tarefa criada com sucesso!"))
                 }
                 is Result.Error -> {
-                    Log.e("TasksViewModel", "❌ Erro ao criar tarefa: ${result.exception.message}")
+                    Log.e("TasksViewModel", " Erro ao criar tarefa: ${result.exception.message}")
                     _error.value = result.exception.message ?: "Erro ao criar tarefa"
                     _uiEvents.emit(UIEvent.ShowToast("Erro ao criar tarefa: ${result.exception.message}"))
                 }
@@ -119,7 +119,7 @@ class TasksViewModel(
                         if (it.id == taskId) result.data else it
                     }
                     // Enviar evento de sucesso
-                    _uiEvents.emit(UIEvent.ShowToast("✅ Tarefa concluída!"))
+                    _uiEvents.emit(UIEvent.ShowToast(" Tarefa concluída!"))
                 }
                 is Result.Error -> {
                     _error.value = result.exception.message ?: "Erro ao concluir tarefa"
@@ -193,9 +193,9 @@ class TasksViewModel(
         try {
             taskRepository.deleteTask(taskId)
             // Log opcional para debug
-            println("✅ Tarefa $taskId eliminada automaticamente (concluída há mais de 24h)")
+            println(" Tarefa $taskId eliminada automaticamente (concluída há mais de 24h)")
         } catch (e: Exception) {
-            println("⚠️ Erro ao eliminar tarefa antiga $taskId: ${e.message}")
+            println(" Erro ao eliminar tarefa antiga $taskId: ${e.message}")
         }
     }
 

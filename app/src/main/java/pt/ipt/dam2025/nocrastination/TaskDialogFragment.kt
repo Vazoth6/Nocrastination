@@ -189,7 +189,7 @@ class TaskDialogFragment : DialogFragment() {
             null
         }
 
-        Log.d("TaskDialog", "📅 Data formatada: $dueDate")
+        Log.d("TaskDialog", "Data formatada: $dueDate")
 
         lifecycleScope.launch {
             if (task == null) {
@@ -207,7 +207,7 @@ class TaskDialogFragment : DialogFragment() {
                     estimatedMinutes = null // Você pode adicionar um campo para isso se necessário
                 )
 
-                Log.d("TaskDialog", "📤 Enviando tarefa: $newTask")
+                Log.d("TaskDialog", "A enviar tarefa: $newTask")
                 viewModel.createTask(newTask)
 
                 // Aguarde um momento antes de recarregar

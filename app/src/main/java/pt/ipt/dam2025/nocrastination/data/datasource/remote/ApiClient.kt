@@ -30,12 +30,12 @@ object ApiClient {
     fun initialize(context: Context) {
         if (retrofit == null) {
             retrofit = buildRetrofit(context)
-            Log.d("ApiClient", "✅ Retrofit inicializado com URL: $BASE_URL")
+            Log.d("ApiClient", " Retrofit a inicializar com URL: $BASE_URL")
         }
     }
 
     private fun buildRetrofit(context: Context): Retrofit {
-        Log.d("ApiClient", "🔄 Construindo Retrofit...")
+        Log.d("ApiClient", "🔄 A construir Retrofit...")
 
         // Gson configuration
         val gson = GsonBuilder()
@@ -77,7 +77,7 @@ object ApiClient {
     fun getAuthApi(context: Context): AuthApi {
         if (authApi == null) {
             authApi = getRetrofit(context).create(AuthApi::class.java)
-            Log.d("ApiClient", "✅ AuthApi criada")
+            Log.d("ApiClient", " AuthApi criada")
         }
         return authApi!!
     }
@@ -85,7 +85,7 @@ object ApiClient {
     fun getTaskApi(context: Context): TaskApi {
         if (taskApi == null) {
             taskApi = getRetrofit(context).create(TaskApi::class.java)
-            Log.d("ApiClient", "✅ TaskApi criada")
+            Log.d("ApiClient", " TaskApi criada")
         }
         return taskApi!!
     }
@@ -99,8 +99,8 @@ object ApiClient {
 
     // Metodo para testar a conexão
     fun testConnection() {
-        Log.d("ApiClient", "🔗 Testando conexão com: $BASE_URL")
-        Log.d("ApiClient", "📡 Endpoints disponíveis:")
+        Log.d("ApiClient", " A testar conexão com: $BASE_URL")
+        Log.d("ApiClient", " Endpoints disponíveis:")
         Log.d("ApiClient", "  - POST ${BASE_URL}api/auth/local")
         Log.d("ApiClient", "  - POST ${BASE_URL}api/auth/local/register")
         Log.d("ApiClient", "  - GET ${BASE_URL}api/users/me")
@@ -112,21 +112,21 @@ object ApiClient {
                 val taskApi = getTaskApi(context)
                 val response = taskApi.getTasks()
 
-                Log.d("ApiClient", "🔍 Teste de tasks - Código: ${response.code()}")
-                Log.d("ApiClient", "🔍 Teste de tasks - Sucesso: ${response.isSuccessful}")
+                Log.d("ApiClient", " Teste de tasks - Código: ${response.code()}")
+                Log.d("ApiClient", " Teste de tasks - Sucesso: ${response.isSuccessful}")
 
                 if (response.isSuccessful) {
                     response.body()?.let {
-                        Log.d("ApiClient", "✅ ${it.data.size} tarefas encontradas")
+                        Log.d("ApiClient", " ${it.data.size} tarefas encontradas")
                         it.data.forEach { taskData ->
                             Log.d("ApiClient", "   - ${taskData.id}: ${taskData.attributes.title}")
                         }
                     }
                 } else {
-                    Log.e("ApiClient", "❌ Erro: ${response.errorBody()?.string()}")
+                    Log.e("ApiClient", " Erro: ${response.errorBody()?.string()}")
                 }
             } catch (e: Exception) {
-                Log.e("ApiClient", "❌ Exceção: ${e.message}", e)
+                Log.e("ApiClient", " Exceção: ${e.message}", e)
             }
         }
     }

@@ -176,7 +176,9 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Definir Data"
-                    android:layout_marginEnd="4dp" />
+                    android:textColor="@color/black"
+                    android:layout_marginEnd="4dp"
+                    android:backgroundTint="@color/gray_500" />
 
                 <Button
                     android:id="@+id/buttonSetTime"
@@ -184,7 +186,9 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Definir Hora"
-                    android:layout_marginStart="4dp" />
+                    android:textColor="@color/black"
+                    android:layout_marginStart="4dp"
+                    android:backgroundTint="@color/gray_500" />
 
             </LinearLayout>
 
@@ -202,7 +206,9 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Cancelar"
-                android:layout_marginEnd="4dp" />
+                android:textColor="@color/black"
+                android:layout_marginEnd="4dp"
+                android:backgroundTint="@color/gray_500"/>
 
             <Button
                 android:id="@+id/buttonSave"
@@ -210,7 +216,9 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Guardar"
-                android:layout_marginStart="4dp" />
+                android:textColor="@color/black"
+                android:layout_marginStart="4dp"
+                android:backgroundTint="@color/gray_500"/>
 
         </LinearLayout>
 

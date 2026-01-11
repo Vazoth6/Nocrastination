@@ -191,7 +191,7 @@ class AddFocusLocationDialogFragment : DialogFragment() {
             return
         }
 
-        Log.d("AddFocusLocation", "Obtendo localização atual...")
+        Log.d("AddFocusLocation", "A obter localização atual...")
 
         // Verifica permissão antes de chamar lastLocation
         if (ActivityCompat.checkSelfPermission(
@@ -334,7 +334,7 @@ class AddFocusLocationDialogFragment : DialogFragment() {
     }
 
     fun prefillFields(name: String? = null, address: String? = null, latitude: Double? = null, longitude: Double? = null, radius: Float? = null, notificationMessage: String? = null) {
-        Log.d("AddFocusLocation", "🎯 Pré-preenchendo campos:")
+        Log.d("AddFocusLocation", " Pré-preenchendo campos:")
         Log.d("AddFocusLocation", "  Nome: $name")
         Log.d("AddFocusLocation", "  Latitude: $latitude, Longitude: $longitude")
 
@@ -348,9 +348,9 @@ class AddFocusLocationDialogFragment : DialogFragment() {
                 radius?.let { binding.editRadius.setText(it.toString()) }
                 notificationMessage?.let { binding.editNotificationMessage.setText(it) }
 
-                Log.d("AddFocusLocation", "✅ Campos pré-preenchidos com sucesso")
+                Log.d("AddFocusLocation", " Campos pré-preenchidos com sucesso")
             } catch (e: Exception) {
-                Log.e("AddFocusLocation", "❌ Erro ao pré-preecher campos: ${e.message}")
+                Log.e("AddFocusLocation", " Erro ao pré-preecher campos: ${e.message}")
             }
         }
     }

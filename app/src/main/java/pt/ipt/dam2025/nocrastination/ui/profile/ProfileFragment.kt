@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import pt.ipt.dam2025.nocrastination.R
 import pt.ipt.dam2025.nocrastination.databinding.FragmentProfileBinding
+import pt.ipt.dam2025.nocrastination.domain.models.User
 import pt.ipt.dam2025.nocrastination.domain.models.UserProfile
 import pt.ipt.dam2025.nocrastination.presentations.viewmodel.AuthViewModel
 import pt.ipt.dam2025.nocrastination.presentations.viewmodel.UserProfileViewModel
@@ -110,7 +111,7 @@ class ProfileFragment : Fragment() {
     private fun updateUI(profile: UserProfile) {
         binding.apply {
             textUserName.text = profile.fullName
-            textUserEmail.text = "ID: ${profile.userId}"
+            textUserEmail.text = "${profile.userId}"
 
             // Carregar avatar
             profile.avatarUrl?.let { avatarUrl ->
@@ -197,7 +198,7 @@ class ProfileFragment : Fragment() {
     }
 
     private fun openEditProfile() {
-        Toast.makeText(context, "Funcionalidade em desenvolvimento", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "Função em desenvolvimento", Toast.LENGTH_SHORT).show()
     }
 
     private fun openSettings() {

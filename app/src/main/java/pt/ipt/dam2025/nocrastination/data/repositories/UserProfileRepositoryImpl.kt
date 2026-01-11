@@ -19,10 +19,10 @@ class UserProfileRepositoryImpl(
                 if (body != null) {
                     Result.success(userProfileMapper.toDomain(body))
                 } else {
-                    Result.failure(Exception("Profile response body is null"))
+                    Result.failure(Exception("Corpo de resposta para o Perfil é nulo"))
                 }
             } else {
-                Result.failure(Exception("Failed to get profile: ${response.code()}"))
+                Result.failure(Exception("Falha ao carregar perfil: ${response.code()}"))
             }
         } catch (e: Exception) {
             Result.failure(e)

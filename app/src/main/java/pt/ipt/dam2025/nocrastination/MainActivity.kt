@@ -84,10 +84,10 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-            Log.d("MainActivity", "Navigation setup successful")
+            Log.d("MainActivity", "Navigation setup com sucesso")
 
         } catch (e: Exception) {
-            Log.e("MainActivity", "Navigation setup failed: ${e.message}", e)
+            Log.e("MainActivity", "Navigation setup falhou: ${e.message}", e)
         }
     }
 

@@ -34,15 +34,15 @@ class AuthRepositoryImpl(
                         preferenceManager.saveAuthToken(token)
                         preferenceManager.saveUserId(authResponse.user.id)
                         Resource.Success(Unit)
-                    } ?: Resource.Error("Empty response")
+                    } ?: Resource.Error("Resposta vazia")
                 } else {
                     // Melhor tratamento de erro
                     val errorCode = response.code()
-                    val errorBody = response.errorBody()?.string() ?: "Unknown error"
-                    Resource.Error("Login failed ($errorCode): $errorBody")
+                    val errorBody = response.errorBody()?.string() ?: "Erro desconhecido"
+                    Resource.Error("Login falhou ($errorCode): $errorBody")
                 }
             } catch (e: Exception) {
-                Resource.Error("Network error: ${e.message}")
+                Resource.Error("Erro de rede: ${e.message}")
             }
         }
     }
@@ -56,11 +56,11 @@ class AuthRepositoryImpl(
                 if (response.isSuccessful) {
                     login(email, password)
                 } else {
-                    val errorBody = response.errorBody()?.string() ?: "Unknown error"
-                    Resource.Error("Registration failed: $errorBody")
+                    val errorBody = response.errorBody()?.string() ?: "Erro desconhecido"
+                    Resource.Error("Registo falhou: $errorBody")
                 }
             } catch (e: Exception) {
-                Resource.Error(e.message ?: "Unknown error")
+                Resource.Error(e.message ?: "Erro desconhecido")
             }
         }
     }
@@ -76,31 +76,31 @@ class AuthRepositoryImpl(
     override suspend fun getCurrentUser(): Resource<UserProfile> {
         return withContext(Dispatchers.IO) {
             try {
-                Log.d("AuthRepository", "🔄 Buscando usuário atual via /api/users/me")
+                Log.d("AuthRepository", " A efetuar busca do utilizador atual via /api/users/me")
 
                 val response = authApi.getCurrentUser()
 
                 if (response.isSuccessful) {
                     val userResponse = response.body()
                     if (userResponse != null) {
-                        Log.d("AuthRepository", "✅ Usuário encontrado: ${userResponse.email}")
+                        Log.d("AuthRepository", " Utilizador encontrado: ${userResponse.email}")
 
                         // Converter UserResponse para UserProfile
                         val userProfile = userResponse.toDomain()
                         return@withContext Resource.Success(userProfile)
                     } else {
-                        Log.e("AuthRepository", "❌ Resposta vazia")
+                        Log.e("AuthRepository", " Resposta vazia")
                         return@withContext Resource.Error("Resposta vazia do servidor")
                     }
                 } else {
                     val errorCode = response.code()
                     val errorBody = response.errorBody()?.string() ?: "Erro desconhecido"
-                    Log.e("AuthRepository", "❌ Erro $errorCode: $errorBody")
+                    Log.e("AuthRepository", " Erro $errorCode: $errorBody")
 
-                    return@withContext Resource.Error("Falha ao obter usuário: $errorCode")
+                    return@withContext Resource.Error("Falha ao obter utilizador: $errorCode")
                 }
             } catch (e: Exception) {
-                Log.e("AuthRepository", "❌ Exceção: ${e.message}", e)
+                Log.e("AuthRepository", " Exceção: ${e.message}", e)
                 return@withContext Resource.Error("Erro de rede: ${e.message}")
             }
         }

@@ -25,7 +25,7 @@ class FocusLocationMapper {
     }
 
     fun mapToCreateRequest(location: FocusLocation): FocusLocationRequest {
-        Log.d("FocusLocationMapper", "Mapeando para CreateRequest: ${location.name}")
+        Log.d("FocusLocationMapper", "A mapear para CreateRequest: ${location.name}")
 
         return FocusLocationRequest(
             data = FocusLocationRequestData(
@@ -43,7 +43,7 @@ class FocusLocationMapper {
     }
 
     fun mapToUpdateRequest(location: FocusLocation): FocusLocationRequest {
-        Log.d("FocusLocationMapper", "Mapeando para UpdateRequest: ID=${location.id}")
+        Log.d("FocusLocationMapper", "A mapear para UpdateRequest: ID=${location.id}")
 
         return FocusLocationRequest(
             data = FocusLocationRequestData(

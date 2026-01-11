@@ -28,11 +28,10 @@ data class UserResponse(
     )
 }
 
-// Adicione esta função de extensão para UserResponse
 fun UserResponse.toDomain(): UserProfile {
     return UserProfile(
         userId = id,
-        fullName = fullName ?: username,  // Se fullName for null, usa username
+        fullName = fullName ?: username,
         bio = bio,
         avatarUrl = avatar?.url,
         timezone = timezone ?: "Europe/Lisbon",

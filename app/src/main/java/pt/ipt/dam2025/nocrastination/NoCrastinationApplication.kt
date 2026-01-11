@@ -48,7 +48,7 @@ class NoCrastinationApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        Log.d("NoCrastinationApp", "🚀 Aplicação iniciando...")
+        Log.d("NoCrastinationApp", "A ligar a aplicação...")
 
         startKoin {
             androidLogger(Level.DEBUG)
@@ -63,7 +63,7 @@ class NoCrastinationApplication : Application() {
             )
         }
 
-        Log.d("NoCrastinationApp", "✅ Koin inicializado")
+        Log.d("NoCrastinationApp", "Koin inicializado")
     }
 
     // Módulo de aplicação (preferences, interceptors)
