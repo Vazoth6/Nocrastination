@@ -67,7 +67,6 @@ class PomodoroMapper constructor() {
                         SessionType.WORK -> "WORK"
                         SessionType.SHORT_BREAK -> "SHORT_BREAK"
                         SessionType.LONG_BREAK -> "LONG_BREAK"
-                        else -> null
                     },
                     startTime = formatFromMillis(session.startTime),
                     endTime = endTimeString,

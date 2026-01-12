@@ -84,7 +84,7 @@ class GeofencingManager(private val context: Context) {
             return
         }
 
-        geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent)?.run {
+        geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent).run {
             addOnSuccessListener {
                 Log.d(TAG, "Geofences adicionados com sucesso para ${enabledLocations.size} localizações")
             }
@@ -98,7 +98,7 @@ class GeofencingManager(private val context: Context) {
      * Remove todos os geofences
      */
     fun removeAllGeofences() {
-        geofencingClient.removeGeofences(geofencePendingIntent)?.run {
+        geofencingClient.removeGeofences(geofencePendingIntent).run {
             addOnSuccessListener {
                 Log.d(TAG, "Todos os geofences removidos")
             }
@@ -113,7 +113,7 @@ class GeofencingManager(private val context: Context) {
      */
     fun removeGeofence(locationId: Int) {
         val geofenceRequestId = "focus_location_$locationId"
-        geofencingClient.removeGeofences(listOf(geofenceRequestId))?.run {
+        geofencingClient.removeGeofences(listOf(geofenceRequestId)).run {
             addOnSuccessListener {
                 Log.d(TAG, "Geofence removido: $locationId")
             }

@@ -18,7 +18,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Nenhum item encontrada"
+        android:text="@string/nenhum_item_encontrado"
         android:textSize="18sp"
         android:textColor="@android:color/darker_gray" />
 
@@ -27,7 +27,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Adicione um novo item ao clicar no botão abaixo"
+        android:text="@string/adicione_um_novo_item_ao_clicar_no_botao_abaixo"
         android:textSize="14sp"
         android:textColor="@android:color/darker_gray" />
 

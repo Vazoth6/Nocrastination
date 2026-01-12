@@ -61,5 +61,7 @@
     <string name="tempo_total">Tempo Total:</string>
     <string name="tarefas_totais">Tarefas Totais:</string>
     <string name="estatisticas_gerais">Estatísticas Gerais</string>
+    <string name="nenhum_item_encontrado">Nenhum item encontrado</string>
+    <string name="adicione_um_novo_item_ao_clicar_no_botao_abaixo">Adicione um novo item ao clicar no botão abaixo</string>
 
 </resources>
