@@ -16,6 +16,7 @@ import java.util.*
 class TaskAdapter(
     private val onTaskClick: (Task) -> Unit,
     private val onCompleteClick: (Int) -> Unit,
+    private val onUncompleteClick: (Int) -> Unit,
     private val onEditClick: (Task) -> Unit,
     private val onDeleteClick: (Int) -> Unit,
     private val onStartPomodoro: (Task) -> Unit
@@ -71,8 +72,27 @@ class TaskAdapter(
             }
 
             binding.checkBoxCompleted.setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked && !task.completed) {
-                    onCompleteClick(task.id)
+                // Remove o listener temporariamente para evitar loops infinitos
+                binding.checkBoxCompleted.setOnCheckedChangeListener(null)
+
+                // Se o estado mudou, chama a função apropriada
+                if (isChecked != task.completed) {
+                    if (isChecked) {
+                        onCompleteClick(task.id) // Marcar como concluída
+                    } else {
+                        onUncompleteClick(task.id) // Desmarcar (novo parâmetro)
+                    }
+                }
+
+                // Restaura o listener
+                binding.checkBoxCompleted.setOnCheckedChangeListener { _, newIsChecked ->
+                    if (newIsChecked != task.completed) {
+                        if (newIsChecked) {
+                            onCompleteClick(task.id)
+                        } else {
+                            onUncompleteClick(task.id)
+                        }
+                    }
                 }
             }
 

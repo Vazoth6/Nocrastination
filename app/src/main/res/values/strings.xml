@@ -44,5 +44,22 @@
     <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">
         API_KEY_AQUI
     </string>
-    
+    <string name="esta_funcionalidade_estar_dispon_vel_em_breve">Esta funcionalidade estará disponível em breve!</string>
+    <string name="rea_em_desenvolvimento">Área em desenvolvimento</string>
+    <string name="grafico_em_desenvolvimento">Gráfico em desenvolvimento...</string>
+    <string name="total_da_semana">Total da semana: 0 min</string>
+    <string name="resumo_semanal">Resumo Semanal</string>
+    <string name="atrasadas">Atrasadas:</string>
+    <string name="pendentes">Pendentes:</string>
+    <string name="concluidas">Concluídas:</string>
+    <string name="tarefas_por_estado">Tarefas por Estado</string>
+    <string name="baixa">Baixa:</string>
+    <string name="media">Média:</string>
+    <string name="alta">Alta:</string>
+    <string name="tarefas_por_prioridade">Tarefas por Prioridade</string>
+    <string name="sequencia_atual">Sequência Atual:</string>
+    <string name="tempo_total">Tempo Total:</string>
+    <string name="tarefas_totais">Tarefas Totais:</string>
+    <string name="estatisticas_gerais">Estatísticas Gerais</string>
+
 </resources>

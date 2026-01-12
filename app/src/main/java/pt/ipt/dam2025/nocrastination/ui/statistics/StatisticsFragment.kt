@@ -53,12 +53,12 @@ class StatisticsFragment : Fragment() {
 
         // Atualizar UI com dados
         binding.apply {
-            textTotalTasks.text = "29"
-            textTotalMinutes.text = "830 min"
-            textCurrentStreak.text = "7 dias"
+            textTotalTasks.text = "0"
+            textTotalMinutes.text = "0 min"
+            textCurrentStreak.text = "0 dias"
 
             // Mock de gráficos - implementar biblioteca de gráficos depois
-            textWeeklyHours.text = "Total da semana: 830 min"
+            textWeeklyHours.text = "Total da semana: 0 min"
 
             // Estatísticas de tarefas
             textCompletedTasks.text = taskStats["Concluídas"].toString()

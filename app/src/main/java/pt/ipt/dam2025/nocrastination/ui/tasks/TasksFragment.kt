@@ -59,6 +59,9 @@ class TasksFragment : Fragment() {
             onCompleteClick = { taskId ->
                 viewModel.completeTask(taskId)
             },
+            onUncompleteClick = { taskId -> // NOVO: para desmarcar
+                viewModel.uncompleteTask(taskId)
+            },
             onEditClick = { task ->
                 openTaskDialog(task.id)
             },
@@ -135,6 +138,45 @@ class TasksFragment : Fragment() {
         }
     }
 
+    private fun setupChips() {
+        // Configurar seleção única
+        binding.chipGroup.isSingleSelection = true
+
+        // Listener para o chip "Todas"
+        binding.chipAll.setOnClickListener {
+            viewModel.setFilter(TasksViewModel.FilterType.ALL)
+        }
+
+        // Listener para o chip "Concluídas"
+        binding.chipCompleted.setOnClickListener {
+            viewModel.setFilter(TasksViewModel.FilterType.COMPLETED)
+        }
+    }
+
+    private fun updateChipSelection(filterType: TasksViewModel.FilterType) {
+        when (filterType) {
+            is TasksViewModel.FilterType.ALL -> {
+                binding.chipAll.isChecked = true
+                binding.chipCompleted.isChecked = false
+            }
+            is TasksViewModel.FilterType.COMPLETED -> {
+                binding.chipAll.isChecked = false
+                binding.chipCompleted.isChecked = true
+            }
+        }
+    }
+
+    private fun updateEmptyStateMessage() {
+        val filterType = viewModel.filterType.value
+        val emptyText = when (filterType) {
+            is TasksViewModel.FilterType.ALL -> "Nenhuma tarefa encontrada\nCrie uma nova tarefa para começar!"
+            is TasksViewModel.FilterType.COMPLETED -> "Nenhuma tarefa concluída\nConclua algumas tarefas para vê-las aqui!"
+            else -> "Nenhuma tarefa encontrada"
+        }
+
+        binding.emptyState.textEmptyMessage.text = emptyText
+    }
+
     private fun setupClickListeners() {
         binding.fabAddTask.setOnClickListener {
             openTaskDialog(null)
@@ -181,8 +223,6 @@ class TasksFragment : Fragment() {
             }
         }
     }
-
-
 
     override fun onDestroyView() {
         super.onDestroyView()

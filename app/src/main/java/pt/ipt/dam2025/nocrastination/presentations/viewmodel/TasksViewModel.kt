@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import pt.ipt.dam2025.nocrastination.domain.models.Result
 import pt.ipt.dam2025.nocrastination.domain.models.Task
@@ -32,6 +33,28 @@ class TasksViewModel(
     // Eventos UI
     private val _uiEvents = MutableSharedFlow<UIEvent>()
     val uiEvents = _uiEvents
+
+    sealed class FilterType {
+        object ALL : FilterType()
+        object COMPLETED : FilterType()
+    }
+
+    private val _filterType = MutableStateFlow<FilterType>(FilterType.ALL)
+    val filterType: StateFlow<FilterType> = _filterType.asStateFlow()
+
+    private val _allTasks = MutableStateFlow<List<Task>>(emptyList())
+    val allTasks: StateFlow<List<Task>> = _allTasks.asStateFlow()
+
+    val filteredTasks = _allTasks.combine(_filterType) { tasks, filter ->
+        when (filter) {
+            is FilterType.ALL -> tasks
+            is FilterType.COMPLETED -> tasks.filter { it.completed }
+        }
+    }
+
+    fun setFilter(filter: FilterType) {
+        _filterType.value = filter
+    }
 
     fun loadTasks() {
         viewModelScope.launch {
@@ -129,7 +152,41 @@ class TasksViewModel(
         }
     }
 
+    fun uncompleteTask(taskId: Int) {
+        viewModelScope.launch {
+            _loading.value = true
+            _error.value = null
 
+            // Buscar a tarefa atual
+            val currentTask = _allTasks.value.find { it.id == taskId }
+
+            if (currentTask != null) {
+                // Criar uma cópia da tarefa com completed = false
+                val updatedTask = currentTask.copy(
+                    completed = false,
+                    completedAt = null
+                )
+
+                // Usar o updateTask normal (não o completeTask)
+                when (val result = taskRepository.updateTask(updatedTask)) {
+                    is Result.Success -> {
+                        // Atualizar a lista de todas as tarefas
+                        _allTasks.value = _allTasks.value.map {
+                            if (it.id == taskId) result.data else it
+                        }
+                        _uiEvents.emit(UIEvent.ShowToast("Tarefa marcada como pendente!"))
+                    }
+                    is Result.Error -> {
+                        _error.value = result.exception.message ?: "Erro ao atualizar tarefa"
+                    }
+                }
+            } else {
+                _error.value = "Tarefa não encontrada"
+            }
+
+            _loading.value = false
+        }
+    }
 
     fun deleteTask(taskId: Int) {
         viewModelScope.launch {
