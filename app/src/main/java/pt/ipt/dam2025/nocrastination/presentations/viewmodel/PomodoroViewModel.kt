@@ -1,5 +1,4 @@
-// presentation/viewmodel/PomodoroViewModel.kt
-package pt.ipt.dam2025.nocrastination.presentation.viewmodel
+package pt.ipt.dam2025.nocrastination.presentations.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

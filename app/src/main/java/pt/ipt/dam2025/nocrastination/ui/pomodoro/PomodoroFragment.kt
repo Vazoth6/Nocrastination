@@ -1,4 +1,3 @@
-// ui/pomodoro/PomodoroFragment.kt
 package pt.ipt.dam2025.nocrastination.ui.pomodoro
 
 import android.os.Bundle
@@ -13,14 +12,13 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import pt.ipt.dam2025.nocrastination.R
 import pt.ipt.dam2025.nocrastination.databinding.FragmentPomodoroBinding
 import pt.ipt.dam2025.nocrastination.domain.models.Task
-import pt.ipt.dam2025.nocrastination.presentation.viewmodel.PomodoroViewModel
+import pt.ipt.dam2025.nocrastination.presentations.viewmodel.PomodoroViewModel
 import pt.ipt.dam2025.nocrastination.presentations.viewmodel.TasksViewModel
 import java.text.SimpleDateFormat
 import java.util.*

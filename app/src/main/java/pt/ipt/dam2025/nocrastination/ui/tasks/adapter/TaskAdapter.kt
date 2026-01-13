@@ -1,4 +1,3 @@
-// adapters/TaskAdapter.kt
 package pt.ipt.dam2025.nocrastination.ui.tasks.adapter
 
 import android.R

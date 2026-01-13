@@ -1,7 +1,5 @@
 package pt.ipt.dam2025.nocrastination.data.datasource.remote.models.responses
 
-import pt.ipt.dam2025.nocrastination.data.remote.models.responses.Pagination
-
 data class StrapiListResponse<T>(
     val data: List<StrapiData<T>>,
     val meta: StrapiMeta

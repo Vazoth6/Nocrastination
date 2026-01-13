@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
+import com.bumptech.glide.Glide
 import pt.ipt.dam2025.nocrastination.R
 import pt.ipt.dam2025.nocrastination.databinding.FragmentAboutAppDialogBinding
 
@@ -43,6 +44,9 @@ class AboutAppDialogFragment : DialogFragment() {
                 Nome: Rodrigo Miguel Oliveira Calisto
                 Número: 24851
             """.trimIndent()
+
+            // Carrega a foto pessoal
+            loadProfileImage()
 
             // Bibliotecas usadas
             textLibraries.text = """
@@ -92,6 +96,15 @@ class AboutAppDialogFragment : DialogFragment() {
                 • androidx.compose:compose-bom - Compose Bill of Materials
             """.trimIndent()
         }
+    }
+
+    private fun loadProfileImage() {
+        Glide.with(requireContext())
+            .load(R.drawable.rc_img_perfil)
+            .circleCrop() // Para imagem circular
+            .placeholder(R.drawable.ic_person) // Imagem enquanto carrega
+            .error(R.drawable.ic_person) // Imagem em caso de erro
+            .into(binding.imageProfile)
     }
 
     private fun setupClickListeners() {

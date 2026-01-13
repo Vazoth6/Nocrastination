@@ -1,4 +1,3 @@
-// domain/model/Result.kt
 package pt.ipt.dam2025.nocrastination.domain.models
 
 sealed class Result<out T> {

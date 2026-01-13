@@ -13,8 +13,8 @@ android {
         applicationId = "pt.ipt.dam2025.nocrastination"
         minSdk = 24
         targetSdk = 36
-        versionCode = 3
-        versionName = "2.0"
+        versionCode = 5
+        versionName = "5.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

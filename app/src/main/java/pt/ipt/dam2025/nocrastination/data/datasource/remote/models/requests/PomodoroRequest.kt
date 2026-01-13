@@ -1,4 +1,3 @@
-// data/datasource/remote/models/requests/PomodoroRequest.kt
 package pt.ipt.dam2025.nocrastination.data.datasource.remote.models.requests
 
 // Remove the nested TaskIdData and simplify

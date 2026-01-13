@@ -11,10 +11,10 @@ object UserProfileMapper {
             bio = response.bio,
             avatarUrl = response.avatar?.url,
             timezone = response.timezone ?: "Europe/Lisbon",
-            dailyGoalMinutes = response.dailyGoalMinutes ?: 240,
-            pomodoroWorkDuration = response.pomodoroWorkDuration ?: 25,
-            pomodoroShortBreak = response.pomodoroShortBreak ?: 5,
-            pomodoroLongBreak = response.pomodoroLongBreak ?: 15,
+            dailyGoalMinutes = response.dailyGoalMinutes ?: 0,
+            pomodoroWorkDuration = response.pomodoroWorkDuration ?: 0,
+            pomodoroShortBreak = response.pomodoroShortBreak ?: 0,
+            pomodoroLongBreak = response.pomodoroLongBreak ?: 0,
             userEmail = response.user?.email ?: ""
         )
     }

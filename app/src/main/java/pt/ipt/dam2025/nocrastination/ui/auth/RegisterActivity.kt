@@ -1,4 +1,3 @@
-// RegisterActivity.kt
 package pt.ipt.dam2025.nocrastination.ui.auth
 
 import android.os.Bundle

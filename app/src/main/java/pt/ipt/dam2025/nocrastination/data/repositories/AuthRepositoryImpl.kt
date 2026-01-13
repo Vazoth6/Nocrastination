@@ -1,4 +1,3 @@
-// AuthRepositoryImpl.kt
 package pt.ipt.dam2025.nocrastination.data.repositories
 
 import android.util.Log
