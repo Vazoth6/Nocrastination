@@ -427,7 +427,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="16dp"
+                    android:alpha="0.6"
+                    android:enabled="false">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -488,7 +490,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Foco"
+                                android:text="Trabalho"
                                 android:textColor="@color/gray_400"
                                 android:textSize="12sp" />
 
@@ -513,7 +515,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Concluídas"
+                                android:text="Tarefas Concluídas"
                                 android:textColor="@color/gray_400"
                                 android:textSize="12sp" />
 

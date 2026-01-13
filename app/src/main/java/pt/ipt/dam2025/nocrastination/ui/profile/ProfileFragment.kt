@@ -111,7 +111,7 @@ class ProfileFragment : Fragment() {
     private fun updateUI(profile: UserProfile) {
         binding.apply {
             textUserName.text = profile.fullName
-            textUserEmail.text = "${profile.userId}"
+            textUserEmail.text = profile.userEmail
 
             // Carregar avatar
             profile.avatarUrl?.let { avatarUrl ->

@@ -9,6 +9,7 @@ data class UserProfile(
     val dailyGoalMinutes: Int,
     val pomodoroWorkDuration: Int,
     val pomodoroShortBreak: Int,
-    val pomodoroLongBreak: Int
+    val pomodoroLongBreak: Int,
+    val userEmail: String = ""
 )
 

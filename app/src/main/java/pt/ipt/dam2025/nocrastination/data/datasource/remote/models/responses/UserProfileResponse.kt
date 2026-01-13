@@ -45,7 +45,8 @@ fun UserProfileResponse.toDomain(): UserProfile {
         dailyGoalMinutes = dailyGoalMinutes ?: 240,
         pomodoroWorkDuration = pomodoroWorkDuration ?: 25,
         pomodoroShortBreak = pomodoroShortBreak ?: 5,
-        pomodoroLongBreak = pomodoroLongBreak ?: 15
+        pomodoroLongBreak = pomodoroLongBreak ?: 15,
+        userEmail = user?.email ?: ""
     )
 }
 

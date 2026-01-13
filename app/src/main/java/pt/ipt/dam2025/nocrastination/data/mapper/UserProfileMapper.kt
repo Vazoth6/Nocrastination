@@ -14,7 +14,8 @@ object UserProfileMapper {
             dailyGoalMinutes = response.dailyGoalMinutes ?: 240,
             pomodoroWorkDuration = response.pomodoroWorkDuration ?: 25,
             pomodoroShortBreak = response.pomodoroShortBreak ?: 5,
-            pomodoroLongBreak = response.pomodoroLongBreak ?: 15
+            pomodoroLongBreak = response.pomodoroLongBreak ?: 15,
+            userEmail = response.user?.email ?: ""
         )
     }
 }

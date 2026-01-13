@@ -13,8 +13,8 @@ android {
         applicationId = "pt.ipt.dam2025.nocrastination"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 3
+        versionName = "2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -23,6 +23,11 @@ android {
     }
 
     buildTypes {
+        debug {
+            // ADICIONE ESTAS LINHAS:
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-DEBUG"
+        }
         release {
             isMinifyEnabled = true
             isShrinkResources = true
@@ -121,6 +126,10 @@ dependencies {
     testImplementation("io.insert-koin:koin-test-junit4:3.5.0")
 
     // Glide para carregamento de imagens
+    /*
+    * https://github.com/bumptech/glide - Glide para carregamento de imagens
+    * Author - Bump Technologies
+    * */
     implementation("com.github.bumptech.glide:glide:4.14.2")
     annotationProcessor("com.github.bumptech.glide:compiler:4.14.2")
 
