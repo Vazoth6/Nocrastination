@@ -13,46 +13,60 @@ import pt.ipt.dam2025.nocrastination.utils.PreferenceManager
 import pt.ipt.dam2025.nocrastination.utils.Resource
 
 class AuthRepositoryImpl(
-    private val authApi: AuthApi,
-    private val preferenceManager: PreferenceManager
+    private val authApi: AuthApi, // API para chamadas de autenticação
+    private val preferenceManager: PreferenceManager // Gestor de preferências para persistência local
 ) : AuthRepository {
 
+    /**
+     * Efetua o login do utilizador
+     * @param email Email ou identificador do utilizador
+     * @param password Palavra-passe do utilizador
+     * @return Resource/Recruso com resultado da operação
+     */
     override suspend fun login(email: String, password: String): Resource<Unit> {
-        return withContext(Dispatchers.IO) {
+        return withContext(Dispatchers.IO) { // Executa em background thread
             try {
-                // Correção: Strapi espera "identifier" não "email"
+                // Faz a chamada à API com os dados de login
                 val response = authApi.login(LoginRequest(
-                    identifier = email,  // Campo correto para Strapi
+                    identifier = email, // Campo pode ser email ou nome de utilizador
                     password = password
                 ))
 
                 if (response.isSuccessful) {
                     response.body()?.let { authResponse ->
-                        // Verifique se o campo é "jwt" ou "token"
+                        // Guarda o token JWT e ID do utilizador localmente
                         val token = authResponse.jwt // Ou authResponse.token
                         preferenceManager.saveAuthToken(token)
                         preferenceManager.saveUserId(authResponse.user.id)
                         Resource.Success(Unit)
-                    } ?: Resource.Error("Resposta vazia")
+                    } ?: Resource.Error("Resposta vazia") // Resposta sem corpo
                 } else {
-                    // Melhor tratamento de erro
+                    // Tratamento detalhado de erros da API
                     val errorCode = response.code()
                     val errorBody = response.errorBody()?.string() ?: "Erro desconhecido"
                     Resource.Error("Login falhou ($errorCode): $errorBody")
                 }
             } catch (e: Exception) {
+                // Erro de rede ou outras exceções
                 Resource.Error("Erro de rede: ${e.message}")
             }
         }
     }
 
-
+    /**
+     * Regista um novo utilizador
+     * @param username Nome de utilizador
+     * @param email Email do utilizador
+     * @param password Palavra-passe do utilizador
+     * @return Resource com resultado da operação
+     */
     override suspend fun register(username: String, email: String, password: String): Resource<Unit> {
         return withContext(Dispatchers.IO) {
             try {
                 val response = authApi.register(RegisterRequest(username, email, password))
 
                 if (response.isSuccessful) {
+                    // Após registo bem-sucedido, faz login automaticamente
                     login(email, password)
                 } else {
                     val errorBody = response.errorBody()?.string() ?: "Erro desconhecido"
@@ -64,14 +78,26 @@ class AuthRepositoryImpl(
         }
     }
 
+    /**
+     * Efetua logout do utilizador
+     * Limpa todos os dados de autenticação guardados localmente
+     */
     override fun logout() {
-        preferenceManager.clearAll()
+        preferenceManager.clearAll() // Remove token, userId, etc.
     }
 
+    /**
+     * Verifica se o utilizador está autenticado
+     * @return true se existir um token guardado, false caso contrário
+     */
     override fun isLoggedIn(): Boolean {
         return preferenceManager.getAuthToken() != null
     }
 
+    /**
+     * Obtém o perfil do utilizador atualmente autenticado
+     * @return Resource com UserProfile ou mensagem de erro
+     */
     override suspend fun getCurrentUser(): Resource<UserProfile> {
         return withContext(Dispatchers.IO) {
             try {
@@ -84,7 +110,7 @@ class AuthRepositoryImpl(
                     if (userResponse != null) {
                         Log.d("AuthRepository", " Utilizador encontrado: ${userResponse.email}")
 
-                        // Converter UserResponse para UserProfile
+                        // Converte a resposta da API para o modelo de domínio
                         val userProfile = userResponse.toDomain()
                         return@withContext Resource.Success(userProfile)
                     } else {

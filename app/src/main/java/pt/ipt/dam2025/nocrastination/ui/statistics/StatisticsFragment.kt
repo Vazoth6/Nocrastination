@@ -24,11 +24,11 @@ class StatisticsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        loadStatistics()
+        loadStatistics() // Carregar estatísticas ao iniciar o fragmento
     }
 
+    // Dados simulados (mock data)
     private fun loadStatistics() {
-        // Dados mock (substituir por dados reais depois)
         val weeklyData = mapOf(
             "Seg" to 120,
             "Ter" to 90,
@@ -51,13 +51,13 @@ class StatisticsFragment : Fragment() {
             "Baixa" to 15
         )
 
-        // Atualizar UI com dados
+        // Atualizar a UI com dados
         binding.apply {
             textTotalTasks.text = "0"
             textTotalMinutes.text = "0 min"
             textCurrentStreak.text = "0 dias"
 
-            // Mock de gráficos - implementar biblioteca de gráficos depois
+            // Mock de gráficos
             textWeeklyHours.text = "Total da semana: 0 min"
 
             // Estatísticas de tarefas
@@ -74,6 +74,6 @@ class StatisticsFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
+        _binding = null // Limpar binding
     }
 }

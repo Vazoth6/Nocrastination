@@ -21,6 +21,7 @@ class TasksViewModel(
     private val taskRepository: TaskRepository
 ) : ViewModel() {
 
+    // Estados principais
     private val _tasks = MutableStateFlow<List<Task>>(emptyList())
     val tasks: StateFlow<List<Task>> = _tasks.asStateFlow()
 
@@ -30,10 +31,11 @@ class TasksViewModel(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
-    // Eventos UI
+    // Eventos UI únicos (toasts, navegação)
     private val _uiEvents = MutableSharedFlow<UIEvent>()
     val uiEvents = _uiEvents
 
+    // Sistema de filtros
     sealed class FilterType {
         object ALL : FilterType()
         object COMPLETED : FilterType()
@@ -45,6 +47,7 @@ class TasksViewModel(
     private val _allTasks = MutableStateFlow<List<Task>>(emptyList())
     val allTasks: StateFlow<List<Task>> = _allTasks.asStateFlow()
 
+    // Combina tasks com filtro para criar lista filtrada
     val filteredTasks = _allTasks.combine(_filterType) { tasks, filter ->
         when (filter) {
             is FilterType.ALL -> tasks
@@ -52,10 +55,18 @@ class TasksViewModel(
         }
     }
 
+    /**
+     * Aplica um filtro à lista de tarefas
+     * @param filter Tipo de filtro (ALL ou COMPLETED)
+     */
     fun setFilter(filter: FilterType) {
         _filterType.value = filter
     }
 
+    /**
+     * Carrega todas as tarefas do utilizador
+     * Inclui logging detalhado para debugging
+     */
     fun loadTasks() {
         viewModelScope.launch {
             _loading.value = true
@@ -81,6 +92,10 @@ class TasksViewModel(
         }
     }
 
+    /**
+     * Cria uma nova tarefa
+     * @param task Dados da tarefa a criar
+     */
     fun createTask(task: Task) {
         viewModelScope.launch {
             _loading.value = true
@@ -110,12 +125,15 @@ class TasksViewModel(
         }
     }
 
+    /**
+     * Atualiza uma tarefa existente
+     * @param task Dados atualizados da tarefa
+     */
     fun updateTask(task: Task) {
         viewModelScope.launch {
             _loading.value = true
             _error.value = null
 
-            // Log para debug
             Log.d("TasksViewModel", "Atualizando tarefa ID: ${task.id}")
             Log.d("TasksViewModel", "Dados da tarefa: $task")
 
@@ -123,14 +141,14 @@ class TasksViewModel(
                 is Result.Success -> {
                     Log.d("TasksViewModel", "Tarefa atualizada com sucesso no servidor")
 
-                    // Atualizar a lista local
+                    // Atualiza a lista local
                     _tasks.value = _tasks.value.map {
                         if (it.id == result.data.id) result.data else it
                     }
 
                     _uiEvents.emit(UIEvent.ShowToast("Tarefa atualizada!"))
 
-                    // Recarregar a lista para garantir sincronização
+                    // Recarrega a lista para garantir sincronização
                     loadTasks()
                 }
                 is Result.Error -> {
@@ -143,6 +161,10 @@ class TasksViewModel(
         }
     }
 
+    /**
+     * Marca uma tarefa como completada
+     * @param taskId ID da tarefa a marcar como concluída
+     */
     fun completeTask(taskId: Int) {
         viewModelScope.launch {
             _loading.value = true
@@ -151,11 +173,11 @@ class TasksViewModel(
             val completedAt = getCurrentISOTimestamp()
             when (val result = taskRepository.completeTask(taskId, completedAt)) {
                 is Result.Success -> {
-                    // Atualizar a lista local com a tarefa completa
+                    // Atualiza a lista local com a tarefa completa
                     _tasks.value = _tasks.value.map {
                         if (it.id == taskId) result.data else it
                     }
-                    // Enviar evento de sucesso
+                    // Envia evento de sucesso
                     _uiEvents.emit(UIEvent.ShowToast(" Tarefa concluída!"))
                 }
                 is Result.Error -> {
@@ -166,25 +188,29 @@ class TasksViewModel(
         }
     }
 
+    /**
+     * Marca uma tarefa como não completada
+     * @param taskId ID da tarefa a reabrir
+     */
     fun uncompleteTask(taskId: Int) {
         viewModelScope.launch {
             _loading.value = true
             _error.value = null
 
-            // Buscar a tarefa atual
+            // Busca a tarefa atual
             val currentTask = _allTasks.value.find { it.id == taskId }
 
             if (currentTask != null) {
-                // Criar uma cópia da tarefa com completed = false
+                // Cria uma cópia da tarefa com completed = false
                 val updatedTask = currentTask.copy(
                     completed = false,
                     completedAt = null
                 )
 
-                // Usar o updateTask normal (não o completeTask)
+                // Usa o updateTask normal (não o completeTask)
                 when (val result = taskRepository.updateTask(updatedTask)) {
                     is Result.Success -> {
-                        // Atualizar a lista de todas as tarefas
+                        // Atualiza a lista de todas as tarefas
                         _allTasks.value = _allTasks.value.map {
                             if (it.id == taskId) result.data else it
                         }
@@ -202,6 +228,10 @@ class TasksViewModel(
         }
     }
 
+    /**
+     * Elimina uma tarefa
+     * @param taskId ID da tarefa a eliminar
+     */
     fun deleteTask(taskId: Int) {
         viewModelScope.launch {
             _loading.value = true
@@ -219,12 +249,17 @@ class TasksViewModel(
         }
     }
 
+    /**
+     * Limpa mensagens de erro
+     */
     fun clearError() {
         _error.value = null
     }
 
     /**
      * Filtra tarefas concluídas há mais de 24 horas localmente
+     * @param tasks Lista de tarefas a filtrar
+     * @return Lista filtrada sem tarefas antigas completadas
      */
     private fun filterOldCompletedTasks(tasks: List<Task>): List<Task> {
         return tasks.filter { task ->
@@ -242,6 +277,7 @@ class TasksViewModel(
 
     /**
      * Limpa tarefas concluídas há mais de 24 horas do servidor
+     * Executa em background sem afetar a UI
      */
     private fun cleanupOldCompletedTasks(tasks: List<Task>) {
         viewModelScope.launch {
@@ -259,6 +295,7 @@ class TasksViewModel(
 
     /**
      * Apaga uma tarefa antiga em background sem afetar a UI
+     * @param taskId ID da tarefa antiga a eliminar
      */
     private suspend fun deleteOldTaskInBackground(taskId: Int) {
         try {
@@ -272,6 +309,8 @@ class TasksViewModel(
 
     /**
      * Verifica se uma data ISO é mais antiga que 24 horas
+     * @param isoDateString Data em formato ISO 8601
+     * @return true se a data for mais antiga que 24 horas
      */
     private fun isDateOlderThan24Hours(isoDateString: String): Boolean {
         return try {
@@ -285,11 +324,15 @@ class TasksViewModel(
 
             diffInHours >= 24
         } catch (e: Exception) {
-            // Se não conseguir parsear, assume que não é antiga
+            // Se não conseguir fazer parse, assume que não é antiga
             false
         }
     }
 
+    /**
+     * Obtém o timestamp atual em formato ISO 8601
+     * @return String com data/hora atual no formato ISO
+     */
     private fun getCurrentISOTimestamp(): String {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
         dateFormat.timeZone = TimeZone.getTimeZone("UTC")

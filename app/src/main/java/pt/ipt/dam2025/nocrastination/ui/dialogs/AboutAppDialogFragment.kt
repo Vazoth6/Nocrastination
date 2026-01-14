@@ -12,6 +12,7 @@ import pt.ipt.dam2025.nocrastination.databinding.FragmentAboutAppDialogBinding
 
 class AboutAppDialogFragment : DialogFragment() {
 
+    // Vista binding para acesso type-safe às vistas
     private var _binding: FragmentAboutAppDialogBinding? = null
     private val binding get() = _binding!!
 
@@ -27,11 +28,11 @@ class AboutAppDialogFragment : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setupContent()
-        setupClickListeners()
+        setupContent() // Configura o conteúdo do diálogo
+        setupClickListeners() // Configura listeners dos botões
     }
 
-    @SuppressLint("SetTextI18n")
+    @SuppressLint("SetTextI18n") // Suprime o aviso de internacionalização
     private fun setupContent() {
         // Informação obrigatória do guião
         binding.apply {
@@ -39,16 +40,16 @@ class AboutAppDialogFragment : DialogFragment() {
             textSubject.text = "Disciplina: Desenvolvimento de Aplicações Móveis"
             textAcademicYear.text = "Ano Letivo: 25/26"
 
-            // Informação dos autores (substituir pelas tuas informações)
+            // Informação do autor
             textAuthors.text = """
                 Nome: Rodrigo Miguel Oliveira Calisto
                 Número: 24851
             """.trimIndent()
 
-            // Carrega a foto pessoal
+            // Carrega a foto pessoal com Glide
             loadProfileImage()
 
-            // Bibliotecas usadas
+            // Lista extensa de bibliotecas usadas no projeto
             textLibraries.text = """
                 • androidx.core:core-ktx - Kotlin extensions para AndroidX Core
                 • androidx.appcompat:appcompat - Compatibilidade com versões anteriores
@@ -99,6 +100,7 @@ class AboutAppDialogFragment : DialogFragment() {
     }
 
     private fun loadProfileImage() {
+        // Glide para carregamento eficiente de imagens
         Glide.with(requireContext())
             .load(R.drawable.rc_img_perfil)
             .circleCrop() // Para imagem circular
@@ -109,21 +111,21 @@ class AboutAppDialogFragment : DialogFragment() {
 
     private fun setupClickListeners() {
         binding.buttonClose.setOnClickListener {
-            dismiss()
+            dismiss() // Fecha o diálogo
         }
     }
 
     override fun onStart() {
         super.onStart()
-        // Definir tamanho do dialog
+        // Configura tamanho do diálogo para ocupar largura total
         dialog?.window?.setLayout(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
+            ViewGroup.LayoutParams.MATCH_PARENT, // Largura total
+            ViewGroup.LayoutParams.WRAP_CONTENT // Altura conforme conteúdo
         )
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
+        _binding = null // Limpa referência do binding para evitar derrames de memória
     }
 }

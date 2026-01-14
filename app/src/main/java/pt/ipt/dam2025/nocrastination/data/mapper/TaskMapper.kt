@@ -7,17 +7,18 @@ import pt.ipt.dam2025.nocrastination.domain.models.TaskPriority
 
 class TaskMapper constructor() {
 
+    // Converte a resposta da API para modelo de domínio
     fun mapToDomain(data: TaskData): Task {
         return Task(
             id = data.id,
             title = data.attributes.title,
-            description = data.attributes.description ?: "",
+            description = data.attributes.description ?: "", // Fallback para string vazia
             dueDate = data.attributes.dueDate,
             priority = when (data.attributes.priority.uppercase()) {
                 "HIGH" -> TaskPriority.HIGH
                 "MEDIUM" -> TaskPriority.MEDIUM
                 "LOW" -> TaskPriority.LOW
-                else -> TaskPriority.MEDIUM
+                else -> TaskPriority.MEDIUM // Fallback padrão
             },
             completed = data.attributes.completed,
             completedAt = data.attributes.completedAt,
@@ -27,6 +28,7 @@ class TaskMapper constructor() {
         )
     }
 
+    // Mapeia para criação, campos mínimos necessários
     fun mapToCreateRequest(task: Task): CreateTaskRequest {
         return CreateTaskRequest(
             data = CreateTaskRequest.Data(
@@ -42,6 +44,7 @@ class TaskMapper constructor() {
         )
     }
 
+    // Mapeia para atualização, campos adicionais
     fun mapToUpdateRequest(task: Task): UpdateTaskRequest {
         return UpdateTaskRequest(
             data = UpdateTaskRequest.Data(
@@ -58,6 +61,7 @@ class TaskMapper constructor() {
         )
     }
 
+    // Mapeamento especializado apenas para completar a tarefa
     fun mapToCompleteRequest(completedAt: String): CompleteTaskRequest {
         return CompleteTaskRequest(
             data = CompleteTaskRequest.Data(

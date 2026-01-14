@@ -13,8 +13,10 @@ import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationServices
 import pt.ipt.dam2025.nocrastination.domain.models.FocusLocation
 
+// Gestor para operações de geofencing
 class GeofencingManager(private val context: Context) {
 
+    // Cliente para geofencing do Google Play Services
     private val geofencingClient: GeofencingClient = LocationServices.getGeofencingClient(context)
 
     companion object {
@@ -25,9 +27,7 @@ class GeofencingManager(private val context: Context) {
         private const val PENDING_INTENT_REQUEST_CODE = 100
     }
 
-    /**
-     * Cria um PendingIntent para o BroadcastReceiver
-     */
+    // PendingIntent lazy para o BroadcastReceiver
     private val geofencePendingIntent: PendingIntent by lazy {
         val intent = Intent(context, GeofenceBroadcastReceiver::class.java)
         PendingIntent.getBroadcast(
@@ -38,24 +38,24 @@ class GeofencingManager(private val context: Context) {
         )
     }
 
-    /**
-     * Adiciona geofences para todas as localizações de foco
-     */
+    // Adicionar geofences para todas as localizações de foco
     fun addGeofencesForFocusLocations(locations: List<FocusLocation>) {
         if (!hasLocationPermissions()) {
             Log.w(TAG, "Sem permissões de localização")
             return
         }
 
+        // Filtrar apenas localizações ativas
         val enabledLocations = locations.filter { it.enabled }
         if (enabledLocations.isEmpty()) {
             Log.d(TAG, "Nenhuma localização de foco ativa")
             return
         }
 
-        // Primeiro remove todos os geofences antigos
+        // Remover todos os geofences antigos primeiro
         removeAllGeofences()
 
+        // Criar lista de geofences
         val geofences = enabledLocations.map { focusLocation ->
             Geofence.Builder()
                 .setRequestId("focus_location_${focusLocation.id}")
@@ -70,11 +70,13 @@ class GeofencingManager(private val context: Context) {
                 .build()
         }
 
+        // Construir pedido de geofencing
         val geofencingRequest = GeofencingRequest.Builder()
             .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
             .addGeofences(geofences)
             .build()
 
+        // Verificar permissões antes de adicionar
         if (ActivityCompat.checkSelfPermission(
                 context,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -84,6 +86,7 @@ class GeofencingManager(private val context: Context) {
             return
         }
 
+        // Adicionar geofences ao cliente
         geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent).run {
             addOnSuccessListener {
                 Log.d(TAG, "Geofences adicionados com sucesso para ${enabledLocations.size} localizações")
@@ -94,9 +97,7 @@ class GeofencingManager(private val context: Context) {
         }
     }
 
-    /**
-     * Remove todos os geofences
-     */
+    // Remover todos os geofences
     fun removeAllGeofences() {
         geofencingClient.removeGeofences(geofencePendingIntent).run {
             addOnSuccessListener {
@@ -108,9 +109,7 @@ class GeofencingManager(private val context: Context) {
         }
     }
 
-    /**
-     * Remove um geofence específico
-     */
+    // Remover um geofence específico
     fun removeGeofence(locationId: Int) {
         val geofenceRequestId = "focus_location_$locationId"
         geofencingClient.removeGeofences(listOf(geofenceRequestId)).run {
@@ -123,6 +122,7 @@ class GeofencingManager(private val context: Context) {
         }
     }
 
+    // Verificar se tem permissões de localização
     private fun hasLocationPermissions(): Boolean {
         return ActivityCompat.checkSelfPermission(
             context,

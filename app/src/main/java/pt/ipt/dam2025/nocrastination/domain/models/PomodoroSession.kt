@@ -1,6 +1,7 @@
 package pt.ipt.dam2025.nocrastination.domain.models
 
 data class PomodoroSession(
+    // O ID é gerado pelo servidor Strapi
     val id: Int,
     val sessionType: SessionType,
     val startTime: Long,

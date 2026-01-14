@@ -11,16 +11,23 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class PomodoroRepositoryImpl constructor(
-    private val pomodoroApi: PomodoroApi,
-    private val pomodoroMapper: PomodoroMapper
+    private val pomodoroApi: PomodoroApi, // API para operações de sessões Pomodoro
+    private val pomodoroMapper: PomodoroMapper // Mapper para conversão entre DTOs e modelos
 ) : PomodoroRepository {
 
+    // Formato ISO 8601 para datas/horas (padrão usado pela API)
     private val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault()).apply {
-        timeZone = TimeZone.getTimeZone("UTC")
+        timeZone = TimeZone.getTimeZone("UTC") // usar UTC para consistência
     }
 
+    // Formato apenas para datas (YYYY-MM-DD)
     private val dateOnlyFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
+    /**
+     * Inicia uma nova sessão Pomodoro
+     * @param session Objeto PomodoroSession com dados iniciais
+     * @return Result com a sessão criada ou erro
+     */
     override suspend fun startSession(session: PomodoroSession): Result<PomodoroSession> {
         return try {
             Log.d("PomodoroRepository", " Iniciando sessão...")
@@ -46,6 +53,12 @@ class PomodoroRepositoryImpl constructor(
         }
     }
 
+    /**
+     * Marca uma sessão Pomodoro como completada
+     * @param sessionId ID da sessão a completar
+     * @param endTime Data/hora de fim em formato ISO 8601
+     * @return Result com a sessão atualizada ou erro
+     */
     override suspend fun completeSession(sessionId: Int, endTime: String): Result<PomodoroSession> {
         return try {
             Log.d("PomodoroRepository", " Completando sessão $sessionId...")
@@ -80,6 +93,11 @@ class PomodoroRepositoryImpl constructor(
         }
     }
 
+    /**
+     * Obtém sessões Pomodoro por data específica
+     * @param date Data para filtrar as sessões
+     * @return Result com lista de sessões ou erro
+     */
     override suspend fun getSessionsByDate(date: Date): Result<List<PomodoroSession>> {
         return try {
             Log.d("PomodoroRepository", " Buscando sessões por data...")
@@ -113,6 +131,11 @@ class PomodoroRepositoryImpl constructor(
         }
     }
 
+    /**
+     * Obtém sessões Pomodoro associadas a uma tarefa específica
+     * @param taskId ID da tarefa
+     * @return Result com lista de sessões ou erro
+     */
     override suspend fun getSessionsByTask(taskId: Int): Result<List<PomodoroSession>> {
         return try {
             Log.d("PomodoroRepository", " A efetuar busca de sessões por tarefa $taskId...")
@@ -138,10 +161,15 @@ class PomodoroRepositoryImpl constructor(
         }
     }
 
+    /**
+     * Obtém sessões Pomodoro do dia atual
+     * @return Result com lista de sessões de hoje ou erro
+     */
     override suspend fun getTodaySessions(): Result<List<PomodoroSession>> {
         return try {
             Log.d("PomodoroRepository", " A efetuar busca sessões de hoje...")
             val today = Date()
+            // Reutiliza a lógica de getSessionsByDate
             getSessionsByDate(today)
         } catch (e: Exception) {
             Log.e("PomodoroRepository", " Exceção: ${e.message}", e)
@@ -149,6 +177,11 @@ class PomodoroRepositoryImpl constructor(
         }
     }
 
+    /**
+     * Obtém uma sessão Pomodoro específica pelo ID
+     * @param id ID da sessão
+     * @return Result com a sessão ou erro
+     */
     override suspend fun getSessionById(id: Int): Result<PomodoroSession> {
         return try {
             Log.d("PomodoroRepository", " A efetuar busca sessão por ID $id...")
@@ -174,6 +207,11 @@ class PomodoroRepositoryImpl constructor(
         }
     }
 
+    /**
+     * Atualiza uma sessão Pomodoro existente
+     * @param session Objeto PomodoroSession com dados atualizados
+     * @return Result com a sessão atualizada ou erro
+     */
     override suspend fun updateSession(session: PomodoroSession): Result<PomodoroSession> {
         return try {
             Log.d("PomodoroRepository", " A atualizar sessão ${session.id}...")
@@ -200,6 +238,11 @@ class PomodoroRepositoryImpl constructor(
         }
     }
 
+    /**
+     * Elimina uma sessão Pomodoro
+     * @param sessionId ID da sessão a eliminar
+     * @return Result com Unit em caso de sucesso ou erro
+     */
     override suspend fun deleteSession(sessionId: Int): Result<Unit> {
         return try {
             Log.d("PomodoroRepository", " A apagar sessão $sessionId...")

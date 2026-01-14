@@ -31,8 +31,9 @@ class MapPickerDialog : DialogFragment(), OnMapReadyCallback {
 
     private lateinit var googleMap: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private var selectedLatLng: LatLng? = null
+    private var selectedLatLng: LatLng? = null // Localização selecionada no mapa
 
+    // Interface para callback de localização selecionada
     interface OnLocationSelectedListener {
         fun onLocationSelected(latitude: Double, longitude: Double, address: String)
     }
@@ -43,16 +44,17 @@ class MapPickerDialog : DialogFragment(), OnMapReadyCallback {
         this.listener = listener
     }
 
+    // Registo para pedir permissões de localização
     private val locationPermissionRequest = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         val granted = permissions.entries.all { it.value }
         if (granted) {
             Log.d("MapPickerDialog", "Permissões concedidas")
-            enableMyLocation()
+            enableMyLocation() // Habilitar localização no mapa
         } else {
             Log.w("MapPickerDialog", "Permissões negadas")
-            binding.btnSelectLocation.isEnabled = false
+            binding.btnSelectLocation.isEnabled = false // Desabilitar botão
         }
     }
 
@@ -72,38 +74,39 @@ class MapPickerDialog : DialogFragment(), OnMapReadyCallback {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
-        // Configurar botões
+        // Configurar botão de seleção
         binding.btnSelectLocation.setOnClickListener {
             selectedLatLng?.let { latLng ->
+                // Obter endereço a partir das coordenadas e chamar callback
                 getAddressFromLatLng(latLng) { address ->
                     listener?.onLocationSelected(
                         latLng.latitude,
                         latLng.longitude,
                         address
                     )
-                    dismiss()
+                    dismiss() // Fechar diálogo
                 }
             }
         }
 
         binding.btnCancel.setOnClickListener {
-            dismiss()
+            dismiss() // Fechar diálogo sem seleção
         }
 
         // Inicializar mapa
         val mapFragment = childFragmentManager
             .findFragmentById(R.id.map_fragment) as SupportMapFragment
-        mapFragment.getMapAsync(this)
+        mapFragment.getMapAsync(this) // Callback quando mapa estiver pronto
     }
 
     override fun onMapReady(map: GoogleMap) {
         googleMap = map
         Log.d("MapPickerDialog", "Mapa pronto")
-        setupMap()
-        checkLocationPermission()
+        setupMap() // Configurar mapa
+        checkLocationPermission() // Verificar permissões
     }
 
-    @SuppressLint("MissingPermission")
+    @SuppressLint("MissingPermission") // Permissões verificadas em runtime
     private fun setupMap() {
         try {
             // Configurar controles do mapa
@@ -128,7 +131,7 @@ class MapPickerDialog : DialogFragment(), OnMapReadyCallback {
                     MarkerOptions()
                         .position(latLng)
                         .title("Local selecionado")
-                        .draggable(true)
+                        .draggable(true) // Marcador arrastável
                 )
 
                 // Habilitar botão de seleção
@@ -147,6 +150,7 @@ class MapPickerDialog : DialogFragment(), OnMapReadyCallback {
                 override fun onMarkerDrag(marker: com.google.android.gms.maps.model.Marker) {}
 
                 override fun onMarkerDragEnd(marker: com.google.android.gms.maps.model.Marker) {
+                    // Fim do arrasto, atualiza localização selecionada
                     selectedLatLng = marker.position
                     getAddressFromLatLng(marker.position) { address ->
                         binding.btnSelectLocation.text = "Selecionar: $address"
@@ -160,6 +164,7 @@ class MapPickerDialog : DialogFragment(), OnMapReadyCallback {
     }
 
     private fun checkLocationPermission() {
+        // Verificar se já há permissões
         if (ActivityCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -169,6 +174,7 @@ class MapPickerDialog : DialogFragment(), OnMapReadyCallback {
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
+            // Pedir permissões se não haver
             locationPermissionRequest.launch(
                 arrayOf(
                     Manifest.permission.ACCESS_FINE_LOCATION,
@@ -177,11 +183,11 @@ class MapPickerDialog : DialogFragment(), OnMapReadyCallback {
             )
         } else {
             enableMyLocation()
-            getCurrentLocation()
+            getCurrentLocation() // Centralizar na localização atual
         }
     }
 
-    @SuppressLint("MissingPermission")
+    @SuppressLint("MissingPermission") // Permissão verificada antes
     private fun enableMyLocation() {
         try {
             if (ActivityCompat.checkSelfPermission(
@@ -193,7 +199,7 @@ class MapPickerDialog : DialogFragment(), OnMapReadyCallback {
                     Manifest.permission.ACCESS_COARSE_LOCATION
                 ) == PackageManager.PERMISSION_GRANTED
             ) {
-                googleMap.isMyLocationEnabled = true
+                googleMap.isMyLocationEnabled = true // Mostrar localização do utilizador
                 Log.d("MapPickerDialog", "Localização habilitada no mapa")
             }
         } catch (e: Exception) {
@@ -202,6 +208,7 @@ class MapPickerDialog : DialogFragment(), OnMapReadyCallback {
     }
 
     private fun getCurrentLocation() {
+        // Verificar permissões novamente por segurança
         if (ActivityCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -220,7 +227,7 @@ class MapPickerDialog : DialogFragment(), OnMapReadyCallback {
                     val latLng = LatLng(it.latitude, it.longitude)
                     Log.d("MapPickerDialog", "Localização atual: $latLng")
 
-                    // Mover câmera para localização atual
+                    // Mover câmera para localização atual com zoom 15
                     googleMap.moveCamera(
                         CameraUpdateFactory.newLatLngZoom(latLng, 15f)
                     )
@@ -236,13 +243,13 @@ class MapPickerDialog : DialogFragment(), OnMapReadyCallback {
                     // Habilitar botão de seleção
                     binding.btnSelectLocation.isEnabled = true
 
-                    // Obter endereço
+                    // Obter endereço da localização atual
                     getAddressFromLatLng(latLng) { address ->
                         binding.btnSelectLocation.text = "Selecionar: $address"
                     }
                 } ?: run {
                     Log.w("MapPickerDialog", "Localização nula - GPS pode estar desligado")
-                    // Centralizar em Portugal por padrão
+                    // Centralizar em Portugal por padrão se não conseguir localização
                     val portugal = LatLng(38.736946, -9.142685) // Lisboa
                     googleMap.moveCamera(
                         CameraUpdateFactory.newLatLngZoom(portugal, 10f)
@@ -265,7 +272,7 @@ class MapPickerDialog : DialogFragment(), OnMapReadyCallback {
             val addresses = geocoder.getFromLocation(
                 latLng.latitude,
                 latLng.longitude,
-                1
+                1 // Apenas o melhor resultado
             )
 
             if (!addresses.isNullOrEmpty()) {
@@ -273,37 +280,41 @@ class MapPickerDialog : DialogFragment(), OnMapReadyCallback {
                 val sb = StringBuilder()
 
                 // Construir endereço legível
-                address.thoroughfare?.let { sb.append(it) }
+                address.thoroughfare?.let { sb.append(it) } // Nome da rua
                 address.featureName?.let {
                     if (sb.isNotEmpty()) sb.append(", ")
-                    sb.append(it)
+                    sb.append(it) // Nome do local
                 }
                 address.locality?.let {
                     if (sb.isNotEmpty()) sb.append(", ")
-                    sb.append(it)
+                    sb.append(it) // Cidade
                 }
 
                 val addressText = if (sb.isNotEmpty()) {
                     sb.toString()
                 } else {
+                    // Fallback, mostrar coordenadas formatadas
                     "Lat: ${latLng.latitude.format(6)}, Lng: ${latLng.longitude.format(6)}"
                 }
 
                 callback(addressText)
             } else {
+                // Se não conseguir o endereço, mostrar coordenadas
                 callback("Lat: ${latLng.latitude.format(6)}, Lng: ${latLng.longitude.format(6)}")
             }
         } catch (e: Exception) {
             Log.e("MapPickerDialog", "Erro no Geocoder: ${e.message}")
+            // Em caso de erro, mostrar coordenadas formatadas
             callback("Lat: ${latLng.latitude.format(6)}, Lng: ${latLng.longitude.format(6)}")
         }
     }
 
+    // Função de extensão para formatar números decimais
     private fun Double.format(digits: Int) = "%.${digits}f".format(this)
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
+        _binding = null // Limpar binding
         Log.d("MapPickerDialog", "View destruída")
     }
 }

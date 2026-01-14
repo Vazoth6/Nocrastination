@@ -9,14 +9,15 @@ import pt.ipt.dam2025.nocrastination.databinding.ItemFocusLocationBinding
 import pt.ipt.dam2025.nocrastination.domain.models.FocusLocation
 
 class FocusLocationAdapter(
-    private val onEditClick: (FocusLocation) -> Unit,
-    private val onDeleteClick: (FocusLocation) -> Unit,
-    private val onToggleClick: (FocusLocation, Boolean) -> Unit
+    private val onEditClick: (FocusLocation) -> Unit, // Callback para editar
+    private val onDeleteClick: (FocusLocation) -> Unit, // Callback para eliminar
+    private val onToggleClick: (FocusLocation, Boolean) -> Unit // Callback para ativar/desativar
 ) : ListAdapter<FocusLocation, FocusLocationAdapter.FocusLocationViewHolder>(
-    FocusLocationDiffCallback()
+    FocusLocationDiffCallback() // Fornece DiffUtil para atualizações eficientes
 ) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FocusLocationViewHolder {
+        // Infla o layout usando View Binding
         val binding = ItemFocusLocationBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
@@ -26,7 +27,7 @@ class FocusLocationAdapter(
     }
 
     override fun onBindViewHolder(holder: FocusLocationViewHolder, position: Int) {
-        val location = getItem(position)
+        val location = getItem(position) // getItem é fornecido pelo ListAdapter
         holder.bind(location)
     }
 
@@ -41,6 +42,7 @@ class FocusLocationAdapter(
 
             binding.switchEnabled.isChecked = location.enabled
 
+            // Listener para toggle de ativação/desativação
             binding.switchEnabled.setOnCheckedChangeListener { _, isChecked ->
                 onToggleClick(location, isChecked)
             }
@@ -56,10 +58,12 @@ class FocusLocationAdapter(
     }
 
     class FocusLocationDiffCallback : DiffUtil.ItemCallback<FocusLocation>() {
+        // Verifica se é o mesmo item, a partir do ID
         override fun areItemsTheSame(oldItem: FocusLocation, newItem: FocusLocation): Boolean {
             return oldItem.id == newItem.id
         }
 
+        // Verifica se o conteúdo mudou (para otimização)
         override fun areContentsTheSame(oldItem: FocusLocation, newItem: FocusLocation): Boolean {
             return oldItem == newItem
         }

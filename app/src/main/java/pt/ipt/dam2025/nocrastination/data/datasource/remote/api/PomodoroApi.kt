@@ -9,7 +9,11 @@ import retrofit2.http.*
 
 interface PomodoroApi {
 
-    // Get all pomodoro sessions
+    // Obtém sessões Pomodoro com filtros opcionais
+    // Usa query parameters específicos com sintaxe de filtro avançado
+    // [$gte] = maior ou igual
+    // [$lte] = menor ou igual
+    // [$eq] = igual a
     @GET("api/pomodoro-sessions")
     suspend fun getPomodoroSessions(
         @Query("filters[startTime][\$gte]") startTimeGte: String? = null,
@@ -18,26 +22,26 @@ interface PomodoroApi {
         @Query("filters[completed][\$eq]") completed: Boolean? = null
     ): Response<PomodoroListResponse>
 
-    // Get pomodoro session by ID
+    // Obtém uma sessão específica por ID
     @GET("api/pomodoro-sessions/{id}")
     suspend fun getPomodoroSessionById(
         @Path("id") id: Int
     ): Response<PomodoroSessionResponse>
 
-    // Create a new pomodoro session
+    // Cria uma nova sessão Pomodoro
     @POST("api/pomodoro-sessions")
     suspend fun createSession(
         @Body request: CreatePomodoroSessionRequest
     ): Response<PomodoroSessionResponse>
 
-    // Update an existing pomodoro session
+    // Atualiza uma sessão existente
     @PUT("api/pomodoro-sessions/{id}")
     suspend fun updateSession(
         @Path("id") id: Int,
         @Body request: UpdatePomodoroSessionRequest
     ): Response<PomodoroSessionResponse>
 
-    // Delete a pomodoro session
+    // Elimina uma sessão
     @DELETE("api/pomodoro-sessions/{id}")
     suspend fun deleteSession(
         @Path("id") id: Int

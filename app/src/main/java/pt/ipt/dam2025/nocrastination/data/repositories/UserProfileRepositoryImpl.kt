@@ -7,10 +7,14 @@ import pt.ipt.dam2025.nocrastination.domain.models.UserProfile
 import pt.ipt.dam2025.nocrastination.domain.repository.UserProfileRepository
 
 class UserProfileRepositoryImpl(
-    private val userProfileApi: UserProfileApi,
-    private val userProfileMapper: UserProfileMapper
+    private val userProfileApi: UserProfileApi, // API para operações de perfil de utilizador
+    private val userProfileMapper: UserProfileMapper // Mapper para conversão entre DTOs e modelos
 ) : UserProfileRepository {
 
+    /**
+     * Obtém o perfil do utilizador atual
+     * @return Result com UserProfile ou erro
+     */
     override suspend fun getMyProfile(): Result<UserProfile> {
         return try {
             val response = userProfileApi.getMyProfile()
@@ -29,8 +33,15 @@ class UserProfileRepositoryImpl(
         }
     }
 
+    /**
+     * Atualiza o perfil do utilizador
+     * @param id ID do perfil a atualizar
+     * @param profile Objeto UserProfile com dados atualizados
+     * @return Result com UserProfile atualizado ou erro
+     */
     override suspend fun updateProfile(id: Int, profile: UserProfile): Result<UserProfile> {
         return try {
+            // Cria o pedido específico para atualização de perfil
             val request = UpdateUserProfileRequest(
                 data = UpdateUserProfileRequest.ProfileData(
                     fullName = profile.fullName,

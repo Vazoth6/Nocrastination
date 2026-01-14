@@ -7,16 +7,21 @@ import android.util.Log
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingEvent
 
+// Receptor de broadcast para processar eventos de geofence
 class GeofenceBroadcastReceiver : BroadcastReceiver() {
 
+    // Função chamado quando um broadcast é recebido
     override fun onReceive(context: Context, intent: Intent) {
+        // Extrair evento de geofencing do intent
         val geofencingEvent = GeofencingEvent.fromIntent(intent)
 
+        // Verificar se o evento é nulo
         if (geofencingEvent == null) {
             Log.e("GeofenceReceiver", "GeofencingEvent é nulo")
             return
         }
 
+        // Verificar se houve erro no evento
         if (geofencingEvent.hasError()) {
             val errorMessage = when (geofencingEvent.errorCode) {
                 GeofenceStatusCodes.GEOFENCE_NOT_AVAILABLE -> "Geofence não disponível"
@@ -28,12 +33,13 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
             return
         }
 
-        // Obter transição
+        // Obter tipo de transição
         val geofenceTransition = geofencingEvent.geofenceTransition
 
-        // Obter geofences que ativaram
+        // Obter lista de geofences que foram ativados
         val triggeringGeofences = geofencingEvent.triggeringGeofences
 
+        // Processar cada geofence ativado
         triggeringGeofences?.forEach { geofence ->
             val requestId = geofence.requestId
 
@@ -46,8 +52,6 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
 
                 Geofence.GEOFENCE_TRANSITION_EXIT -> {
                     Log.d("GeofenceReceiver", "SAIU da zona: $requestId")
-                    // Podes adicionar uma notificação de saída se quiseres
-                    // showExitNotification(context, requestId)
                 }
 
                 Geofence.GEOFENCE_TRANSITION_DWELL -> {
@@ -57,24 +61,25 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
         }
     }
 
+    // Mostrar notificação de entrada numa zona
     private fun showEnterNotification(context: Context, requestId: String) {
         // Extrair ID da localização do requestId (formato: "focus_location_ID")
         val locationId = requestId.removePrefix("focus_location_").toIntOrNull() ?: return
 
-        // Por enquanto, usamos uma mensagem genérica
-        // Em produção, poderias buscar os dados da localização de uma base de dados local
+        // Mensagem genérica para a notificação
         val title = "Zona de Produtividade"
         val message = "Vamos pôr as mãos ao trabalho! Esta é a área ideal para se focar."
 
         showNotification(context, title, message)
     }
 
+    // Metodo auxiliar para mostrar notificação
     private fun showNotification(context: Context, title: String, message: String) {
         NotificationHelper(context).showProductivityNotification(title, message)
     }
 }
 
-// Classe para códigos de status do Geofence (não disponível no SDK principal)
+// Objeto com códigos de status para geofence
 object GeofenceStatusCodes {
     const val GEOFENCE_NOT_AVAILABLE = 1000
     const val GEOFENCE_TOO_MANY_GEOFENCES = 1001

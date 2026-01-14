@@ -7,6 +7,7 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import pt.ipt.dam2025.nocrastination.R
 
+// Classe auxiliar para gerir notificações
 class NotificationHelper(private val context: Context) {
 
     companion object {
@@ -15,10 +16,12 @@ class NotificationHelper(private val context: Context) {
         private const val NOTIFICATION_ID = 1001
     }
 
+    // Inicializador para criar o canal de notificação
     init {
         createNotificationChannel()
     }
 
+    // Criar canal de notificação (necessário para Android 8.0+)
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
@@ -36,6 +39,7 @@ class NotificationHelper(private val context: Context) {
         }
     }
 
+    // Mostrar notificação de produtividade
     fun showProductivityNotification(title: String, message: String) {
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 

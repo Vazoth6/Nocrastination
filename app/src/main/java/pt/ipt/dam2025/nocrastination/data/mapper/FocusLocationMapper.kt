@@ -9,6 +9,7 @@ import pt.ipt.dam2025.nocrastination.domain.models.FocusLocation
 
 class FocusLocationMapper {
 
+    // Converte de DTO (Data Transfer Object) da API para modelo de domínio
     fun mapToDomain(data: FocusLocationData): FocusLocation {
         return FocusLocation(
             id = data.id,
@@ -24,6 +25,7 @@ class FocusLocationMapper {
         )
     }
 
+    // Converte de modelo de domínio para request de criação da API
     fun mapToCreateRequest(location: FocusLocation): FocusLocationRequest {
         Log.d("FocusLocationMapper", "A mapear para CreateRequest: ${location.name}")
 
@@ -42,6 +44,7 @@ class FocusLocationMapper {
         )
     }
 
+    // Converte de modelo de domínio para request de atualização da API
     fun mapToUpdateRequest(location: FocusLocation): FocusLocationRequest {
         Log.d("FocusLocationMapper", "A mapear para UpdateRequest: ID=${location.id}")
 

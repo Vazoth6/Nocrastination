@@ -49,19 +49,19 @@ class FocusLocationsFragment : Fragment() {
     private var _binding: FragmentFocusLocationsBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: FocusLocationViewModel by viewModel()
+    private val viewModel: FocusLocationViewModel by viewModel() // Injeção do ViewModel com Koin
     private lateinit var adapter: FocusLocationAdapter
 
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var fusedLocationClient: FusedLocationProviderClient // Cliente de localização do Google
 
-    // Verifica permissões antes de obter localização
+    // Registo para pedir permissões usando a API moderna de Activity Results
     private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
+        ActivityResultContracts.RequestMultiplePermissions() // Pede múltiplas permissões
     ) { permissions ->
-        val granted = permissions.entries.all { it.value }
+        val granted = permissions.entries.all { it.value } // Verifica se todas foram concedidas
         if (granted) {
             Log.d("FocusLocations", "Permissões concedidas")
-            getCurrentLocation()
+            getCurrentLocation() // Obtém localização após permissão concedida
         } else {
             Toast.makeText(
                 requireContext(),
@@ -83,6 +83,7 @@ class FocusLocationsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Configurar botão "voltar" na ActionBar
         (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
         (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayShowHomeEnabled(true)
 
@@ -96,78 +97,75 @@ class FocusLocationsFragment : Fragment() {
         setupClickListeners()
 
         if (BuildConfig.DEBUG) {
-            addTestButtons() // Renomeei para plural pois adicionaremos mais de um botão
+            addTestButtons() // Adiciona botões de teste apenas em modo debug
         }
 
-        viewModel.loadFocusLocations()
+        viewModel.loadFocusLocations() // Carrega localizações ao iniciar
     }
 
     private fun addTestButtons() {
-        // Botão de teste GPS
+        // Botão de teste GPS (apenas visível em desenvolvimento)
         val testGPSButton = MaterialButton(requireContext()).apply {
             text = "🔧 Testar GPS"
             setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.black))
             setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
-            cornerRadius = 20.dpToPx()
+            cornerRadius = 20.dpToPx() // Conversão de dp para pixels
 
             layoutParams = ViewGroup.MarginLayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
 
-            elevation = 8f
+            elevation = 8f // Sombra para efeito de elevação
 
             setOnClickListener {
                 Log.d("FocusLocations", "Botão de teste GPS clicado")
-                testGPSFunctionality()
+                testGPSFunctionality() // Executa testes de GPS
             }
         }
 
-
-        // Botão de teste direto para API
-
-
-        // Adicionar ambos ao layout principal
+        // Adiciona botão ao layout principal
         (binding.root as? ViewGroup)?.addView(testGPSButton)
 
-        // Posicionar manualmente usando translation
+        // Posiciona manualmente no canto superior direito após medida
         testGPSButton.post {
             val parentWidth = (testGPSButton.parent as? ViewGroup)?.width ?: 0
             val buttonWidth = testGPSButton.measuredWidth
 
-            // Posicionar no canto superior direito
+            // Posicionar no canto superior direito com margem de 16dp
             testGPSButton.translationX = (parentWidth - buttonWidth - 16.dpToPx()).toFloat()
             testGPSButton.translationY = 16.dpToPx().toFloat()
         }
     }
 
+    // Função de extensão para converter dp para pixels
     private fun Int.dpToPx(): Int = (this * resources.displayMetrics.density).toInt()
 
     private fun testGPSFunctionality() {
         Log.d("FocusLocationsTest", "=== INICIANDO TESTE COMPLETO DE GPS ===")
 
-        // Resultado acumulado
+        // Resultado acumulado dos testes
         val testResults = mutableListOf<String>()
 
-        // 1. TESTAR PERMISSÕES
+        // Testa permissões
         testPermissions(testResults)
 
-        // 2. TESTAR PROVEDORES DE LOCALIZAÇÃO
+        // Testa provedores de localização
         testLocationProviders(testResults)
 
-        // 3. TESTAR GOOGLE PLAY SERVICES
+        // Testa serviços da Google Play
         testGooglePlayServices(testResults)
 
-        // 4. TESTAR GEOTOOLS (GEOCODER)
+        // Testa Geotools (Geocoder)
         testGeocoder(testResults)
 
-        // 5. TESTAR OBTENÇÃO DE LOCALIZAÇÃO
+        // Esta a obtenção da localização
         testLocationAcquisition(testResults)
 
-        // 6. TESTAR GEOFENCING
+        // Testa Geofencing
         testGeofencing(testResults)
 
-        // 7. TESTAR CONEXÃO COM API
+        // Testa conexão com a API
         testAPIConnection(testResults)
 
         // Exibir resultados completos
@@ -193,14 +191,14 @@ class FocusLocationsFragment : Fragment() {
                 Manifest.permission.ACCESS_BACKGROUND_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         } else {
-            true // Não necessário em versões anteriores
+            true // Não necessário em versões anteriores ao Android 10
         }
 
-        results.add("📋 PERMISSÕES:")
-        results.add("✅ FINE_LOCATION: ${if (hasFineLocation) "CONCEDIDA" else "NEGADA"}")
-        results.add("✅ COARSE_LOCATION: ${if (hasCoarseLocation) "CONCEDIDA" else "NEGADA"}")
+        results.add(" PERMISSÕES:")
+        results.add(" FINE_LOCATION: ${if (hasFineLocation) "CONCEDIDA" else "NEGADA"}")
+        results.add(" COARSE_LOCATION: ${if (hasCoarseLocation) "CONCEDIDA" else "NEGADA"}")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            results.add("✅ BACKGROUND_LOCATION: ${if (hasBackgroundLocation) "CONCEDIDA" else "NEGADA"}")
+            results.add(" BACKGROUND_LOCATION: ${if (hasBackgroundLocation) "CONCEDIDA" else "NEGADA"}")
         }
     }
 
@@ -211,14 +209,14 @@ class FocusLocationsFragment : Fragment() {
         val networkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
         val passiveEnabled = locationManager.isProviderEnabled(LocationManager.PASSIVE_PROVIDER)
 
-        results.add("\n📡 PROVEDORES DE LOCALIZAÇÃO:")
-        results.add("📶 GPS: ${if (gpsEnabled) "ATIVO" else "INATIVO"}")
-        results.add("📡 NETWORK: ${if (networkEnabled) "ATIVO" else "INATIVO"}")
-        results.add("💤 PASSIVE: ${if (passiveEnabled) "ATIVO" else "INATIVO"}")
+        results.add("\n PROVEDORES DE LOCALIZAÇÃO:")
+        results.add(" GPS: ${if (gpsEnabled) "ATIVO" else "INATIVO"}")
+        results.add(" NETWORK: ${if (networkEnabled) "ATIVO" else "INATIVO"}")
+        results.add(" PASSIVE: ${if (passiveEnabled) "ATIVO" else "INATIVO"}")
 
-        // Listar todos os provedores disponíveis
+        // Lista todos os provedores disponíveis no sistema
         val allProviders = locationManager.allProviders
-        results.add("📋 Todos os provedores: ${allProviders.joinToString(", ")}")
+        results.add(" Todos os provedores: ${allProviders.joinToString(", ")}")
     }
 
     private fun testGooglePlayServices(results: MutableList<String>) {
@@ -231,9 +229,9 @@ class FocusLocationsFragment : Fragment() {
             "Desconhecida"
         }
 
-        results.add("\n🔧 GOOGLE PLAY SERVICES:")
-        results.add("📦 Versão: $version")
-        results.add("✅ Status: ${if (isAvailable) "DISPONÍVEL" else "INDISPONÍVEL (Código: $resultCode)"}")
+        results.add("\n GOOGLE PLAY SERVICES:")
+        results.add(" Versão: $version")
+        results.add(" Status: ${if (isAvailable) "DISPONÍVEL" else "INDISPONÍVEL (Código: $resultCode)"}")
 
         if (!isAvailable) {
             val errorString = googleApiAvailability.getErrorString(resultCode)
@@ -243,35 +241,35 @@ class FocusLocationsFragment : Fragment() {
 
     private fun testGeocoder(results: MutableList<String>) {
         val isGeocoderPresent = android.location.Geocoder.isPresent()
-        results.add("\n🗺️ GEOCODER:")
-        results.add("✅ Disponível: $isGeocoderPresent")
+        results.add("\n GEOCODER:")
+        results.add(" Disponível: $isGeocoderPresent")
 
         if (isGeocoderPresent) {
-            // Testar geocoding reverso com localização conhecida (Lisboa)
+            // Testa geocoding reverso com localização conhecida (Lisboa)
             val geocoder = android.location.Geocoder(requireContext(), Locale.getDefault())
             try {
                 val addresses = geocoder.getFromLocation(38.736946, -9.142685, 1)
-                results.add("✅ Geocoding reverso: ${if (!addresses.isNullOrEmpty()) "FUNCIONA" else "FALHA"}")
+                results.add(" Geocoding reverso: ${if (!addresses.isNullOrEmpty()) "FUNCIONA" else "FALHA"}")
 
                 if (!addresses.isNullOrEmpty()) {
-                    results.add("   📍 Endereço teste: ${addresses[0].getAddressLine(0)?.take(50)}...")
+                    results.add(" Endereço teste: ${addresses[0].getAddressLine(0)?.take(50)}...")
                 }
             } catch (e: IOException) {
-                results.add("❌ Erro no Geocoder: ${e.message}")
+                results.add(" Erro no Geocoder: ${e.message}")
             }
         }
     }
 
     private fun testLocationAcquisition(results: MutableList<String>) {
         if (!hasLocationPermission()) {
-            results.add("\n📍 OBTENÇÃO DE LOCALIZAÇÃO:")
-            results.add("❌ Não testado - Sem permissões")
+            results.add("\n OBTENÇÃO DE LOCALIZAÇÃO:")
+            results.add(" Não testado - Sem permissões")
             return
         }
 
-        results.add("\n📍 OBTENÇÃO DE LOCALIZAÇÃO:")
+        results.add("\n OBTENÇÃO DE LOCALIZAÇÃO:")
 
-        // Verificar permissão antes de acessar
+        // Verificação dupla de permissão por segurança
         if (ActivityCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -280,14 +278,14 @@ class FocusLocationsFragment : Fragment() {
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            results.add("❌ Permissões insuficientes")
+            results.add(" Permissões insuficientes")
             return
         }
 
         fusedLocationClient.lastLocation
             .addOnSuccessListener { location ->
                 if (location != null) {
-                    results.add("✅ Última localização obtida:")
+                    results.add(" Última localização obtida:")
                     results.add("   Latitude: ${location.latitude}")
                     results.add("   Longitude: ${location.longitude}")
                     results.add("   Precisão: ${location.accuracy?.roundToInt()} metros")
@@ -297,23 +295,23 @@ class FocusLocationsFragment : Fragment() {
                     // Testar atualização em tempo real
                     testRealTimeLocation(results)
                 } else {
-                    results.add("⚠️ Última localização: NULA")
+                    results.add(" Última localização: NULA")
                     results.add("   Possível causa: GPS desativado ou primeiro uso")
 
-                    // Solicitar atualização única
+                    // Solicitar atualização única se a última localização for nula
                     val locationRequest = LocationRequest.create()
                         .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
                         .setInterval(10000)
                         .setFastestInterval(5000)
-                        .setNumUpdates(1)
+                        .setNumUpdates(1) // Apenas uma atualização
 
                     fusedLocationClient.requestLocationUpdates(
                         locationRequest,
                         object : LocationCallback() {
                             override fun onLocationResult(locationResult: LocationResult) {
                                 locationResult.lastLocation?.let { updatedLocation ->
-                                    results.add("✅ Localização atualizada obtida!")
-                                    results.add("   Lat: ${updatedLocation.latitude}, Lon: ${updatedLocation.longitude}")
+                                    results.add(" Localização atualizada obtida!")
+                                    results.add(" Lat: ${updatedLocation.latitude}, Lon: ${updatedLocation.longitude}")
                                 }
                                 fusedLocationClient.removeLocationUpdates(this)
                             }
@@ -323,7 +321,7 @@ class FocusLocationsFragment : Fragment() {
                 }
             }
             .addOnFailureListener { e ->
-                results.add("❌ Falha ao obter localização: ${e.message}")
+                results.add(" Falha ao obter localização: ${e.message}")
             }
     }
 
@@ -339,12 +337,12 @@ class FocusLocationsFragment : Fragment() {
             return
         }
 
-        // Solicitar algumas atualizações para teste
+        // Solicitar algumas atualizações para teste de localização em tempo real
         val locationRequest = LocationRequest.create()
             .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-            .setInterval(3000)
-            .setFastestInterval(1000)
-            .setNumUpdates(3)
+            .setInterval(3000) // Intervalo de 3 segundos
+            .setFastestInterval(1000) // Intervalo mais rápido de 1 segundo
+            .setNumUpdates(3) // Apenas 3 atualizações para teste
 
         val updates = mutableListOf<String>()
 
@@ -353,47 +351,47 @@ class FocusLocationsFragment : Fragment() {
             object : LocationCallback() {
                 override fun onLocationResult(locationResult: LocationResult) {
                     val loc = locationResult.lastLocation
-                    updates.add("📍 Update ${updates.size + 1}: Lat=${loc?.latitude}, Lon=${loc?.longitude}")
+                    updates.add(" Update ${updates.size + 1}: Lat=${loc?.latitude}, Lon=${loc?.longitude}")
 
                     if (updates.size >= 3) {
-                        results.add("🔄 Localização em tempo real:")
+                        results.add(" Localização em tempo real:")
                         updates.forEach { update -> results.add("   $update") }
-                        fusedLocationClient.removeLocationUpdates(this)
+                        fusedLocationClient.removeLocationUpdates(this) // Para updates após teste
                     }
                 }
             },
-            Looper.getMainLooper()
+            Looper.getMainLooper() // Executa no thread principal
         )
     }
 
     private fun testGeofencing(results: MutableList<String>) {
-        results.add("\n🎯 GEOFENCING:")
+        results.add("\n GEOFENCING:")
 
-        // Verificar se temos localizações configuradas
+        // Verificar se há localizações configuradas no ViewModel
         val currentLocations = viewModel.focusLocations.value
-        results.add("📊 Zonas de foco configuradas: ${currentLocations.size}")
+        results.add(" Zonas de foco configuradas: ${currentLocations.size}")
 
         if (currentLocations.isNotEmpty()) {
             val enabledCount = currentLocations.count { it.enabled }
-            results.add("✅ Zonas ativas: $enabledCount")
-            results.add("❌ Zonas inativas: ${currentLocations.size - enabledCount}")
+            results.add(" Zonas ativas: $enabledCount")
+            results.add(" Zonas inativas: ${currentLocations.size - enabledCount}")
 
             // Mostrar algumas zonas como exemplo
             currentLocations.take(2).forEach { location ->
-                results.add("   📍 ${location.name}: Lat=${location.latitude}, Lon=${location.longitude}, Raio=${location.radius}m")
+                results.add(" ${location.name}: Lat=${location.latitude}, Lon=${location.longitude}, Raio=${location.radius}m")
             }
 
             if (currentLocations.size > 2) {
                 results.add("   ... e mais ${currentLocations.size - 2} zonas")
             }
         } else {
-            results.add("ℹ️ Nenhuma zona de foco configurada")
+            results.add("ℹ Nenhuma zona de foco configurada")
         }
     }
 
     private fun testAPIConnection(results: MutableList<String>) {
-        results.add("\n🌐 CONEXÃO COM API:")
-        results.add("🔌 Testando conexão com API...")
+        results.add("\n CONEXÃO COM API:")
+        results.add(" Testando conexão com API...")
 
         // Verificar conectividade de rede
         val connectivityManager = requireContext().getSystemService(android.content.Context.CONNECTIVITY_SERVICE)
@@ -407,12 +405,12 @@ class FocusLocationsFragment : Fragment() {
             else -> "Desconhecido"
         }
 
-        results.add("📶 Conexão: ${if (isConnected) "ATIVA ($connectionType)" else "INATIVA"}")
+        results.add(" Conexão: ${if (isConnected) "ATIVA ($connectionType)" else "INATIVA"}")
 
         if (isConnected) {
-            results.add("✅ Conectado à internet")
+            results.add(" Conectado à internet")
         } else {
-            results.add("❌ Sem conexão à internet")
+            results.add(" Sem conexão à internet")
         }
     }
 
@@ -423,10 +421,11 @@ class FocusLocationsFragment : Fragment() {
 
         // Mostrar em um diálogo mais organizado
         android.app.AlertDialog.Builder(requireContext())
-            .setTitle("🔧 Relatório de Teste GPS")
+            .setTitle(" Relatório de Teste GPS")
             .setMessage(fullReport)
             .setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
             .setNegativeButton("Copiar") { dialog, _ ->
+                // Copiar relatório para clipboard
                 val clipboard = requireContext().getSystemService(android.content.Context.CLIPBOARD_SERVICE)
                         as android.content.ClipboardManager
                 val clip = android.content.ClipData.newPlainText("Teste GPS", fullReport)
@@ -436,16 +435,16 @@ class FocusLocationsFragment : Fragment() {
             }
             .setNeutralButton("Testar Novamente") { dialog, _ ->
                 dialog.dismiss()
-                testGPSFunctionality()
+                testGPSFunctionality() // Reiniciar teste
             }
             .show()
 
-        // Também mostrar um Toast rápido com o resumo
+        // Mostrar Toast com resumo rápido
         val summary = """
-            📊 Resumo Teste GPS:
-            📍 Localizações: ${viewModel.focusLocations.value.size}
-            📡 GPS: ${if (isGPSEnabled()) "ON" else "OFF"}
-            🔌 API: ${if (isInternetConnected()) "CONECTADO" else "DESCONECTADO"}
+             Resumo Teste GPS:
+             Localizações: ${viewModel.focusLocations.value.size}
+             GPS: ${if (isGPSEnabled()) "ON" else "OFF"}
+             API: ${if (isInternetConnected()) "CONECTADO" else "DESCONECTADO"}
         """.trimIndent()
 
         Toast.makeText(requireContext(), summary, Toast.LENGTH_LONG).show()
@@ -464,18 +463,19 @@ class FocusLocationsFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
+        // Configurar adapter com callbacks para ações
         adapter = FocusLocationAdapter(
             onEditClick = { location ->
                 Log.d("FocusLocations", "Editar localização: ${location.name}")
-                showAddLocationDialog(location)
+                showAddLocationDialog(location) // Abrir diálogo em modo edição
             },
             onDeleteClick = { location ->
                 Log.d("FocusLocations", "Eliminar localização: ${location.name}")
-                showDeleteConfirmation(location)
+                showDeleteConfirmation(location) // Pedir confirmação antes de eliminar
             },
             onToggleClick = { location, enabled ->
                 Log.d("FocusLocations", "Toggle localização ${location.id}: $enabled")
-                viewModel.toggleFocusLocation(location.id!!, enabled)
+                viewModel.toggleFocusLocation(location.id!!, enabled) // Ativar/desativar
             }
         )
 
@@ -486,7 +486,7 @@ class FocusLocationsFragment : Fragment() {
     }
 
     private fun setupObservers() {
-        // Observar tarefas
+        // Observar lista de localizações
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.focusLocations.collectLatest { locations ->
                 Log.d("FocusLocations", "Localizações atualizadas: ${locations.size} items")
@@ -496,7 +496,7 @@ class FocusLocationsFragment : Fragment() {
             }
         }
 
-        // Observar loading
+        // Observar estado de loading
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.loading.collectLatest { isLoading ->
                 binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
@@ -509,7 +509,7 @@ class FocusLocationsFragment : Fragment() {
                 errorMessage?.let {
                     Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
                     Log.e("FocusLocations", "Erro: $errorMessage")
-                    viewModel.clearError()
+                    viewModel.clearError() // Limpar erro após mostrar
                 }
             }
         }
@@ -528,35 +528,37 @@ class FocusLocationsFragment : Fragment() {
     }
 
     private fun setupClickListeners() {
+        // Floating Action Button para adicionar nova localização
         binding.fabAddLocation.setOnClickListener {
             Log.d("FocusLocations", "✅ Clicado em adicionar localização")
             // Mostrar diálogo vazio para NOVA localização
             showAddLocationDialog(null)
         }
 
+        // Botão de navegação na toolbar
         binding.toolbar.setNavigationOnClickListener {
-            findNavController().navigateUp()
+            findNavController().navigateUp() // Voltar para ecrã anterior
         }
     }
 
     private fun showAddLocationDialog(existingLocation: FocusLocation? = null) {
-        Log.d("FocusLocations", "📝 Mostrando diálogo para: ${if (existingLocation == null) "NOVA localização" else "EDIÇÃO da localização ID: ${existingLocation.id}"}")
+        Log.d("FocusLocations", " Mostrando diálogo para: ${if (existingLocation == null) "NOVA localização" else "EDIÇÃO da localização ID: ${existingLocation.id}"}")
 
         val dialog = AddFocusLocationDialogFragment().apply {
-            setLocation(existingLocation)
+            setLocation(existingLocation) // Passar localização existente ou null
             setOnSaveListener { savedLocation ->
-                Log.d("FocusLocations", "📨 Recebida localização do diálogo:")
+                Log.d("FocusLocations", " Recebida localização do diálogo:")
                 Log.d("FocusLocations", "  ID: ${savedLocation.id}")
                 Log.d("FocusLocations", "  Nome: ${savedLocation.name}")
 
-                // DECISÃO CRÍTICA: criar ou atualizar?
+                // Cria ou atualiza consoante o estado do existingLocation
                 if (existingLocation == null) {
-                    // existingLocation é null = NOVA localização
-                    Log.d("FocusLocations", "🆕 É uma NOVA localização, chamando CREATE")
+                    // existingLocation é null = Nova localização
+                    Log.d("FocusLocations", " É uma nova localização, a chamar CREATE")
                     viewModel.createFocusLocation(savedLocation)
                 } else {
-                    // existingLocation não é null = EDIÇÃO
-                    Log.d("FocusLocations", "✏️ É uma EDIÇÃO, chamando UPDATE para ID: ${existingLocation.id}")
+                    // existingLocation não é null = Edição
+                    Log.d("FocusLocations", " É uma edição, a chamar UPDATE para ID: ${existingLocation.id}")
                     viewModel.updateFocusLocation(savedLocation)
                 }
             }
@@ -566,21 +568,21 @@ class FocusLocationsFragment : Fragment() {
     }
 
     private fun showAddLocationDialogWithPrefilledData(address: String, latitude: Double, longitude: Double) {
-        Log.d("FocusLocations", "📍 Mostrando diálogo com dados pré-preenchidos")
+        Log.d("FocusLocations", " Mostrando diálogo com dados pré-preenchidos")
 
         val dialog = AddFocusLocationDialogFragment().apply {
-            // IMPORTANTE: passamos null porque é uma NOVA localização
+            // Null porque indica que é uma nova localização
             setLocation(null)
             setOnSaveListener { savedLocation ->
-                Log.d("FocusLocations", "📨 Recebida localização do diálogo (com dados pré-preenchidos)")
+                Log.d("FocusLocations", " Recebida localização do diálogo (com dados pré-preenchidos)")
                 Log.d("FocusLocations", "  ID: ${savedLocation.id}")
 
-                // existingLocation é null, então deve ser CREATE
+                // existingLocation é null, então deve criar
                 if (savedLocation.id == null) {
-                    Log.d("FocusLocations", "🆕 Chamando CREATE para nova localização")
+                    Log.d("FocusLocations", " A chamar CREATE para nova localização")
                     viewModel.createFocusLocation(savedLocation)
                 } else {
-                    Log.e("FocusLocations", "❌ ERRO: ID não deveria existir em nova localização!")
+                    Log.e("FocusLocations", " ERRO: ID não deveria existir em nova localização!")
                     viewModel.updateFocusLocation(savedLocation)
                 }
             }
@@ -588,7 +590,7 @@ class FocusLocationsFragment : Fragment() {
 
         dialog.show(parentFragmentManager, "AddFocusLocationDialog")
 
-        // Agora usamos o método prefillFields que adicionamos ao diálogo
+        // Usar metodo prefillFields para pré-preencher campos
         dialog.prefillFields(
             name = address,
             address = address,
@@ -600,7 +602,7 @@ class FocusLocationsFragment : Fragment() {
     }
 
     private fun testDirectCreate() {
-        Log.d("FocusLocations", "🧪 TESTE DIRETO: Criando localização sem diálogo")
+        Log.d("FocusLocations", " TESTE DIRETO: Criando localização sem diálogo")
 
         val testLocation = FocusLocation(
             id = null, // ← IMPORTANTE: null para nova localização
@@ -613,7 +615,7 @@ class FocusLocationsFragment : Fragment() {
             notificationMessage = "Teste direto"
         )
 
-        Log.d("FocusLocations", "📤 Chamando createFocusLocation no ViewModel")
+        Log.d("FocusLocations", " Chamando createFocusLocation no ViewModel")
         viewModel.createFocusLocation(testLocation)
     }
 
@@ -622,7 +624,7 @@ class FocusLocationsFragment : Fragment() {
             .setTitle("Eliminar Localização")
             .setMessage("Tem a certeza que deseja eliminar '${location.name}'?")
             .setPositiveButton("Eliminar") { _, _ ->
-                viewModel.deleteFocusLocation(location.id!!)
+                viewModel.deleteFocusLocation(location.id!!) // Eliminar após confirmação
             }
             .setNegativeButton("Cancelar", null)
             .show()
@@ -634,11 +636,12 @@ class FocusLocationsFragment : Fragment() {
             Manifest.permission.ACCESS_COARSE_LOCATION
         )
 
-        // Para Android 10+ (API 29+), precisamos de background location
+        // Otimização para Android 10+ (API 29+), precisa de background location
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             permissions.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
         }
 
+        // Filtrar apenas permissões não concedidas
         val permissionsToRequest = permissions.filter {
             ActivityCompat.checkSelfPermission(requireContext(), it) != PackageManager.PERMISSION_GRANTED
         }
@@ -646,7 +649,7 @@ class FocusLocationsFragment : Fragment() {
         if (permissionsToRequest.isNotEmpty()) {
             requestPermissionLauncher.launch(permissionsToRequest.toTypedArray())
         } else {
-            getCurrentLocation()
+            getCurrentLocation() // Já tem permissões
         }
     }
 
@@ -670,7 +673,7 @@ class FocusLocationsFragment : Fragment() {
 
         Log.d("FocusLocations", "Obtendo localização atual...")
 
-        // Verifica permissão antes de chamar lastLocation
+        // Verificação dupla de permissão (requisito da API)
         if (ActivityCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -687,13 +690,13 @@ class FocusLocationsFragment : Fragment() {
                 if (location != null) {
                     Log.d("FocusLocations", "📍 Localização obtida: ${location.latitude}, ${location.longitude}")
 
-                    // Obter endereço a partir das coordenadas
+                    // Obter endereço a partir das coordenadas (reverse geocoding)
                     val geocoder = Geocoder(requireContext(), Locale.getDefault())
                     val addresses: List<Address>? = try {
                         geocoder.getFromLocation(
                             location.latitude,
                             location.longitude,
-                            1
+                            1 // Apenas o melhor resultado
                         )
                     } catch (e: Exception) {
                         Log.e("FocusLocations", "Erro no Geocoder: ${e.message}")
@@ -703,19 +706,19 @@ class FocusLocationsFragment : Fragment() {
                     val addressName = if (!addresses.isNullOrEmpty()) {
                         val address = addresses[0]
                         val sb = StringBuilder()
-                        if (address.thoroughfare != null) sb.append(address.thoroughfare)
-                        if (address.locality != null) {
+                        if (address.thoroughfare != null) sb.append(address.thoroughfare) // Nome da rua
+                        if (address.locality != null) { // Cidade
                             if (sb.isNotEmpty()) sb.append(", ")
                             sb.append(address.locality)
                         }
                         sb.toString()
                     } else {
-                        "Localização atual"
+                        "Localização atual" // Fallback se Geocoder falhar
                     }
 
-                    Log.d("FocusLocations", "📍 Endereço: $addressName")
+                    Log.d("FocusLocations", " Endereço: $addressName")
 
-                    // Mostrar diálogo com dados pré-preenchidos
+                    // Mostrar diálogo com dados pré-preenchidos da localização atual
                     showAddLocationDialogWithPrefilledData(addressName, location.latitude, location.longitude)
                 } else {
                     Toast.makeText(
@@ -723,7 +726,7 @@ class FocusLocationsFragment : Fragment() {
                         "Não foi possível obter a localização. Ative o GPS.",
                         Toast.LENGTH_SHORT
                     ).show()
-                    Log.w("FocusLocations", "⚠️ Localização é nula - GPS pode estar desligado")
+                    Log.w("FocusLocations", " Localização é nula - GPS pode estar desligado")
                 }
             }
             .addOnFailureListener { e ->
@@ -732,14 +735,14 @@ class FocusLocationsFragment : Fragment() {
                     "Erro ao obter localização: ${e.message}",
                     Toast.LENGTH_SHORT
                 ).show()
-                Log.e("FocusLocations", "❌ Erro ao obter localização", e)
+                Log.e("FocusLocations", " Erro ao obter localização", e)
             }
     }
 
     private fun testDifferentFormats() {
-        Log.d("FocusLocations", "🧪 TESTANDO DIFERENTES FORMATOS DE API")
+        Log.d("FocusLocations", " A testar diferentes formatos da API")
 
-        // Teste 1: Formato atual (simples)
+        // Formato atual (simples)
         val testLocation1 = FocusLocation(
             id = null,
             name = "Teste Formato Simples",
@@ -751,12 +754,12 @@ class FocusLocationsFragment : Fragment() {
             notificationMessage = "Teste simples"
         )
 
-        Log.d("FocusLocations", "📤 Enviando formato simples...")
+        Log.d("FocusLocations", " A enviar formato simples...")
         viewModel.createFocusLocation(testLocation1)
 
-        // Aguardar um pouco e testar outro formato
+        // Aguardar e testar outro formato
         view?.postDelayed({
-            // Teste 2: Formato com notification_message em snake_case
+            // Formato com notification_message em snake_case
             val testLocation2 = FocusLocation(
                 id = null,
                 name = "Teste Snake Case",
@@ -768,7 +771,7 @@ class FocusLocationsFragment : Fragment() {
                 notificationMessage = "Teste snake_case"
             )
 
-            Log.d("FocusLocations", "📤 Enviando formato snake_case...")
+            Log.d("FocusLocations", " A enviar formato snake_case...")
             viewModel.createFocusLocation(testLocation2)
         }, 2000)
     }
@@ -782,7 +785,7 @@ class FocusLocationsFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
+        _binding = null // Limpar binding para evitar derrame de memória
         Log.d("FocusLocations", "View destruída")
     }
 }

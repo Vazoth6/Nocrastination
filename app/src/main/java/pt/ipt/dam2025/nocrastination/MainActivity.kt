@@ -10,6 +10,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import pt.ipt.dam2025.nocrastination.databinding.ActivityMainBinding
 
+// Atividade principal da aplicação
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
@@ -20,30 +21,31 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Set the Toolbar as the ActionBar
+        // Definir a Toolbar como ActionBar
         setSupportActionBar(binding.toolbar)
 
         setupNavigation()
     }
 
+    // Configurar sistema de navegação
     private fun setupNavigation() {
         try {
-            // Get NavHostFragment
+            // Obter NavHostFragment
             val navHostFragment = supportFragmentManager
                 .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
 
-            // Get NavController
+            // Obter NavController
             navController = navHostFragment.navController
 
-            // Set up bottom navigation
+            // Configurar navegação inferior
             binding.bottomNavigation.setupWithNavController(navController)
 
-            // Prevent duplicate fragment creation on reselect
+            // Prevenir criação duplicada de fragmentos ao reselecionar
             binding.bottomNavigation.setOnItemReselectedListener {
-                // Do nothing on reselect to prevent recreating the same fragment
+                // Não fazer nada ao reselecionar
             }
 
-            // Configure AppBar with the fragments you want as top-level destinations
+            // Configurar AppBar com os destinos de topo
             val appBarConfiguration = AppBarConfiguration(
                 setOf(
                     R.id.tasksFragment,
@@ -53,24 +55,25 @@ class MainActivity : AppCompatActivity() {
                 )
             )
 
-            // Setup ActionBar with NavController
+            // Configurar ActionBar com NavController
             setupActionBarWithNavController(navController, appBarConfiguration)
 
-            // Update title based on fragment
+            // Atualizar título baseado no fragmento atual
             navController.addOnDestinationChangedListener { _, destination, _ ->
                 when (destination.id) {
                     R.id.tasksFragment -> {
                         supportActionBar?.title = "Tarefas"
-                        // Mostrar o botão de zonas de foco apenas na tela de tarefas
+                        // Mostrar botão de zonas de foco apenas no ecrã de tarefas
                         binding.toolbar.menu.findItem(R.id.action_focus_locations)?.isVisible = true
                     }
                     R.id.focusLocationsFragment -> {
                         supportActionBar?.title = "Zonas de Foco"
-                        // Ocultar o botão de zonas de foco quando estiveres nesta tela
+                        // Ocultar botão quando estiver neste ecrã
                         binding.toolbar.menu.findItem(R.id.action_focus_locations)?.isVisible = false
                     }
                     R.id.pomodoroFragment -> {
                         supportActionBar?.title = "Pomodoro"
+
                         binding.toolbar.menu.findItem(R.id.action_focus_locations)?.isVisible = false
                     }
                     R.id.statisticsFragment -> {
@@ -91,6 +94,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Suportar navegação para cima (Up navigation)
     override fun onSupportNavigateUp(): Boolean {
         return navController.navigateUp() || super.onSupportNavigateUp()
     }

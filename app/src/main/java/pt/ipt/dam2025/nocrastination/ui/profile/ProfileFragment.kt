@@ -42,21 +42,21 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Verificar se o usuário está logado
+        // Verificar se o utilizador está autenticado
         val preferenceManager = PreferenceManager(requireContext())
         val token = preferenceManager.getAuthToken()
 
         if (token.isNullOrEmpty()) {
-            showLoginRequired()
+            showLoginRequired() // Mostrar mensagem de login necessário
         } else {
             setupObservers()
             setupClickListeners()
-            loadProfile()
+            loadProfile() // Carregar perfil se autenticado
         }
     }
 
     private fun loadProfile() {
-        userProfileViewModel.loadProfile()
+        userProfileViewModel.loadProfile() // Solicitar carregamento do perfil
     }
 
     private fun showLoginRequired() {
@@ -67,19 +67,20 @@ class ProfileFragment : Fragment() {
             val message = "Por favor, faça login para ver seu perfil"
             Toast.makeText(context, message, Toast.LENGTH_LONG).show()
 
-            buttonLogout.text = "Fazer Login"
+            buttonLogout.text = "Fazer Login" // Alterar texto do botão
             buttonLogout.setOnClickListener {
                 val intent = Intent(requireActivity(), LoginActivity::class.java)
                 startActivity(intent)
-                requireActivity().finish()
+                requireActivity().finish() // Finalizar atividade atual
             }
         }
     }
 
+    // Observador de estados do perfil
     private fun setupObservers() {
         lifecycleScope.launch {
             userProfileViewModel.profileState.collectLatest { profile ->
-                profile?.let { updateUI(it) }
+                profile?.let { updateUI(it) } // Atualizar UI quando perfil chegar
             }
         }
 
@@ -97,10 +98,10 @@ class ProfileFragment : Fragment() {
 
                     // Se for erro 401 (não autorizado), token pode ter expirado
                     if (it.contains("401") || it.contains("Unauthorized")) {
-                        showLoginRequired()
+                        showLoginRequired() // Redirecionar para login
                     }
 
-                    userProfileViewModel.clearError()
+                    userProfileViewModel.clearError() // Limpar erro após mostrar
                 }
             }
         }
@@ -111,7 +112,7 @@ class ProfileFragment : Fragment() {
             textUserName.text = profile.fullName
             textUserEmail.text = profile.userEmail
 
-            // Carregar avatar
+            // Carregar avatar se existir
             profile.avatarUrl?.let { avatarUrl ->
                 Glide.with(this@ProfileFragment)
                     .load(avatarUrl)
@@ -120,7 +121,7 @@ class ProfileFragment : Fragment() {
                     .into(imageAvatar)
             }
 
-            // Atualizar configurações Pomodoro
+            // Atualizar configurações Pomodoro no UI
             textTasksCompleted.text = "${profile.dailyGoalMinutes} min/dia"
             textTotalFocusTime.text = "${profile.pomodoroWorkDuration}min trabalho"
             textCurrentStreak.text = "${profile.pomodoroShortBreak}min pausa curta"
@@ -128,28 +129,24 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    // Botões do perfil
     private fun setupClickListeners() {
-        // Botão de logout - MANTIDO COMO ESTAVA
         binding.buttonLogout.setOnClickListener {
             showLogoutConfirmation()
         }
 
-        // Botão de editar perfil
         binding.buttonEditProfile.setOnClickListener {
             openEditProfile()
         }
 
-        // Botão de definições
         binding.buttonSettings.setOnClickListener {
             navigateToSettings()
         }
 
-        // SECÇÃO "SOBRE A APP"
         binding.cardAboutApp.setOnClickListener {
             openAboutAppDialog()
         }
 
-        // Links úteis
         binding.cardHelp.setOnClickListener {
             openHelpPage()
         }
@@ -167,8 +164,8 @@ class ProfileFragment : Fragment() {
         val settingsFragment = FragmentSettings()
 
         requireActivity().supportFragmentManager.beginTransaction()
-            .replace(R.id.nav_host_fragment, settingsFragment) // Ajuste este ID conforme necessário
-            .addToBackStack("settings")
+            .replace(R.id.nav_host_fragment, settingsFragment)
+            .addToBackStack("settings") // Permitir voltar
             .commit()
     }
 
@@ -185,14 +182,14 @@ class ProfileFragment : Fragment() {
 
     private fun performLogout() {
         try {
-            // Limpar preferências
+            // Limpar preferências locais
             val preferenceManager = PreferenceManager(requireContext())
             preferenceManager.clearAll()
 
             // Chamar logout no ViewModel
             authViewModel.logout()
 
-            // Redirecionar para login
+            // Redirecionar para login com flags para limpar back stack
             val intent = Intent(requireActivity(), LoginActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
@@ -238,7 +235,7 @@ class ProfileFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        // Recarregar perfil quando voltar ao fragment
+        // Recarregar perfil quando voltar ao fragmento
         val preferenceManager = PreferenceManager(requireContext())
         if (!preferenceManager.getAuthToken().isNullOrEmpty()) {
             loadProfile()
@@ -247,6 +244,6 @@ class ProfileFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
+        _binding = null // Limpar binding
     }
 }

@@ -28,14 +28,15 @@ import java.util.concurrent.TimeUnit
 
 class LoginActivity : AppCompatActivity() {
 
-    // Use inject ao invés de viewModel se tiver problemas
+    // Injeção de dependências com Koin
     private val authViewModel: AuthViewModel by inject()
     private val preferenceManager: PreferenceManager by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Verificação rápida ANTES de qualquer coisa
+        // Verificação rápida antes de qualquer tarefa
+        // Acesso direto ao SharedPreferences para verificar token
         val prefs = getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
         val token = prefs.getString("auth_token", null)
 
@@ -44,38 +45,36 @@ class LoginActivity : AppCompatActivity() {
         if (!token.isNullOrEmpty()) {
             Log.d("LoginActivity", "Token encontrado, navegando para MainActivity")
             navigateToMain()
-            return
+            return // Sai da função, não mostra ecrã de login
         }
 
         // Só se não houver token, continuar com o login
         setContentView(R.layout.activity_login)
 
-        // 3. Agora inicialize o ApiClient
         ApiClient.initialize(this)
 
-        // 4. Teste de conexão (opcional, pode ser removido)
         testConnection()
 
-        // Initialize views
+        // Inicializa vistas
         val emailEditText = findViewById<EditText>(R.id.emailEditText)
         val passwordEditText = findViewById<EditText>(R.id.passwordEditText)
         val loginButton = findViewById<Button>(R.id.loginButton)
         val registerLinkTextView = findViewById<TextView>(R.id.registerLinkTextView)
         val progressBar = findViewById<ProgressBar>(R.id.progressBar)
 
-        // Setup login state observer
+        // Observador para vários estados no Login
         authViewModel.loginState.observe(this, Observer { state ->
             Log.d("LoginActivity", "Observer chamado com estado: $state")
             when (state) {
                 is Resource.Loading -> {
                     loginButton.isEnabled = false
                     progressBar.isVisible = true
-                    Log.d("LoginActivity", "⏳ Carregando...")
+                    Log.d("LoginActivity", " A carregar...")
                 }
                 is Resource.Success -> {
                     loginButton.isEnabled = true
                     progressBar.isVisible = false
-                    Log.d("LoginActivity", "✅ Login bem-sucedido!")
+                    Log.d("LoginActivity", " Login bem-sucedido!")
                     Toast.makeText(this, "Login bem-sucedido!", Toast.LENGTH_SHORT).show()
                     navigateToMain()
                 }
@@ -83,7 +82,7 @@ class LoginActivity : AppCompatActivity() {
                     loginButton.isEnabled = true
                     progressBar.isVisible = false
                     val errorMessage = state.message ?: "Erro desconhecido"
-                    Log.e("LoginActivity", "❌ Erro de login: $errorMessage")
+                    Log.e("LoginActivity", " Erro no login: $errorMessage")
                     Toast.makeText(this, "Erro: $errorMessage", Toast.LENGTH_SHORT).show()
                 }
                 else -> {
@@ -93,7 +92,7 @@ class LoginActivity : AppCompatActivity() {
             }
         })
 
-        // Configure login button
+        // Configura o botão de Login
         loginButton.setOnClickListener {
             val email = emailEditText.text.toString().trim()
             val password = passwordEditText.text.toString()
@@ -119,7 +118,7 @@ class LoginActivity : AppCompatActivity() {
             }
         }
 
-        // Configure registration link
+        // Configura o link de Registo
         registerLinkTextView.setOnClickListener {
             val intent = Intent(this, RegisterActivity::class.java)
             startActivity(intent)
@@ -128,41 +127,57 @@ class LoginActivity : AppCompatActivity() {
         Log.d("LoginActivity", "✅ Activity inicializada corretamente")
     }
 
+    /**
+     * Verifica se o utilizador já está autenticado
+     * @return Boolean true se existir token
+     */
     private fun isUserLoggedIn(): Boolean {
         // Verifique diretamente nas preferências
         return preferenceManager.getAuthToken() != null
     }
 
+    /**
+     * Navega para a MainActivity (ecrã principal)
+     */
     private fun navigateToMain() {
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
         finish() // IMPORTANTE: finalizar a LoginActivity
     }
 
+    /**
+     * Valida formato de email com regex simples
+     * @param email Email a validar
+     * @return Boolean true se email válido
+     */
     private fun isValidEmail(email: String): Boolean {
         val emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+"
         return email.matches(emailPattern.toRegex())
     }
 
+    /**
+     * Testa a conexão com o servidor Strapi
+     * Apenas para debugging, pode ser removido em produção
+     */
     private fun testConnection() {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val client = OkHttpClient.Builder()
                     .connectTimeout(10, TimeUnit.SECONDS)
-                    .hostnameVerifier { _, _ -> true }
+                    .hostnameVerifier { _, _ -> true } // Bypass SSL em desenvolvimento
                     .build()
 
                 val request = Request.Builder()
-                    .url("http://10.0.2.2:1337")
+                    .url("http://10.0.2.2:1337") // Endereço local do emulador
                     .build()
 
                 val response = client.newCall(request).execute()
 
                 runOnUiThread {
                     if (response.isSuccessful) {
-                        Log.d("ConnectionTest", "✅ Strapi responde: ${response.code}")
+                        Log.d("ConnectionTest", " Strapi responde: ${response.code}")
                     } else {
-                        Log.w("ConnectionTest", "⚠️ Strapi respondeu: ${response.code}")
+                        Log.w("ConnectionTest", " Strapi respondeu: ${response.code}")
                     }
                 }
 

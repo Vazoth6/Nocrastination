@@ -31,13 +31,13 @@ class PomodoroFragment : Fragment() {
     private val pomodoroViewModel: PomodoroViewModel by viewModel()
     private val tasksViewModel: TasksViewModel by viewModel()
 
-    private var currentTask: Task? = null
+    private var currentTask: Task? = null // Tarefa atual (se fornecida)
 
-    private var timer: CountDownTimer? = null
-    private var isTimerRunning = false
-    private var timeLeftInMillis = 25 * 60 * 1000L
-    private var totalTimeMillis = 25 * 60 * 1000L
-    private var sessionCount = 1
+    private var timer: CountDownTimer? = null // Temporizador principal
+    private var isTimerRunning = false // Estado do temporizador
+    private var timeLeftInMillis = 25 * 60 * 1000L // Tempo restante em ms (25min é o padrão)
+    private var totalTimeMillis = 25 * 60 * 1000L // Tempo total em ms
+    private var sessionCount = 1 // Contador de sessões
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -51,11 +51,11 @@ class PomodoroFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Receber a tarefa dos argumentos usando Bundle
+        // Receber a tarefa dos argumentos utilizando Bundle
         arguments?.let {
             currentTask = it.getParcelable("task")
             currentTask?.let { task ->
-                setupTaskForPomodoro(task)
+                setupTaskForPomodoro(task) // Configurar Pomodoro para tarefa específica
             }
         }
 
@@ -65,7 +65,7 @@ class PomodoroFragment : Fragment() {
         updateButtons()
         updateStats()
 
-        pomodoroViewModel.resetGoToTasksButton()
+        pomodoroViewModel.resetGoToTasksButton() // Reset no botão de navegação
     }
 
     private fun setupTaskForPomodoro(task: Task) {
@@ -76,20 +76,21 @@ class PomodoroFragment : Fragment() {
         // Usar estimatedMinutes da tarefa, ou padrão de 25
         val estimatedMinutes = task.estimatedMinutes ?: 25
 
-        // Atualizar duração customizada
+        // Atualizar duração customizada no ViewModel
         pomodoroViewModel.updateCustomWorkDuration(estimatedMinutes)
 
-        // Definir como Work
+        // Definir como trabalho
         pomodoroViewModel.setCycleState(PomodoroViewModel.CycleState.WORK)
 
-        // Atualizar texto de duração
+        // Atualizar texto de duração na UI
         binding.textCustomDuration.text = "${estimatedMinutes}min"
 
-        // Configurar timer inicial com a duração da tarefa
+        // Configurar temporizador inicial com a duração da tarefa
         setTimer(estimatedMinutes * 60 * 1000L, "TRABALHO", "WORK")
     }
 
     private fun setupObservers() {
+        // Observar sessão atual
         lifecycleScope.launch {
             pomodoroViewModel.currentSession.collect { session ->
                 session?.let {
@@ -98,12 +99,14 @@ class PomodoroFragment : Fragment() {
             }
         }
 
+        // Observar lista de sessões para atualizar estatísticas
         lifecycleScope.launch {
             pomodoroViewModel.sessions.collect { sessions ->
                 updateStats()
             }
         }
 
+        // Observar duração personalizada de trabalho
         lifecycleScope.launch {
             pomodoroViewModel.customWorkDuration.collect { duration ->
                 binding.textCustomDuration.text = "${duration}min"
@@ -113,6 +116,7 @@ class PomodoroFragment : Fragment() {
             }
         }
 
+        // Observar tipo de pausa selecionada
         lifecycleScope.launch {
             pomodoroViewModel.selectedBreakType.collect { breakType ->
                 val breakText = when (breakType) {
@@ -123,6 +127,7 @@ class PomodoroFragment : Fragment() {
             }
         }
 
+        // Observar estado do ciclo (trabalho/pausa)
         lifecycleScope.launch {
             pomodoroViewModel.cycleState.collect { state ->
                 when (state) {
@@ -153,6 +158,7 @@ class PomodoroFragment : Fragment() {
             }
         }
 
+        // Observar visibilidade do botão "Ir para tarefas"
         lifecycleScope.launch {
             pomodoroViewModel.showGoToTasksButton.collect { showButton ->
                 binding.buttonGoToTasks.visibility = if (showButton) View.VISIBLE else View.GONE
@@ -168,7 +174,7 @@ class PomodoroFragment : Fragment() {
             }
         }
 
-        // Configurar clique do botão (FORA do lifecycleScope.launch)
+        // Configurar o clique do botão (FORA do lifecycleScope.launch)
         binding.buttonGoToTasks.setOnClickListener {
             navigateToTasks()
         }
@@ -224,9 +230,9 @@ class PomodoroFragment : Fragment() {
         builder.setTitle("Definir tempo de trabalho")
 
         val input = EditText(requireContext())
-        input.inputType = InputType.TYPE_CLASS_NUMBER
+        input.inputType = InputType.TYPE_CLASS_NUMBER // Apenas números
         input.hint = "Minutos (1-120)"
-        input.setText(pomodoroViewModel.customWorkDuration.value.toString())
+        input.setText(pomodoroViewModel.customWorkDuration.value.toString()) // Valor atual
 
         builder.setView(input)
 
@@ -275,7 +281,7 @@ class PomodoroFragment : Fragment() {
         lifecycleScope.launch {
             pomodoroViewModel.startPomodoro(
                 useCustomDuration = true,
-                taskId = task?.id
+                taskId = task?.id // Associar tarefa à sessão
             )
         }
 
@@ -284,6 +290,7 @@ class PomodoroFragment : Fragment() {
                 timeLeftInMillis = millisUntilFinished
                 updateCountDownText()
 
+                // Calcular progresso para a ProgressBar
                 val progress = ((totalTimeMillis - millisUntilFinished) * 100 / totalTimeMillis).toInt()
                 binding.progressCircular.progress = progress
             }
@@ -295,7 +302,7 @@ class PomodoroFragment : Fragment() {
                 lifecycleScope.launch {
                     pomodoroViewModel.completePomodoro()
 
-                    // Marcar tarefa como completa quando o timer acabar
+                    // Marcar tarefa como completa quando o temporizador acabar
                     currentTask?.let { task ->
                         tasksViewModel.completeTask(task.id)
                     }
@@ -338,7 +345,7 @@ class PomodoroFragment : Fragment() {
 
                 Toast.makeText(
                     context,
-                    "⏰ Pausa terminada! Volte ao trabalho.",
+                    " Pausa terminada! Volte ao trabalho.",
                     Toast.LENGTH_LONG
                 ).show()
 
@@ -366,7 +373,7 @@ class PomodoroFragment : Fragment() {
         updateCountDownText()
         isTimerRunning = false
         updateButtons()
-        binding.progressCircular.progress = 0
+        binding.progressCircular.progress = 0 // Reset no progresso
     }
 
     private fun setTimer(milliseconds: Long, timerType: String, sessionType: String) {
@@ -380,7 +387,7 @@ class PomodoroFragment : Fragment() {
 
         binding.textTimerType.text = timerType
 
-        // CORREÇÃO: Usar ContextCompat.getColor() em vez de resources.getColor()
+        // Definir cores conforme tipo de sessão
         when (sessionType) {
             "WORK" -> {
                 binding.cardTimerType.setCardBackgroundColor(
@@ -444,7 +451,7 @@ class PomodoroFragment : Fragment() {
             val sessions = pomodoroViewModel.sessions.value
             val todaySessions = sessions.filter {
                 // Filtrar sessões de hoje
-                true // TODO: Implementar filtro por data
+                true
             }
 
             binding.textTodayPomodoros.text = todaySessions.size.toString()
@@ -472,7 +479,7 @@ class PomodoroFragment : Fragment() {
     private fun showCompletionNotification() {
         Toast.makeText(
             context,
-            "🎉 Tempo de trabalho esgotado! Tarefa marcada como completa.",
+            "Tempo de trabalho esgotado! Tarefa marcada como completa.",
             Toast.LENGTH_LONG
         ).show()
         sessionCount++
@@ -486,7 +493,7 @@ class PomodoroFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        timer?.cancel()
+        timer?.cancel() // Cancelar temporizador para evitar derrame de memória
         _binding = null
     }
 }

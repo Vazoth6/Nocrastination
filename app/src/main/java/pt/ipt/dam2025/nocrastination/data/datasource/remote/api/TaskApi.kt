@@ -7,28 +7,33 @@ import retrofit2.Response
 import retrofit2.http.*
 
 interface TaskApi {
-
+    // Obtém todas as tarefas
     @GET("api/task")
     suspend fun getTasks(): Response<TaskListResponse>
 
+    // Obtém uma tarefa específica por ID
     @GET("api/task/{id}")
     suspend fun getTaskById(@Path("id") id: Int): Response<TaskResponse>
 
+    // Cria uma nova tarefa
     @POST("api/task")
     suspend fun createTask(@Body request: CreateTaskRequest): Response<TaskResponse>
 
+    // Atualiza uma tarefa existente
     @PUT("api/task/{id}")
     suspend fun updateTask(
         @Path("id") id: Int,
         @Body request: UpdateTaskRequest
     ): Response<TaskResponse>
 
+    // Endpoint específico para marcar a tarefa como completa
     @PUT("api/task/{id}/complete")
     suspend fun completeTask(
         @Path("id") id: Int,
         @Body request: CompleteTaskRequest
     ): Response<TaskResponse>
 
+    // Elimina uma tarefa
     @DELETE("api/task/{id}")
     suspend fun deleteTask(@Path("id") id: Int): Response<Unit>
 }

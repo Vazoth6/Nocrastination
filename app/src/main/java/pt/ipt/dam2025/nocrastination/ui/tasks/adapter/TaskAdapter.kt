@@ -32,29 +32,31 @@ class TaskAdapter(
 
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
         val task = getItem(position)
-        holder.bind(task)
+        holder.bind(task) // Ligar dados à view
     }
 
     inner class TaskViewHolder(private val binding: ItemTaskBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(task: Task) {
+            // Definir texto dos elementos da interface
             binding.textTaskTitle.text = task.title
             binding.textTaskDescription.text = task.description
             binding.textDueDate.text = formatDate(task.dueDate)
 
-            // Priority chip
+            // Configurar chip de prioridade
             binding.chipPriority.text = when (task.priority) {
                 TaskPriority.LOW -> "Baixa"
                 TaskPriority.MEDIUM -> "Média"
                 TaskPriority.HIGH -> "Alta"
             }
 
+            // Botão para iniciar Pomodoro
             binding.buttonPomodoro.setOnClickListener {
                 onStartPomodoro(task)
             }
 
-            // Set chip color based on priority
+            // Definir cor do chip baseado na prioridade
             val priorityColor = when (task.priority) {
                 TaskPriority.LOW -> R.color.holo_green_light
                 TaskPriority.MEDIUM -> R.color.holo_orange_light
@@ -62,16 +64,17 @@ class TaskAdapter(
             }
             binding.chipPriority.setChipBackgroundColorResource(priorityColor)
 
-            // Completion status
+            // Estado de conclusão
             binding.checkBoxCompleted.isChecked = task.completed
 
-            // Click listeners
+            // Listeners de clique
             binding.cardTask.setOnClickListener {
                 onTaskClick(task)
             }
 
+            // Listener para checkbox de conclusão
             binding.checkBoxCompleted.setOnCheckedChangeListener { _, isChecked ->
-                // Remove o listener temporariamente para evitar loops infinitos
+                // Remover o listener temporariamente para evitar loops infinitos
                 binding.checkBoxCompleted.setOnCheckedChangeListener(null)
 
                 // Se o estado mudou, chama a função apropriada
@@ -79,11 +82,11 @@ class TaskAdapter(
                     if (isChecked) {
                         onCompleteClick(task.id) // Marcar como concluída
                     } else {
-                        onUncompleteClick(task.id) // Desmarcar (novo parâmetro)
+                        onUncompleteClick(task.id) // Desmarca
                     }
                 }
 
-                // Restaura o listener
+                // Restaurar o listener
                 binding.checkBoxCompleted.setOnCheckedChangeListener { _, newIsChecked ->
                     if (newIsChecked != task.completed) {
                         if (newIsChecked) {
@@ -95,10 +98,12 @@ class TaskAdapter(
                 }
             }
 
+            // Botão de editar
             binding.buttonEdit.setOnClickListener {
                 onEditClick(task)
             }
 
+            // Botão de eliminar
             binding.buttonDelete.setOnClickListener {
                 onDeleteClick(task.id)
             }
@@ -106,9 +111,10 @@ class TaskAdapter(
 
         private fun formatDate(dateString: String?): String {
             return if (dateString.isNullOrEmpty()) {
-                "Sem data"
+                "Sem data" // Mensagem padrão se não houver data
             } else {
                 try {
+                    // Formatar data ISO 8601 para formato legível
                     val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
                     inputFormat.timeZone = TimeZone.getTimeZone("UTC")
                     val date = inputFormat.parse(dateString)
@@ -116,7 +122,7 @@ class TaskAdapter(
                     val outputFormat = SimpleDateFormat("dd MMM", Locale.getDefault())
                     outputFormat.format(date ?: Date())
                 } catch (e: Exception) {
-                    "Data inválida"
+                    "Data inválida" // Em caso de erro no parsing
                 }
             }
         }
@@ -124,11 +130,11 @@ class TaskAdapter(
 
     class TaskDiffCallback : DiffUtil.ItemCallback<Task>() {
         override fun areItemsTheSame(oldItem: Task, newItem: Task): Boolean {
-            return oldItem.id == newItem.id
+            return oldItem.id == newItem.id // Comparar por ID
         }
 
         override fun areContentsTheSame(oldItem: Task, newItem: Task): Boolean {
-            return oldItem == newItem
+            return oldItem == newItem // Comparar todos os campos (data class)
         }
     }
 }

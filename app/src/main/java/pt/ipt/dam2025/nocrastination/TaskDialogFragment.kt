@@ -21,18 +21,24 @@ import pt.ipt.dam2025.nocrastination.presentations.viewmodel.TasksViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
+// Fragmento de diálogo para criar ou editar tarefas
 class TaskDialogFragment : DialogFragment() {
 
+    // Binding para o layout do diálogo
     private var _binding: TaskDialogBinding? = null
     private val binding get() = _binding!!
 
+    // ViewModel para gerir tarefas
     private val viewModel: TasksViewModel by viewModel()
+
+    // Variáveis para controlar estado
     private var taskId: Int? = null
     private val calendar = Calendar.getInstance()
 
     companion object {
         private const val ARG_TASK_ID = "task_id"
 
+        // Metodo para criar nova instância do diálogo
         fun newInstance(taskId: Int? = null): TaskDialogFragment {
             val fragment = TaskDialogFragment()
             taskId?.let {
@@ -44,6 +50,7 @@ class TaskDialogFragment : DialogFragment() {
         }
     }
 
+    // Metodo chamado na criação do fragmento
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -51,6 +58,7 @@ class TaskDialogFragment : DialogFragment() {
         }
     }
 
+    // Criar a vista do fragmento
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -60,20 +68,22 @@ class TaskDialogFragment : DialogFragment() {
         return binding.root
     }
 
+    // Metodo chamado após a view ser criada
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         setupUI()
         setupClickListeners()
 
-        // Carregar dados da tarefa se estiver editando
+        // Carregar dados da tarefa se estiver em modo de edição
         taskId?.let { id ->
             loadTaskData(id)
         }
     }
 
+    // Configurar elementos da interface de utilizador
     private fun setupUI() {
-        // Configurar o spinner de prioridade
+        // Configurar spinner de prioridade
         val priorities = arrayOf("Baixa", "Média", "Alta")
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, priorities)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
@@ -82,10 +92,12 @@ class TaskDialogFragment : DialogFragment() {
         // Definir título do diálogo
         binding.textTitle.text = if (taskId == null) "Nova Tarefa" else "Editar Tarefa"
 
+        // Ocultar campos não usados
         binding.editEstimatedMinutes.visibility = View.GONE
         binding.editCompletedMinutes.visibility = View.GONE
     }
 
+    // Configurar listeners para botões
     private fun setupClickListeners() {
         binding.buttonSave.setOnClickListener {
             saveTask()
@@ -104,17 +116,18 @@ class TaskDialogFragment : DialogFragment() {
         }
     }
 
+    // Carregar dados de uma tarefa existente
     private fun loadTaskData(taskId: Int) {
         lifecycleScope.launch {
-            // Buscar a tarefa pelo ID usando o ViewModel
+            // Procurar tarefa na lista atual
             val task = viewModel.tasks.value.find { it.id == taskId }
 
             if (task != null) {
                 populateTaskData(task)
             } else {
-                // Se não encontrar na lista atual, tenta buscar do repositório
-                viewModel.loadTasks() // Recarrega as tarefas
-                delay(500) // Pequeno delay
+                // Se não encontrar, recarrega a lista
+                viewModel.loadTasks()
+                delay(500) // Pequena pausa
 
                 val reloadedTask = viewModel.tasks.value.find { it.id == taskId }
                 if (reloadedTask != null) {
@@ -127,11 +140,12 @@ class TaskDialogFragment : DialogFragment() {
         }
     }
 
+    // Preencher campos com dados da tarefa
     private fun populateTaskData(task: Task) {
         binding.editTitle.setText(task.title)
         binding.editDescription.setText(task.description)
 
-        // Prioridade
+        // Definir prioridade no spinner
         val priorityIndex = when (task.priority) {
             TaskPriority.LOW -> 0
             TaskPriority.MEDIUM -> 1
@@ -139,7 +153,7 @@ class TaskDialogFragment : DialogFragment() {
         }
         binding.spinnerPriority.setSelection(priorityIndex)
 
-        // Data de vencimento
+        // Definir data de vencimento
         task.dueDate?.let { dueDateString ->
             try {
                 parseAndSetDateTime(dueDateString)
@@ -149,15 +163,16 @@ class TaskDialogFragment : DialogFragment() {
             }
         }
 
-        // Tempo estimado (se existir)
+        // Definir tempo estimado (se existir)
         task.estimatedMinutes?.let {
             binding.editEstimatedMinutes.setText(it.toString())
         }
     }
 
+    // Analisar string de data e definir no calendário
     private fun parseAndSetDateTime(dueDateString: String) {
         try {
-            // Primeiro tenta o formato ISO
+            // Tentar formato ISO
             val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
             isoFormat.timeZone = TimeZone.getTimeZone("UTC")
             val date = isoFormat.parse(dueDateString)
@@ -171,7 +186,7 @@ class TaskDialogFragment : DialogFragment() {
 
         }
 
-        // Tenta outros formatos comuns
+        // Tentar formato comum
         try {
             val format = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
             val date = format.parse(dueDateString)
@@ -185,6 +200,7 @@ class TaskDialogFragment : DialogFragment() {
         }
     }
 
+    // Guardar/atualizar tarefa
     private fun saveTask() {
         val title = binding.editTitle.text.toString().trim()
         val description = binding.editDescription.text.toString().trim()
@@ -202,13 +218,13 @@ class TaskDialogFragment : DialogFragment() {
             return
         }
 
-        // Formatar a data corretamente
+        // Formatar data para ISO 8601
         val dueDate = if (binding.textSelectedDateTime.text != "Não definida" &&
             binding.textSelectedDateTime.text.isNotEmpty() &&
             binding.textSelectedDateTime.text != "Data inválida") {
 
             try {
-                // Converter de "dd/MM/yyyy HH:mm" para ISO 8601
+                // Converter data para ISO 8601
                 val displayFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
                 val date = displayFormat.parse(binding.textSelectedDateTime.text.toString())
 
@@ -230,7 +246,7 @@ class TaskDialogFragment : DialogFragment() {
             if (taskId == null) {
                 // Create new task
                 val newTask = Task(
-                    id = 0, // Will be set by server
+                    id = 0, // Definido pelo servidor
                     title = title,
                     description = description,
                     dueDate = dueDate,
@@ -246,7 +262,7 @@ class TaskDialogFragment : DialogFragment() {
                 viewModel.createTask(newTask)
                 Toast.makeText(context, "Tarefa criada com sucesso!", Toast.LENGTH_SHORT).show()
             } else {
-                // Update existing task - primeiro buscar a tarefa atual
+                // Atualizar tarefa existente
                 val currentTask = viewModel.tasks.value.find { it.id == taskId }
 
                 if (currentTask != null) {
@@ -266,15 +282,16 @@ class TaskDialogFragment : DialogFragment() {
                 }
             }
 
-            // Aguardar um momento para garantir que o servidor processou
+            // Aguardar processamento do servidor
             delay(500)
-            // Recarregar a lista de tarefas
+            // Recarregar lista de tarefas
             viewModel.loadTasks()
 
             dismiss()
         }
     }
 
+    // Mostrar seletor de data
     private fun showDatePicker() {
         val year = calendar.get(Calendar.YEAR)
         val month = calendar.get(Calendar.MONTH)
@@ -292,6 +309,7 @@ class TaskDialogFragment : DialogFragment() {
         ).show()
     }
 
+    // Mostrar seletor de hora
     private fun showTimePicker() {
         val hour = calendar.get(Calendar.HOUR_OF_DAY)
         val minute = calendar.get(Calendar.MINUTE)
@@ -309,17 +327,20 @@ class TaskDialogFragment : DialogFragment() {
         ).show()
     }
 
+    // Atualizar display da data/hora selecionada
     private fun updateDateTimeDisplay() {
         val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
         binding.textSelectedDateTime.text = dateFormat.format(calendar.time)
     }
 
+    // Obter timestamp atual em formato ISO
     private fun getCurrentISOTimestamp(): String {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
         dateFormat.timeZone = TimeZone.getTimeZone("UTC")
         return dateFormat.format(Date())
     }
 
+    // Configurar dimensões do diálogo
     override fun onStart() {
         super.onStart()
         // Definir tamanho do diálogo
@@ -329,6 +350,7 @@ class TaskDialogFragment : DialogFragment() {
         )
     }
 
+    // Limpar binding quando a view é destruída
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

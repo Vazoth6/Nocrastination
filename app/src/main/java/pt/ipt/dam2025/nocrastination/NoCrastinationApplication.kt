@@ -1,4 +1,3 @@
-// NoCrastinationApplication.kt
 package pt.ipt.dam2025.nocrastination
 
 import android.app.Application
@@ -43,13 +42,16 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
+// Classe Application principal para inicialização global da aplicação
 class NoCrastinationApplication : Application() {
 
+    // Metodo chamado quando a aplicação é criada
     override fun onCreate() {
         super.onCreate()
 
         Log.d("NoCrastinationApp", "A ligar a aplicação...")
 
+        // Inicializar Koin (Injeção de Dependências)
         startKoin {
             androidLogger(Level.DEBUG)
             androidContext(this@NoCrastinationApplication)
@@ -66,7 +68,7 @@ class NoCrastinationApplication : Application() {
         Log.d("NoCrastinationApp", "Koin inicializado")
     }
 
-    // Módulo de aplicação (preferences, interceptors)
+    // Módulo para componentes da aplicação
     private val appModule = module {
         single { PreferenceManager(get()) }
         single { GeofencingManager(get()) }
@@ -78,14 +80,16 @@ class NoCrastinationApplication : Application() {
         single { FocusLocationMapper() }
     }
 
-    // Módulo de API (Retrofit, APIs)
+    // Módulo para configuração da API e Retrofit
     private val apiModule = module {
+        // Configurar cliente HTTP com interceptores
         single {
             OkHttpClient.Builder()
                 .connectTimeout(30, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
                 .writeTimeout(30, TimeUnit.SECONDS)
                 .addInterceptor(HttpLoggingInterceptor().apply {
+                    // Log completo em debug, nada em produção
                     level = if (BuildConfig.DEBUG) {
                         HttpLoggingInterceptor.Level.BODY
                     } else {
@@ -98,6 +102,7 @@ class NoCrastinationApplication : Application() {
                 .build()
         }
 
+        // Configurar Retrofit
         single {
             Retrofit.Builder()
                 .baseUrl("http://10.0.2.2:1337/")
@@ -106,6 +111,7 @@ class NoCrastinationApplication : Application() {
                 .build()
         }
 
+        // Criar instâncias das APIs
         single { get<Retrofit>().create(AuthApi::class.java) }
         single { get<Retrofit>().create(TaskApi::class.java) }
         single { get<Retrofit>().create(PomodoroApi::class.java) }
@@ -114,7 +120,7 @@ class NoCrastinationApplication : Application() {
 
     }
 
-    // Módulo de repositórios
+    // Módulo para repositórios
     private val repositoryModule = module {
         single<AuthRepository> {
             AuthRepositoryImpl(
@@ -148,7 +154,7 @@ class NoCrastinationApplication : Application() {
         }
     }
 
-    // Módulo de ViewModels
+    // Módulo para ViewModels
     private val viewModelModule = module {
         viewModel {
             AuthViewModel(

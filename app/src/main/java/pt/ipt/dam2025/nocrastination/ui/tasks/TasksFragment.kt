@@ -48,10 +48,11 @@ class TasksFragment : Fragment() {
         setupClickListeners()
         setupToolbar()
 
-        viewModel.loadTasks()
+        viewModel.loadTasks() // Carregar tarefas ao iniciar
     }
 
     private fun setupRecyclerView() {
+        // Configurar adapter com callbacks para todas as ações
         taskAdapter = TaskAdapter(
             onTaskClick = { task ->
                 openTaskDialog(task.id)
@@ -59,7 +60,7 @@ class TasksFragment : Fragment() {
             onCompleteClick = { taskId ->
                 viewModel.completeTask(taskId)
             },
-            onUncompleteClick = { taskId -> // NOVO: para desmarcar
+            onUncompleteClick = { taskId ->
                 viewModel.uncompleteTask(taskId)
             },
             onEditClick = { task ->
@@ -80,8 +81,9 @@ class TasksFragment : Fragment() {
     }
 
     private fun navigateToPomodoroWithTask(task: Task) {
+        // Criar bundle com a tarefa para passar para o fragmento Pomodoro
         val bundle = Bundle().apply {
-            putParcelable("task", task)
+            putParcelable("task", task) // Passar tarefa como Parcelable
         }
         findNavController().navigate(
             R.id.action_tasksFragment_to_pomodoroFragment,
@@ -89,26 +91,26 @@ class TasksFragment : Fragment() {
         )
     }
 
+    // Observadores de estados
     private fun setupObservers() {
-        // Observar tarefas
+        // Observar lista de tarefas
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.tasks.collectLatest { tasks ->
                 Log.d("TasksFragment", "Tasks atualizadas: ${tasks.size} tarefas")
-                taskAdapter.submitList(tasks)
+                taskAdapter.submitList(tasks) // Atualizar RecyclerView
 
+                // Mostrar/ocultar estado vazio
                 binding.emptyState.root.visibility = if (tasks.isEmpty()) View.VISIBLE else View.GONE
                 binding.recyclerViewTasks.visibility = if (tasks.isEmpty()) View.GONE else View.VISIBLE
             }
         }
 
-        // Observar loading
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.loading.collectLatest { isLoading ->
                 binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
             }
         }
 
-        // Observar erros
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.error.collectLatest { errorMessage ->
                 errorMessage?.let {
@@ -119,7 +121,6 @@ class TasksFragment : Fragment() {
             }
         }
 
-        // Observar eventos UI
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.uiEvents.collect { event ->
                 when (event) {
@@ -127,7 +128,6 @@ class TasksFragment : Fragment() {
                         Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
                     }
                     is UIEvent.ShowSnackbar -> {
-                        // Se quiser usar Snackbar em vez de Toast
                         // Snackbar.make(binding.root, event.message, Snackbar.LENGTH_SHORT).show()
                     }
                     UIEvent.NavigateBack -> {
@@ -139,7 +139,7 @@ class TasksFragment : Fragment() {
     }
 
     private fun setupChips() {
-        // Configurar seleção única
+        // Configurar seleção única no grupo de chips
         binding.chipGroup.isSingleSelection = true
 
         // Listener para o chip "Todas"
@@ -178,27 +178,30 @@ class TasksFragment : Fragment() {
     }
 
     private fun setupClickListeners() {
+        // Floating Action Button para adicionar nova tarefa
         binding.fabAddTask.setOnClickListener {
-            openTaskDialog(null)
+            openTaskDialog(null) // Abrir diálogo vazio para nova tarefa
         }
 
+        // Chip para mostrar todas as tarefas
         binding.chipAll.setOnClickListener {
-            // TODO: Implementar filtro
             Toast.makeText(context, "Mostrar todas as tarefas", Toast.LENGTH_SHORT).show()
         }
 
+        // Chip para mostrar apenas tarefas concluídas
         binding.chipCompleted.setOnClickListener {
-            // TODO: Implementar filtro
             Toast.makeText(context, "Mostrar tarefas concluídas", Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun openTaskDialog(taskId: Int?) {
+        // Abrir diálogo de tarefa (para criar ou editar)
         val dialog = TaskDialogFragment.newInstance(taskId)
         dialog.show(parentFragmentManager, "TaskDialog")
     }
 
     private fun showDeleteConfirmation(taskId: Int) {
+        // Diálogo de confirmação antes de eliminar
         androidx.appcompat.app.AlertDialog.Builder(requireContext())
             .setTitle("Eliminar Tarefa")
             .setMessage("Tem a certeza que deseja eliminar esta tarefa?")
@@ -210,10 +213,12 @@ class TasksFragment : Fragment() {
     }
 
     private fun setupToolbar() {
+        // Inflatar menu na toolbar
         binding.toolbar.inflateMenu(R.menu.menu_tasks)
         binding.toolbar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.action_focus_locations -> {
+                    // Navegar para fragmento de localizações de foco
                     findNavController().navigate(
                         R.id.action_tasksFragment_to_focusLocationsFragment
                     )
@@ -226,6 +231,6 @@ class TasksFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
+        _binding = null // Limpar binding
     }
 }

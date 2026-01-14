@@ -26,14 +26,15 @@ class AddFocusLocationDialogFragment : DialogFragment() {
     private val binding get() = _binding!!
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private var existingLocation: FocusLocation? = null
+    private var existingLocation: FocusLocation? = null // Null se for criação, não null se for edição
 
-    private var onSaveListener: ((FocusLocation) -> Unit)? = null
+    private var onSaveListener: ((FocusLocation) -> Unit)? = null // Callback para salvar
 
+    // API moderna para pedir permissões (Activity Results API)
     private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
+        ActivityResultContracts.RequestMultiplePermissions() // Pede múltiplas permissões
     ) { permissions ->
-        val granted = permissions.entries.all { it.value }
+        val granted = permissions.entries.all { it.value } // Verifica se todas foram concedidas
         if (granted) {
             Log.d("AddFocusLocation", "Permissões concedidas")
             getCurrentLocation()
@@ -46,10 +47,12 @@ class AddFocusLocationDialogFragment : DialogFragment() {
         }
     }
 
+    // Setter para modo edição
     fun setLocation(location: FocusLocation?) {
         existingLocation = location
     }
 
+    // Setter para callback de salvamento
     fun setOnSaveListener(listener: (FocusLocation) -> Unit) {
         onSaveListener = listener
     }
@@ -72,7 +75,7 @@ class AddFocusLocationDialogFragment : DialogFragment() {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
-        // Preencher dados se for edição
+        // Preenche dados se for edição
         existingLocation?.let { location ->
             binding.editLocationName.setText(location.name)
             binding.editLocationAddress.setText(location.address)
@@ -93,13 +96,11 @@ class AddFocusLocationDialogFragment : DialogFragment() {
 
     private fun setupToolbar() {
         binding.toolbar.setNavigationOnClickListener {
-            dismiss()
+            dismiss() // Fecha ao clicar na navegação
         }
 
         binding.toolbar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
-                // O R aqui deve ser do seu projeto, não do Android SDK
-                // Se ainda der erro, tente: pt.ipt.dam2025.nocrastination.R.id.action_save
                 R.id.action_save -> {
                     saveLocation()
                     true
@@ -112,7 +113,7 @@ class AddFocusLocationDialogFragment : DialogFragment() {
     private fun setupButtons() {
         binding.buttonUseCurrentLocation.setOnClickListener {
             Log.d("AddFocusLocation", "Clicado em usar localização atual")
-            checkLocationPermissions()
+            checkLocationPermissions() // Verifica permissões antes de obter localização
         }
     }
 
@@ -120,19 +121,19 @@ class AddFocusLocationDialogFragment : DialogFragment() {
         binding.buttonSelectOnMap.setOnClickListener {
             Log.d("AddFocusLocation", "Clicado em selecionar no mapa")
 
-            val mapDialog = MapPickerDialog()
+            val mapDialog = MapPickerDialog() // Diálogo para selecionar no mapa
 
-            // Implemente a interface explicitamente
+            // Implementa interface de callback
             mapDialog.setOnLocationSelectedListener(object : MapPickerDialog.OnLocationSelectedListener {
                 override fun onLocationSelected(latitude: Double, longitude: Double, address: String) {
-                    // Preencher campos com os dados do mapa
+                    // Preenche os campos com os dados do mapa
                     binding.editLatitude.setText(latitude.toString())
                     binding.editLongitude.setText(longitude.toString())
                     binding.editLocationAddress.setText(address)
 
-                    // Preencher nome se estiver vazio
+                    // Preenche o nome se estiver vazio
                     if (binding.editLocationName.text.isNullOrEmpty()) {
-                        // Tentar extrair nome útil do endereço
+                        // Tenta extrair nome útil do endereço
                         val name = extractNameFromAddress(address)
                         binding.editLocationName.setText(name)
                     }
@@ -143,6 +144,7 @@ class AddFocusLocationDialogFragment : DialogFragment() {
         }
     }
 
+    // Extrai nome curto do endereço completo
     private fun extractNameFromAddress(address: String): String {
         return when {
             address.contains(",") -> address.substringBefore(",").trim()
@@ -157,19 +159,20 @@ class AddFocusLocationDialogFragment : DialogFragment() {
             Manifest.permission.ACCESS_COARSE_LOCATION
         )
 
-        // Para Android 10+ (API 29+), precisamos de background location
+        // Otimização para Android 10+ (API 29+), precisa de background location
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             permissions.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
         }
 
+        // Filtra apenas permissões não concedidas
         val permissionsToRequest = permissions.filter {
             ActivityCompat.checkSelfPermission(requireContext(), it) != PackageManager.PERMISSION_GRANTED
         }
 
         if (permissionsToRequest.isNotEmpty()) {
-            requestPermissionLauncher.launch(permissionsToRequest.toTypedArray())
+            requestPermissionLauncher.launch(permissionsToRequest.toTypedArray()) // Request apenas as necessárias
         } else {
-            getCurrentLocation()
+            getCurrentLocation() // Já tem permissões
         }
     }
 
@@ -193,7 +196,7 @@ class AddFocusLocationDialogFragment : DialogFragment() {
 
         Log.d("AddFocusLocation", "A obter localização atual...")
 
-        // Verifica permissão antes de chamar lastLocation
+        // Verificação duplicada por segurança (necessária pela API)
         if (ActivityCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -210,13 +213,13 @@ class AddFocusLocationDialogFragment : DialogFragment() {
                 if (location != null) {
                     Log.d("AddFocusLocation", "Localização obtida: ${location.latitude}, ${location.longitude}")
 
-                    // Obter endereço a partir das coordenadas
+                    // Obter endereço a partir das coordenadas (reverse geocoding)
                     val geocoder = Geocoder(requireContext(), Locale.getDefault())
                     val addresses: List<android.location.Address>? = try {
                         geocoder.getFromLocation(
                             location.latitude,
                             location.longitude,
-                            1
+                            1 // Apenas o melhor resultado
                         )
                     } catch (e: Exception) {
                         Log.e("AddFocusLocation", "Erro no Geocoder: ${e.message}")
@@ -226,14 +229,14 @@ class AddFocusLocationDialogFragment : DialogFragment() {
                     val addressName = if (!addresses.isNullOrEmpty()) {
                         val address = addresses[0]
                         val sb = StringBuilder()
-                        if (address.thoroughfare != null) sb.append(address.thoroughfare)
+                        if (address.thoroughfare != null) sb.append(address.thoroughfare) // Nome da rua
                         if (address.locality != null) {
                             if (sb.isNotEmpty()) sb.append(", ")
                             sb.append(address.locality)
                         }
                         sb.toString()
                     } else {
-                        "Localização atual"
+                        "Localização atual" // Fallback se Geocoder falhar
                     }
 
                     Log.d("AddFocusLocation", "Endereço: $addressName")
@@ -281,7 +284,7 @@ class AddFocusLocationDialogFragment : DialogFragment() {
         val radiusStr = binding.editRadius.text.toString().trim()
         val notificationMessage = binding.editNotificationMessage.text.toString().trim()
 
-        // Validação
+        // Validação passo-a-passo
         if (name.isEmpty()) {
             Toast.makeText(requireContext(), "Nome é obrigatório", Toast.LENGTH_SHORT).show()
             return
@@ -309,36 +312,38 @@ class AddFocusLocationDialogFragment : DialogFragment() {
         val radius = try {
             radiusStr.toFloat()
         } catch (e: NumberFormatException) {
-            100f // Valor padrão
+            100f // Valor padrão se conversão falhar
         }
 
+        // Cria objeto FocusLocation
         val location = FocusLocation(
-            id = existingLocation?.id,
+            id = existingLocation?.id, // Mantém ID se for edição
             name = name,
             address = address,
             latitude = latitude,
             longitude = longitude,
             radius = radius,
-            enabled = existingLocation?.enabled ?: true,
+            enabled = existingLocation?.enabled ?: true, // Mantém estado ou ativa por padrão
             notificationMessage = if (notificationMessage.isNotEmpty()) {
                 notificationMessage
             } else {
-                "Vamos pôr as mãos ao trabalho!"
+                "Vamos pôr as mãos ao trabalho!" // Mensagem padrão
             },
-            createdAt = existingLocation?.createdAt,
+            createdAt = existingLocation?.createdAt, // Mantém timestamps originais
             updatedAt = existingLocation?.updatedAt
         )
 
-        onSaveListener?.invoke(location)
+        onSaveListener?.invoke(location) // Chama callback com a localização
         dismiss()
     }
 
+    // Metodo para pré-preenchimento programático
     fun prefillFields(name: String? = null, address: String? = null, latitude: Double? = null, longitude: Double? = null, radius: Float? = null, notificationMessage: String? = null) {
         Log.d("AddFocusLocation", " Pré-preenchendo campos:")
         Log.d("AddFocusLocation", "  Nome: $name")
         Log.d("AddFocusLocation", "  Latitude: $latitude, Longitude: $longitude")
 
-        // Executar após a view ser criada
+        // Executa após a view ser criada (evita NullPointer)
         view?.post {
             try {
                 name?.let { binding.editLocationName.setText(it) }
@@ -357,7 +362,7 @@ class AddFocusLocationDialogFragment : DialogFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
+        _binding = null // Limpa binding
         Log.d("AddFocusLocation", "View destruída")
     }
 }

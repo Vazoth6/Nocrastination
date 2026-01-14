@@ -9,10 +9,14 @@ import pt.ipt.dam2025.nocrastination.domain.repository.TaskRepository
 import pt.ipt.dam2025.nocrastination.domain.models.Result
 
 class TaskRepositoryImpl constructor(
-    private val taskApi: TaskApi,
-    private val taskMapper: TaskMapper
+    private val taskApi: TaskApi, // API para operações de tarefas
+    private val taskMapper: TaskMapper // Mapper para conversão entre DTOs e modelos de domínio
 ) : TaskRepository {
 
+    /**
+     * Obtém todas as tarefas do utilizador
+     * @return Result com lista de Task ou erro
+     */
     override suspend fun getTasks(): Result<List<Task>> {
         return try {
             Log.d("TaskRepository", " A efetuar busca das tarefas da API...")
@@ -28,20 +32,28 @@ class TaskRepositoryImpl constructor(
                     Log.d("TaskRepository", " Primeira tarefa (se existir): ${tasks.firstOrNull()?.title}")
                     Result.Success(tasks)
                 } ?: run {
+                    // Caso a resposta seja bem-sucedida mas sem corpo, retorna lista vazia
                     Log.w("TaskRepository", " Resposta vazia (body é null)")
                     Result.Success(emptyList())
                 }
             } else {
+                // Tratamento de erro HTTP
                 val errorBody = response.errorBody()?.string() ?: "Sem detalhes"
                 Log.e("TaskRepository", " Erro na resposta GET: ${response.code()} - $errorBody")
                 Result.Error(Exception("Falha ao buscar tarefas: ${response.code()} $errorBody"))
             }
         } catch (e: Exception) {
+            // Tratamento de exceções gerais (rede, parsing, etc.)
             Log.e("TaskRepository", " Exceção em getTasks: ${e.message}", e)
             Result.Error(e)
         }
     }
 
+    /**
+     * Obtém uma tarefa específica pelo ID
+     * @param id ID da tarefa
+     * @return Result com Task ou erro
+     */
     override suspend fun getTaskById(id: Int): Result<Task> {
         return try {
             val response = taskApi.getTaskById(id)
@@ -58,12 +70,19 @@ class TaskRepositoryImpl constructor(
         }
     }
 
+    /**
+     * Cria uma nova tarefa
+     * @param task Objeto Task com dados para criação
+     * @return Result com a tarefa criada ou erro
+     */
     override suspend fun createTask(task: Task): Result<Task> {
         return try {
             Log.d("TaskRepository", " Criando tarefa: ${task.title}")
             Log.d("TaskRepository", " Dados da tarefa: $task")
 
+            // Converte o modelo de domínio para DTO de criação
             val request = taskMapper.mapToCreateRequest(task)
+            // Log do request em formato JSON para debugging
             Log.d("TaskRepository", " Request JSON: ${Gson().toJson(request)}")
 
             val response = taskApi.createTask(request)
@@ -92,7 +111,11 @@ class TaskRepositoryImpl constructor(
         }
     }
 
-
+    /**
+     * Atualiza uma tarefa existente
+     * @param task Objeto Task com dados atualizados
+     * @return Result com a tarefa atualizada ou erro
+     */
     override suspend fun updateTask(task: Task): Result<Task> {
         return try {
             val request = taskMapper.mapToUpdateRequest(task)
@@ -110,6 +133,12 @@ class TaskRepositoryImpl constructor(
         }
     }
 
+    /**
+     * Marca uma tarefa como completada
+     * @param taskId ID da tarefa a completar
+     * @param completedAt Data/hora de conclusão em formato string
+     * @return Result com a tarefa atualizada ou erro
+     */
     override suspend fun completeTask(taskId: Int, completedAt: String): Result<Task> {
         return try {
             val request = taskMapper.mapToCompleteRequest(completedAt)
@@ -127,6 +156,11 @@ class TaskRepositoryImpl constructor(
         }
     }
 
+    /**
+     * Elimina uma tarefa
+     * @param taskId ID da tarefa a eliminar
+     * @return Result com Unit em caso de sucesso ou erro
+     */
     override suspend fun deleteTask(taskId: Int): Result<Unit> {
         return try {
             val response = taskApi.deleteTask(taskId)
