@@ -10,11 +10,9 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import pt.ipt.dam2025.nocrastination.databinding.TaskDialogBinding
 import pt.ipt.dam2025.nocrastination.domain.models.Task
@@ -29,8 +27,7 @@ class TaskDialogFragment : DialogFragment() {
     private val binding get() = _binding!!
 
     private val viewModel: TasksViewModel by viewModel()
-
-    private var task: Task? = null
+    private var taskId: Int? = null
     private val calendar = Calendar.getInstance()
 
     companion object {
@@ -50,13 +47,7 @@ class TaskDialogFragment : DialogFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            val taskId = it.getInt(ARG_TASK_ID, -1)
-            if (taskId != -1) {
-                // Find task in ViewModel's list
-                viewModel.tasks.value.find { task -> task.id == taskId }?.let { foundTask ->
-                    task = foundTask
-                }
-            }
+            taskId = it.getInt(ARG_TASK_ID, -1).takeIf { id -> id != -1 }
         }
     }
 
@@ -75,8 +66,9 @@ class TaskDialogFragment : DialogFragment() {
         setupUI()
         setupClickListeners()
 
-        if (task != null) {
-            loadTaskData()
+        // Carregar dados da tarefa se estiver editando
+        taskId?.let { id ->
+            loadTaskData(id)
         }
     }
 
@@ -88,7 +80,7 @@ class TaskDialogFragment : DialogFragment() {
         binding.spinnerPriority.adapter = adapter
 
         // Definir título do diálogo
-        binding.textTitle.text = if (task == null) "Nova Tarefa" else "Editar Tarefa"
+        binding.textTitle.text = if (taskId == null) "Nova Tarefa" else "Editar Tarefa"
 
         binding.editEstimatedMinutes.visibility = View.GONE
         binding.editCompletedMinutes.visibility = View.GONE
@@ -112,43 +104,84 @@ class TaskDialogFragment : DialogFragment() {
         }
     }
 
-    private fun loadTaskData() {
-        task?.let { task ->
-            binding.editTitle.setText(task.title)
-            binding.editDescription.setText(task.description)
+    private fun loadTaskData(taskId: Int) {
+        lifecycleScope.launch {
+            // Buscar a tarefa pelo ID usando o ViewModel
+            val task = viewModel.tasks.value.find { it.id == taskId }
 
-            // Prioridade
-            val priorityIndex = when (task.priority) {
-                TaskPriority.LOW -> 0
-                TaskPriority.MEDIUM -> 1
-                TaskPriority.HIGH -> 2
-            }
-            binding.spinnerPriority.setSelection(priorityIndex)
+            if (task != null) {
+                populateTaskData(task)
+            } else {
+                // Se não encontrar na lista atual, tenta buscar do repositório
+                viewModel.loadTasks() // Recarrega as tarefas
+                delay(500) // Pequeno delay
 
-            // Data de vencimento
-            task.dueDate?.let { dueDateString ->
-                try {
-                    val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
-                    dateFormat.timeZone = TimeZone.getTimeZone("UTC")
-                    val date = dateFormat.parse(dueDateString)
-                    date?.let {
-                        calendar.time = date
-                        updateDateTimeDisplay()
-                    }
-                } catch (e: Exception) {
-                    // If parsing fails, try another format
-                    try {
-                        val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-                        val date = dateFormat.parse(dueDateString)
-                        date?.let {
-                            calendar.time = date
-                            updateDateTimeDisplay()
-                        }
-                    } catch (e2: Exception) {
-                        binding.textSelectedDateTime.text = "Data inválida"
-                    }
+                val reloadedTask = viewModel.tasks.value.find { it.id == taskId }
+                if (reloadedTask != null) {
+                    populateTaskData(reloadedTask)
+                } else {
+                    Toast.makeText(context, "Tarefa não encontrada", Toast.LENGTH_SHORT).show()
+                    dismiss()
                 }
             }
+        }
+    }
+
+    private fun populateTaskData(task: Task) {
+        binding.editTitle.setText(task.title)
+        binding.editDescription.setText(task.description)
+
+        // Prioridade
+        val priorityIndex = when (task.priority) {
+            TaskPriority.LOW -> 0
+            TaskPriority.MEDIUM -> 1
+            TaskPriority.HIGH -> 2
+        }
+        binding.spinnerPriority.setSelection(priorityIndex)
+
+        // Data de vencimento
+        task.dueDate?.let { dueDateString ->
+            try {
+                parseAndSetDateTime(dueDateString)
+            } catch (e: Exception) {
+                Log.e("TaskDialog", "Erro ao parsear data: ${e.message}")
+                binding.textSelectedDateTime.text = "Data inválida"
+            }
+        }
+
+        // Tempo estimado (se existir)
+        task.estimatedMinutes?.let {
+            binding.editEstimatedMinutes.setText(it.toString())
+        }
+    }
+
+    private fun parseAndSetDateTime(dueDateString: String) {
+        try {
+            // Primeiro tenta o formato ISO
+            val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+            isoFormat.timeZone = TimeZone.getTimeZone("UTC")
+            val date = isoFormat.parse(dueDateString)
+
+            if (date != null) {
+                calendar.time = date
+                updateDateTimeDisplay()
+                return
+            }
+        } catch (e: Exception) {
+
+        }
+
+        // Tenta outros formatos comuns
+        try {
+            val format = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+            val date = format.parse(dueDateString)
+            date?.let {
+                calendar.time = date
+                updateDateTimeDisplay()
+            }
+        } catch (e: Exception) {
+            Log.e("TaskDialog", "Formato de data não reconhecido: $dueDateString")
+            binding.textSelectedDateTime.text = "Data inválida"
         }
     }
 
@@ -171,7 +204,9 @@ class TaskDialogFragment : DialogFragment() {
 
         // Formatar a data corretamente
         val dueDate = if (binding.textSelectedDateTime.text != "Não definida" &&
-            binding.textSelectedDateTime.text.isNotEmpty()) {
+            binding.textSelectedDateTime.text.isNotEmpty() &&
+            binding.textSelectedDateTime.text != "Data inválida") {
+
             try {
                 // Converter de "dd/MM/yyyy HH:mm" para ISO 8601
                 val displayFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
@@ -192,7 +227,7 @@ class TaskDialogFragment : DialogFragment() {
         Log.d("TaskDialog", "Data formatada: $dueDate")
 
         lifecycleScope.launch {
-            if (task == null) {
+            if (taskId == null) {
                 // Create new task
                 val newTask = Task(
                     id = 0, // Will be set by server
@@ -204,30 +239,37 @@ class TaskDialogFragment : DialogFragment() {
                     completedAt = null,
                     createdAt = getCurrentISOTimestamp(),
                     updatedAt = getCurrentISOTimestamp(),
-                    estimatedMinutes = null // Você pode adicionar um campo para isso se necessário
+                    estimatedMinutes = null
                 )
 
-                Log.d("TaskDialog", "A enviar tarefa: $newTask")
+                Log.d("TaskDialog", "A enviar nova tarefa: $newTask")
                 viewModel.createTask(newTask)
-
-                // Aguarde um momento antes de recarregar
-                delay(500) // Pequeno delay para garantir que o servidor processou
-                viewModel.loadTasks() // Força o reload
-
                 Toast.makeText(context, "Tarefa criada com sucesso!", Toast.LENGTH_SHORT).show()
             } else {
-                // Update existing task
-                val updatedTask = task!!.copy(
-                    title = title,
-                    description = description,
-                    dueDate = dueDate,
-                    priority = priority,
-                    updatedAt = getCurrentISOTimestamp()
-                )
+                // Update existing task - primeiro buscar a tarefa atual
+                val currentTask = viewModel.tasks.value.find { it.id == taskId }
 
-                viewModel.updateTask(updatedTask)
-                Toast.makeText(context, "Tarefa atualizada!", Toast.LENGTH_SHORT).show()
+                if (currentTask != null) {
+                    val updatedTask = currentTask.copy(
+                        title = title,
+                        description = description,
+                        dueDate = dueDate,
+                        priority = priority,
+                        updatedAt = getCurrentISOTimestamp()
+                    )
+
+                    Log.d("TaskDialog", "A atualizar tarefa: $updatedTask")
+                    viewModel.updateTask(updatedTask)
+                    Toast.makeText(context, "Tarefa atualizada!", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "Erro: Tarefa não encontrada", Toast.LENGTH_SHORT).show()
+                }
             }
+
+            // Aguardar um momento para garantir que o servidor processou
+            delay(500)
+            // Recarregar a lista de tarefas
+            viewModel.loadTasks()
 
             dismiss()
         }

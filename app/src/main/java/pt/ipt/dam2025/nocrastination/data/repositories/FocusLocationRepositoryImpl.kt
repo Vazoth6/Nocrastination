@@ -101,8 +101,8 @@ class FocusLocationRepositoryImpl(
                     Log.e("FocusLocationRepo", " Possíveis causas:")
                     Log.e("FocusLocationRepo", "   1. Campo 'type' faltando ou incorreto")
                     Log.e("FocusLocationRepo", "   2. Validação de dados falhou (ex: latitude inválida)")
-                    Log.e("FocusLocationRepo", "   3. Erro no banco de dados do servidor")
-                    Log.e("FocusLocationRepo", "   4. Autenticação/authorização problemática")
+                    Log.e("FocusLocationRepo", "   3. Erro na base de dados do servidor")
+                    Log.e("FocusLocationRepo", "   4. Autenticação/autorização problemática")
                 }
 
                 Result.Error(Exception("Erro ${response.code()}: $errorBody"))

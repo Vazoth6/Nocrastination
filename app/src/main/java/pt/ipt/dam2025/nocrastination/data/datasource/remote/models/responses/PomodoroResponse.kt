@@ -57,10 +57,3 @@ data class TaskIdData(
 data class Meta(
     val pagination: Pagination? = null
 )
-
-data class Pagination(
-    val page: Int,
-    val pageSize: Int,
-    val pageCount: Int,
-    val total: Int
-)

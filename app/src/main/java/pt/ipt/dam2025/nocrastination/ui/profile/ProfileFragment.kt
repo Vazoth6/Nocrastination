@@ -1,6 +1,5 @@
 package pt.ipt.dam2025.nocrastination.ui.profile
 
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -16,7 +15,6 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import pt.ipt.dam2025.nocrastination.R
 import pt.ipt.dam2025.nocrastination.databinding.FragmentProfileBinding
-import pt.ipt.dam2025.nocrastination.domain.models.User
 import pt.ipt.dam2025.nocrastination.domain.models.UserProfile
 import pt.ipt.dam2025.nocrastination.presentations.viewmodel.AuthViewModel
 import pt.ipt.dam2025.nocrastination.presentations.viewmodel.UserProfileViewModel
@@ -143,7 +141,7 @@ class ProfileFragment : Fragment() {
 
         // Botão de definições
         binding.buttonSettings.setOnClickListener {
-            openSettings()
+            navigateToSettings()
         }
 
         // SECÇÃO "SOBRE A APP"
@@ -163,6 +161,15 @@ class ProfileFragment : Fragment() {
         binding.cardContact.setOnClickListener {
             sendFeedbackEmail()
         }
+    }
+
+    private fun navigateToSettings() {
+        val settingsFragment = FragmentSettings()
+
+        requireActivity().supportFragmentManager.beginTransaction()
+            .replace(R.id.nav_host_fragment, settingsFragment) // Ajuste este ID conforme necessário
+            .addToBackStack("settings")
+            .commit()
     }
 
     private fun showLogoutConfirmation() {
@@ -199,10 +206,6 @@ class ProfileFragment : Fragment() {
 
     private fun openEditProfile() {
         Toast.makeText(context, "Função em desenvolvimento", Toast.LENGTH_SHORT).show()
-    }
-
-    private fun openSettings() {
-        Toast.makeText(context, "Definições em desenvolvimento", Toast.LENGTH_SHORT).show()
     }
 
     private fun openAboutAppDialog() {

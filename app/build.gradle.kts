@@ -13,8 +13,8 @@ android {
         applicationId = "pt.ipt.dam2025.nocrastination"
         minSdk = 24
         targetSdk = 36
-        versionCode = 5
-        versionName = "5.0"
+        versionCode = 7
+        versionName = "7.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -128,7 +128,7 @@ dependencies {
     // Glide para carregamento de imagens
     /*
     * https://github.com/bumptech/glide - Glide para carregamento de imagens
-    * Author - Bump Technologies
+    * Autor - Bump Technologies
     * */
     implementation("com.github.bumptech.glide:glide:4.14.2")
     annotationProcessor("com.github.bumptech.glide:compiler:4.14.2")

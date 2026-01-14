@@ -114,15 +114,29 @@ class TasksViewModel(
         viewModelScope.launch {
             _loading.value = true
             _error.value = null
+
+            // Log para debug
+            Log.d("TasksViewModel", "Atualizando tarefa ID: ${task.id}")
+            Log.d("TasksViewModel", "Dados da tarefa: $task")
+
             when (val result = taskRepository.updateTask(task)) {
                 is Result.Success -> {
+                    Log.d("TasksViewModel", "Tarefa atualizada com sucesso no servidor")
+
+                    // Atualizar a lista local
                     _tasks.value = _tasks.value.map {
                         if (it.id == result.data.id) result.data else it
                     }
+
                     _uiEvents.emit(UIEvent.ShowToast("Tarefa atualizada!"))
+
+                    // Recarregar a lista para garantir sincronização
+                    loadTasks()
                 }
                 is Result.Error -> {
+                    Log.e("TasksViewModel", "Erro ao atualizar tarefa: ${result.exception.message}")
                     _error.value = result.exception.message ?: "Erro ao atualizar tarefa"
+                    _uiEvents.emit(UIEvent.ShowToast("Erro ao atualizar: ${result.exception.message}"))
                 }
             }
             _loading.value = false
